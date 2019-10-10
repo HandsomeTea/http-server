@@ -6,6 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "server": "node ./service.js",
+    "api": "node_modules/.bin/apidoc -i ./ -o ./doc",
+    "doc": "node_modules/.bin/http-server ./doc/ -a 127.0.0.1 -p 8002",
     "fix": "eslint ./ --fix"
   },
   "repository": {
