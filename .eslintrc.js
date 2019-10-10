@@ -1,7 +1,7 @@
 module.exports = {
     root: true, // 作用的目录是根目录
     parserOptions: {
-        ecmaVersion: 2017,
+        ecmaVersion: 7,
         sourceType: 'module' // 按照模块的方式解析
     },
     env: {//开发环境配置
@@ -9,7 +9,7 @@ module.exports = {
         es6: true,
         node: true
     },
-    extends: ['plugin:vue/essential', 'eslint:recommended'],
+    extends: 'eslint:recommended',
     rules: {
         'indent': [2, 4], //缩进风格
         'linebreak-style': [0, 'error', 'windows', 'unix'], //换行风格
