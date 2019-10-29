@@ -1,12 +1,11 @@
-const express = require('express');
+import express from 'express';
+import path from 'path';
+import fs from 'fs';
+import bodyParser from 'body-parser';
+import http from 'http';
+import { log, trace, audit } from './utils';
+
 const app = express();
-const path = require('path');
-const fs = require('fs');
-const bodyParser = require('body-parser');
-const http = require('http');
-
-const { log, trace, audit } = require('./utils');
-
 
 /**挂载构建代码 */
 app.use(express.static(path.join(__dirname, 'dist')));
@@ -20,6 +19,13 @@ app.get('/', (req, res) => {
     } else {
         res.send('正在维护中，请稍后...');
     }
+});
+
+app.get('/test', (req, res) => {
+    trace().info('123123123');
+    log().info('123sdfsdf', '123123ssssssssssssssssssss');
+    audit('system').warn('22sssss');
+    res.send('测试成功');
 });
 
 /**加载解析请求体的中间件 */
@@ -56,27 +62,6 @@ app.use((req, res) => { //req, res,next
 });
 
 /**单例启动，适合于pm2配合使用 */
-// http.createServer(app).listen(8008, '0.0.0.0', () => { //测试服:8002 正式服:443
-//     log().info('服务器启动成功');
-// });
-
-/**集群启动 */
-const cluster = require('cluster');
-const numCPUs = require('os').cpus().length;
-
-if (cluster.isMaster) {
-    trace('system').info(`主进程 ${process.pid} 正在运行`);
-
-    for (let i = 0; i < numCPUs; i++) {
-        cluster.fork();
-    }
-
-    cluster.on('exit', (worker, code, signal) => {
-        audit('system').error(`工作进程 ${worker.process.pid} 关闭 ${signal || code}. 重启中...`);
-        cluster.fork();
-    });
-} else {
-    http.createServer(app).listen(8008, '0.0.0.0', () => {
-        audit('system').warn(`工作(${cluster.worker.id})进程 ${process.pid} 已启动`);
-    });
-}
+http.createServer(app).listen(8008, '0.0.0.0', () => { //测试服:8002 正式服:443
+    log().info('服务器启动成功');
+});

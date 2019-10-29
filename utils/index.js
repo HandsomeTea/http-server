@@ -1,2 +1,1 @@
-require('./http-result');
-require('./log');
+export { log, trace, audit } from './log';

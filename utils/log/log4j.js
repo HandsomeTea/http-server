@@ -1,4 +1,4 @@
-const log4js = require('log4js');
+import log4js from 'log4js';
 
 /**
  * 定义日志配置
@@ -13,7 +13,7 @@ const _log = (_module = 'default-module') => {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%h] [%X{Module}] [%f:%l:%o]%]%m%n'
+                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%h] [%X{Module} %f:%l:%o]%]%m%n'
                 }
             },
             _audit: {
@@ -31,7 +31,7 @@ const _log = (_module = 'default-module') => {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d] [%p] [%X{Module}] [%f:%l]%] %m%n'
+                    pattern: '%[[%d] [%p] [%X{Module} %f:%l]%] %m%n'
                 }
             }
         },
@@ -72,7 +72,7 @@ const _log = (_module = 'default-module') => {
  * 开发时打印日志使用
  * @param {string} _module
  */
-const log = _module => {
+export const log = _module => {
     return _log(_module).devLogger;
 };
 
@@ -80,7 +80,7 @@ const log = _module => {
  * 追踪日志使用
  * @param {string} _module
  */
-const trace = _module => {
+export const trace = _module => {
     return _log(_module).traceLogger;
 };
 
@@ -88,12 +88,6 @@ const trace = _module => {
  * 操作日志使用
  * @param {string} _module
  */
-const audit = _module => {
+export const audit = _module => {
     return _log(_module).auditLogger;
-};
-
-module.exports = {
-    log,
-    trace,
-    audit
 };
