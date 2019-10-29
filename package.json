@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./service.js",
-    "fix": "eslint ./ --fix",
-    "build": "node_modules/.bin/babel ./ -d dist --config-file"
+    "build": "node_modules/.bin/babel ./ -d dist --config-file",
+    "fix": "eslint ./ --fix"
   },
   "repository": {
     "type": "git",
@@ -29,7 +29,8 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "log4js": "^5.3.0"
+    "log4js": "^5.3.0",
+    "underscore": "^1.9.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

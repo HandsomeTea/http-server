@@ -3,7 +3,8 @@ import path from 'path';
 import fs from 'fs';
 import bodyParser from 'body-parser';
 import http from 'http';
-import { log, trace, audit } from './utils';
+import { log, trace, audit, response } from './utils';
+import test from './controllers';
 
 const app = express();
 
@@ -21,13 +22,6 @@ app.get('/', (req, res) => {
     }
 });
 
-app.get('/test', (req, res) => {
-    trace().info('123123123');
-    log().info('123sdfsdf', '123123ssssssssssssssssssss');
-    audit('system').warn('22sssss');
-    res.send('测试成功');
-});
-
 /**加载解析请求体的中间件 */
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
@@ -38,7 +32,6 @@ app.use((req, res, next) => {
     const _logInfo = new Date().toISOString() + ' - 请求 >> ' + addressIpv4 + ' : ' + req.method + ' -> ' + req.protocol + '://' + req.get('host') + req.originalUrl;
 
     trace().info(_logInfo);
-    log().info(_logInfo);
 
     if (Object.getOwnPropertyNames(req.body).length > 0) {
         log().debug('数据 >> ' + addressIpv4 + ' : ' + req.originalUrl + ' -> ' + JSON.stringify(req.body));
@@ -49,11 +42,29 @@ app.use((req, res, next) => {
     next();
 });
 
+/**健全验证等 */
+//
+//
+//
+
+/**工具函数封装 */
+app.use((req, res, next) => {
+    /**日志封装 */
+    req.log = _module => log(_module);
+    req.trace = _module => trace(_module);
+    req.audit = _module => audit(_module);
+
+    /**返回数据封装 */
+    res.success = _data => response(res).success(_data);
+    res.notFound = (_data, _type) => response(res).notFound(_data, _type);
+    next();
+});
+
 /**建立接口路由 */
-// app.use('/menu', menu);
+app.use('/test', test);
 
 /**错误处理 */
-app.use((req, res) => { //req, res,next
+app.use((req, res) => { //req, res, next
     if (req.method === 'GET' && req.originalUrl === '/favicon.ico') {
         res.status(200).send({ result: true });
     } else {
