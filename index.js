@@ -72,7 +72,9 @@ app.use((req, res) => { //req, res, next
     }
 });
 
+debugger; /* eslint-disable-line*/
+
 /**单例启动，适合于pm2配合使用 */
-http.createServer(app).listen(8008, '0.0.0.0', () => { //测试服:8002 正式服:443
+http.createServer(app).listen(8008, '0.0.0.0', () => {
     log().info('服务器启动成功');
 });
