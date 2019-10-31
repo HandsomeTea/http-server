@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import httpStatus from './type';
 
 export const resObj = class resReult {
     constructor(_response, _request = undefined) {
@@ -9,38 +9,22 @@ export const resObj = class resReult {
         this.request = _request || null;
     }
 
-    success(_data) {
-        if (_.isObject(_data)) {
-            _data.type = 'SUCCESS';
-            if (_data.result) {
-                delete _data.result;
-            }
-        } else {
-            _data = {
-                type: 'SUCCESS',
-                data: _data
-            };
-        }
-
+    success(_data, _type) {
         this.response.status(200);
-        this._resSend(_.extend({ result: true }, _data));
+        this._resSend({
+            result: true,
+            type: httpStatus._200,
+            data: _data
+        });
     }
 
     notFound(_data, _type) {
-        if (_.isObject(_data)) {
-            _data.type = _type || 'NOT_FOUND';
-            if (_data.result) {
-                delete _data.result;
-            }
-        } else {
-            _data = {
-                type: _type || 'NOT_FOUND',
-                data: _data
-            };
-        }
-
         this.response.status(404);
-        this._resSend(_.extend({ result: false }, _data));
+        this._resSend({
+            result: false,
+            type: _type || 'NOT_FOUND',
+            info: _data
+        });
     }
 
     _resSend(_result) {
