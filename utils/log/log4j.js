@@ -6,14 +6,14 @@ import log4js from 'log4js';
  * @param {string} [_module='default-module']
  * @returns
  */
-const _log = (_module = 'default-module') => {
+const _log = (_module = 'default-module', _data = {}) => {
     log4js.configure({
         appenders: {
             _trace: {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%h] [%X{Module} %f:%l:%o]%]%m%n'
+                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%h] [%X{Module}] [%X{TraceId}|%X{SpanId}|%X{ParentSpanId}]%]%m%n'
                 }
             },
             _audit: {
@@ -31,7 +31,7 @@ const _log = (_module = 'default-module') => {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d] [%p] [%X{Module} %f:%l]%] %m%n'
+                    pattern: '%[[%d] [%p] [%X{Module} %f:%l:%o]%] %m%n'
                 }
             }
         },
@@ -65,6 +65,15 @@ const _log = (_module = 'default-module') => {
     traceLogger.addContext('Module', _module);
     auditLogger.addContext('Module', _module);
 
+    traceLogger.addContext('TraceId', _data.traceId || '');
+    auditLogger.addContext('TraceId', _data.traceId || '');
+
+    traceLogger.addContext('SpanId', _data.spanId || '');
+    auditLogger.addContext('SpanId', _data.spanId || '');
+
+    traceLogger.addContext('ParentSpanId', _data.parentSpanId || '');
+    auditLogger.addContext('ParentSpanId', _data.parentSpanId || '');
+
     return { devLogger, traceLogger, auditLogger };
 };
 
@@ -80,8 +89,8 @@ export const log = _module => {
  * 追踪日志使用
  * @param {string} _module
  */
-export const trace = _module => {
-    return _log(_module).traceLogger;
+export const trace = (_module, _data) => {
+    return _log(_module, _data).traceLogger;
 };
 
 /**
@@ -90,4 +99,21 @@ export const trace = _module => {
  */
 export const audit = _module => {
     return _log(_module).auditLogger;
+};
+
+/**
+ * 生成跟踪日志的traceID
+ * @returns
+ */
+export const traceId = () => {
+    const digits = '0123456789abcdef';
+
+    let _trace = '';
+
+    for (let i = 0; i < 16; i += 1) {
+        const rand = Math.floor(Math.random() * 16);
+
+        _trace += digits[rand];
+    }
+    return _trace;
 };

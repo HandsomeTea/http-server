@@ -1,0 +1,3 @@
+TRACE_LOG_LEVEL: 'error'
+AUDIT_LOG_LEVEL: 'error'
+DEV_LOG_LEVEL: 'debug'

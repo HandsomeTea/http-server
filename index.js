@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import bodyParser from 'body-parser';
 import http from 'http';
-import { log, trace, audit, response } from './utils';
+import { log, trace, audit, traceId, response } from './utils';
 import test from './controllers';
 
 const app = express();
@@ -49,9 +49,15 @@ app.use((req, res, next) => {
 
 /**工具函数封装 */
 app.use((req, res, next) => {
+    /**trace log配置 */
+    if (!req.headers['x-b3-traceid']) {
+        req.headers['x-b3-traceid'] = traceId();
+        req.headers['x-b3-spanid'] = traceId();
+    }
+
     /**日志封装 */
     req.log = _module => log(_module);
-    req.trace = _module => trace(_module);
+    req.trace = _module => trace(_module, { traceId: req.headers['x-b3-traceid'], spanId: req.headers['x-b3-spanid'], parentSpanId: req.headers['x-b3-parentspanid'] });
     req.audit = _module => audit(_module);
 
     /**返回数据封装 */

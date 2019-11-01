@@ -1,2 +1,2 @@
-export { log, trace, audit } from './log';
+export { log, trace, audit, traceId } from './log';
 export { response, httpStatus } from './http-result';
