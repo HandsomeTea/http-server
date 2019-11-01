@@ -13,7 +13,7 @@ const _log = (_module = 'default-module', _data = {}) => {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%h] [%X{Module}] [%X{TraceId}|%X{SpanId}|%X{ParentSpanId}]%]%m%n'
+                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%h] [%X{Module}] [%X{TraceId}|%X{SpanId}|%X{ParentSpanId}]%] %m'
                 }
             },
             _audit: {
@@ -24,57 +24,64 @@ const _log = (_module = 'default-module', _data = {}) => {
                 encoding: 'utf-8',
                 layout: {
                     type: 'pattern',
-                    pattern: '[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] [%X{Module}] %m%n'
+                    pattern: '[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] [%X{Module}] %m'
                 }
             },
             _develop: {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d] [%p] [%X{Module} %f:%l:%o]%] %m%n'
+                    pattern: '%[[%d] [%p] [%X{Module} %f:%l:%o]%] %m'
+                }
+            },
+            _system: {
+                type: 'stdout',
+                layout: {
+                    type: 'pattern',
+                    pattern: '%[[%d{yyyy-MM-dd hh:mm:ss} SYSTEM:%X{Module}]%] %m'
                 }
             }
         },
         categories: {
             default: {
-                appenders: ['_develop', '_trace', '_audit'],
+                appenders: ['_develop', '_trace', '_audit', '_system'],
                 level: 'ALL',
                 enableCallStack: true
             },
             developLog: {
                 appenders: ['_develop'],
-                level: process.env.LOG_LEVEL || 'ALL',
+                level: process.env.DEV_LOG_LEVEL || 'ALL',
                 enableCallStack: true
             },
             traceLog: {
                 appenders: ['_trace'],
-                level: process.env.LOG_LEVEL || 'ALL',
+                level: process.env.TRACE_LOG_LEVEL || 'ALL',
                 enableCallStack: true
             },
             auditLog: {
                 appenders: ['_audit'],
-                level: process.env.LOG_LEVEL || 'ALL',
+                level: process.env.AUDIT_LOG_LEVEL || 'ALL',
                 enableCallStack: true
+            },
+            systemLog: {
+                appenders: ['_system'],
+                level: 'ALL'
             }
         }
     });
 
-    const [devLogger, traceLogger, auditLogger] = [log4js.getLogger('developLog'), log4js.getLogger('traceLog'), log4js.getLogger('auditLog')];
+    const [devLogger, traceLogger, auditLogger, systemLogger] = [log4js.getLogger('developLog'), log4js.getLogger('traceLog'), log4js.getLogger('auditLog'), log4js.getLogger('systemLog')];
 
     devLogger.addContext('Module', _module);
     traceLogger.addContext('Module', _module);
     auditLogger.addContext('Module', _module);
+    systemLogger.addContext('Module', _module.toUpperCase());
 
     traceLogger.addContext('TraceId', _data.traceId || '');
-    auditLogger.addContext('TraceId', _data.traceId || '');
-
     traceLogger.addContext('SpanId', _data.spanId || '');
-    auditLogger.addContext('SpanId', _data.spanId || '');
-
     traceLogger.addContext('ParentSpanId', _data.parentSpanId || '');
-    auditLogger.addContext('ParentSpanId', _data.parentSpanId || '');
 
-    return { devLogger, traceLogger, auditLogger };
+    return { devLogger, traceLogger, auditLogger, systemLogger };
 };
 
 /**
@@ -100,6 +107,15 @@ export const trace = (_module, _data) => {
 export const audit = _module => {
     return _log(_module).auditLogger;
 };
+
+/**
+ * 系统日志使用
+ * @param {string} _module
+ */
+export const system = _module => {
+    return _log(_module).systemLogger;
+};
+
 
 /**
  * 生成跟踪日志的traceID

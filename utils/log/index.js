@@ -1,1 +1,1 @@
-export { log, trace, audit, traceId } from './log4j';
+export { log, trace, audit, system, traceId } from './logger';

@@ -1,8 +1,11 @@
-import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import bodyParser from 'body-parser';
 import http from 'http';
+import express from 'express';
+import bodyParser from 'body-parser';
+import './server.config';
+/**为process.env挂载值，支持热更新 */
+import './conf';
 import { log, trace, audit, traceId, response } from './utils';
 import test from './controllers';
 
