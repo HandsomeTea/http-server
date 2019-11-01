@@ -38,7 +38,7 @@ const _log = (_module = 'default-module', _data = {}) => {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d{yyyy-MM-dd hh:mm:ss} SYSTEM:%X{Module}]%] %m'
+                    pattern: '%[[%d{yyyy-MM-dd hh:mm:ss.SSS} SYSTEM:%X{Module}]%] %m'
                 }
             }
         },

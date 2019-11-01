@@ -1,28 +1,18 @@
-import path from 'path';
-import fs from 'fs';
 import http from 'http';
 import express from 'express';
 import bodyParser from 'body-parser';
 import './server.config';
 /**为process.env挂载值，支持热更新 */
 import './conf';
+import { JWTcheck } from './middlewares';
 import { log, trace, audit, traceId, response } from './utils';
 import test from './controllers';
 
 const app = express();
 
-/**挂载构建代码 */
-app.use(express.static(path.join(__dirname, 'dist')));
-
 /**是否有可挂载的构建代码的处理 */
 app.get('/', (req, res) => {
-    let doorFile = path.resolve(__dirname, 'dist/index.html');
-
-    if (fs.existsSync(doorFile)) {
-        res.sendFile(doorFile);
-    } else {
-        res.send('正在维护中，请稍后...');
-    }
+    res.redirect('/test/test');
 });
 
 /**加载解析请求体的中间件 */
@@ -46,9 +36,7 @@ app.use((req, res, next) => {
 });
 
 /**健全验证等 */
-//
-//
-//
+app.use(JWTcheck);
 
 /**工具函数封装 */
 app.use((req, res, next) => {

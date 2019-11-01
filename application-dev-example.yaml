@@ -1,3 +1,6 @@
 TRACE_LOG_LEVEL: 'error'
-AUDIT_LOG_LEVEL: 'error'
+AUDIT_LOG_LEVEL: 'info'
 DEV_LOG_LEVEL: 'debug'
+JWT_APP_NAME: 'nodejs-server'
+JWT_APP_ID: 'appid'
+JWT_APP_SECERT: 'appsecert'

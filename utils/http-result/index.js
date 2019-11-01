@@ -1,2 +1,7 @@
-export { response } from './response';
-export { httpStatus } from './status';
+import response from './response';
+import httpStatus from './status';
+
+export {
+    response,
+    httpStatus
+};

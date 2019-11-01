@@ -1,0 +1,1 @@
+export { JWTcheck } from './authorization';

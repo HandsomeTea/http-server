@@ -6,8 +6,8 @@ import { httpStatus } from './status';
 * @param {*} _response
 * @param {*} [_request=undefined]
 */
-const resObj = class resReult {
-    constructor(_response, _request = undefined) {
+export default (_response, _request = undefined) => new class resReult {
+    constructor() {
         if (!_response) {
             throw new Error('class resObj : parameter _response is required.');
         }
@@ -73,5 +73,3 @@ const resObj = class resReult {
         this.response.send(_result);
     }
 };
-
-export const response = (_response, _request = undefined) => new resObj(_response, _request);

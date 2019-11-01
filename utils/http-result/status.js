@@ -1,4 +1,4 @@
-export const httpStatus = new class httpStatus {
+export default new class httpStatus {
     constructor() {
         /***************** 200类错误 *********************/
         /**默认 */
