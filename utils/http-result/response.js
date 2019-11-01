@@ -1,6 +1,12 @@
-import httpStatus from './type';
+import { httpStatus } from './status';
 
-export const resObj = class resReult {
+/**
+* 处理所有http请求,所有http请求的出口在 _resSend() 里
+* Creates an instance of resReult.
+* @param {*} _response
+* @param {*} [_request=undefined]
+*/
+const resObj = class resReult {
     constructor(_response, _request = undefined) {
         if (!_response) {
             throw new Error('class resObj : parameter _response is required.');
@@ -13,8 +19,17 @@ export const resObj = class resReult {
         this.response.status(200);
         this._resSend({
             result: true,
-            type: httpStatus._200,
+            type: _type || httpStatus.success,
             data: _data
+        });
+    }
+
+    failure(_data, _type) {
+        this.response.status(404);
+        this._resSend({
+            result: false,
+            type: _type || httpStatus.failed,
+            info: _data
         });
     }
 
@@ -22,7 +37,34 @@ export const resObj = class resReult {
         this.response.status(404);
         this._resSend({
             result: false,
-            type: _type || 'NOT_FOUND',
+            type: _type || httpStatus.notFound,
+            info: _data
+        });
+    }
+
+    internalError(_data, _type) {
+        this.response.status(500);
+        this._resSend({
+            result: false,
+            type: _type || httpStatus.innerError,
+            info: _data
+        });
+    }
+
+    unauthorized(_data, _type) {
+        this.response.status(403);
+        this._resSend({
+            result: false,
+            type: _type || httpStatus.noPermission,
+            info: _data
+        });
+    }
+
+    tooManyRequests(_data, _type) {
+        this.response.status(429);
+        this._resSend({
+            result: false,
+            type: _type || httpStatus.tooMany,
             info: _data
         });
     }

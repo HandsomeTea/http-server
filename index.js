@@ -55,8 +55,14 @@ app.use((req, res, next) => {
     req.audit = _module => audit(_module);
 
     /**返回数据封装 */
-    res.success = _data => response(res).success(_data);
-    res.notFound = (_data, _type) => response(res).notFound(_data, _type);
+    const _status = response(res, req);
+
+    res.success = (_data, _type = undefined) => _status.success(_data, _type);
+    res.failure = (_data, _type = undefined) => _status.failure(_data, _type);
+    res.notFound = (_data, _type = undefined) => _status.notFound(_data, _type);
+    res.serverError = (_data, _type = undefined) => _status.internalError(_data, _type);
+    res.noPermission = (_data, _type = undefined) => _status.unauthorized(_data, _type);
+    res.tooManyRequests = (_data, _type = undefined) => _status.tooManyRequests(_data, _type);
     next();
 });
 
