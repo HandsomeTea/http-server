@@ -1,7 +1,8 @@
 import _validate from './json-web-token';
 
 const _JWTcheck = new _validate(process.env.JWT_APP_NAME, process.env.JWT_APP_ID, process.env.JWT_APP_SECERT);
-const JWTcheck = (req, res, next) => {
+
+export const JWTcheck = (req, res, next) => {
     if (req.headers.authorization) {
         const _array = req.headers.authorization.split(' ');
 
@@ -16,5 +17,3 @@ const JWTcheck = (req, res, next) => {
         res.status(400).send('Bad request(no Authorization)! Refused.');
     }
 };
-
-export { JWTcheck };
