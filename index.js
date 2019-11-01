@@ -12,8 +12,12 @@ const app = express();
 
 /**是否有可挂载的构建代码的处理 */
 app.get('/', (req, res) => {
-    res.redirect('/test/test');
+    // res.redirect('/test/test');
+    res.send('no deal');
 });
+
+/**健全验证等 */
+app.use(JWTcheck);
 
 /**加载解析请求体的中间件 */
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -21,22 +25,20 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 app.use((req, res, next) => {
     let addressIpv4 = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress).match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/);
-
-    const _logInfo = new Date().toISOString() + ' - 请求 >> ' + addressIpv4 + ' : ' + req.method + ' -> ' + req.protocol + '://' + req.get('host') + req.originalUrl;
-
-    trace().info(_logInfo);
+    let _datas = '';
 
     if (Object.getOwnPropertyNames(req.body).length > 0) {
-        log().debug('数据 >> ' + addressIpv4 + ' : ' + req.originalUrl + ' -> ' + JSON.stringify(req.body));
+        _datas += ` request.body=>${JSON.stringify(req.body)}.`;
     }
     if (Object.getOwnPropertyNames(req.query).length > 0) {
-        log().debug('数据 >> ' + addressIpv4 + ' : ' + req.originalUrl + ' -> ' + JSON.stringify(req.query));
+        _datas += ` request.query=>${JSON.stringify(req.query)}.`;
     }
+    if (Object.getOwnPropertyNames(req.params).length > 0) {
+        _datas += ` request.params=>${JSON.stringify(req.params)}.`;
+    }
+    trace().info(`[${addressIpv4} => ${req.method}:${req.protocol}://${req.get('host')}${req.originalUrl}] request parameter :${_datas || ' no parameter'}`);
     next();
 });
-
-/**健全验证等 */
-app.use(JWTcheck);
 
 /**工具函数封装 */
 app.use((req, res, next) => {
@@ -67,12 +69,8 @@ app.use((req, res, next) => {
 app.use('/test', test);
 
 /**错误处理 */
-app.use((req, res) => { //req, res, next
-    if (req.method === 'GET' && req.originalUrl === '/favicon.ico') {
-        res.status(200).send({ result: true });
-    } else {
-        res.status(500).send('Something broke!');
-    }
+app.use((err, req, res, next) => {/* eslint-disable-line*/
+    res.status(500).send('Something broke!');
 });
 
 debugger; /* eslint-disable-line*/
