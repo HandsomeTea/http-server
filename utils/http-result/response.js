@@ -25,7 +25,7 @@ const resObj = class resReult {
     }
 
     failure(_data, _type) {
-        this.response.status(404);
+        this.response.status(400);
         this._resSend({
             result: false,
             type: _type || httpStatus.failed,
