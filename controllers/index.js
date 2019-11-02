@@ -5,7 +5,7 @@ const router = Router();
 
 router.get('/test/:id', (req, res) => {
     req.trace().info('123123123');
-    req.log().info('123sdfsdf', '123123ssssssssssssssssssss');
+    req.log().info(JSON.stringify(req.params));
     req.audit('system').warn('22sssss');
     // res.success({ result: '测试成功' }, httpStatus.successSearch);
     // res.failure({ result: '测试成功' }, httpStatus.failedUpdate);

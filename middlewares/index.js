@@ -1,1 +1,1 @@
-export { JWTcheck } from './authorization';
+export { JWTcheck, JWTgeneral } from './authorization';

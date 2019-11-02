@@ -17,28 +17,11 @@ app.get('/', (req, res) => {
 });
 
 /**健全验证等 */
-app.use(JWTcheck);
+// app.use(JWTcheck);
 
 /**加载解析请求体的中间件 */
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
-
-app.use((req, res, next) => {
-    let addressIpv4 = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress).match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/);
-    let _datas = '';
-
-    if (Object.getOwnPropertyNames(req.body).length > 0) {
-        _datas += ` request.body=>${JSON.stringify(req.body)}.`;
-    }
-    if (Object.getOwnPropertyNames(req.query).length > 0) {
-        _datas += ` request.query=>${JSON.stringify(req.query)}.`;
-    }
-    if (Object.getOwnPropertyNames(req.params).length > 0) {
-        _datas += ` request.params=>${JSON.stringify(req.params)}.`;
-    }
-    trace().info(`[${addressIpv4} => ${req.method}:${req.protocol}://${req.get('host')}${req.originalUrl}] request parameter :${_datas || ' no parameter'}`);
-    next();
-});
 
 /**工具函数封装 */
 app.use((req, res, next) => {

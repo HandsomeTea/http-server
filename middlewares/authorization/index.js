@@ -2,6 +2,10 @@ import _validate from './json-web-token';
 
 const _JWTcheck = new _validate(process.env.JWT_APP_NAME, process.env.JWT_APP_ID, process.env.JWT_APP_SECERT);
 
+export const JWTgeneral = () => {
+    return _JWTcheck.sign();
+};
+
 export const JWTcheck = (req, res, next) => {
     if (req.headers.authorization) {
         const _array = req.headers.authorization.split(' ');
