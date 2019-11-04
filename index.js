@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
 });
 
 /**健全验证等 */
-// app.use(JWTcheck);
+app.use(JWTcheck);
 
 /**加载解析请求体的中间件 */
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -60,5 +60,5 @@ debugger; /* eslint-disable-line*/
 
 /**单例启动，适合于pm2配合使用 */
 http.createServer(app).listen(8008, '0.0.0.0', () => {
-    log().info('服务器启动成功');
+    log().info('server is startup. success!!!');
 });
