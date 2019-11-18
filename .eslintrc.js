@@ -11,7 +11,7 @@ module.exports = {
     },
     extends: 'eslint:recommended',
     rules: {
-        'indent': [2, 4], //缩进风格
+        'indent': [2, 4, { SwitchCase: 1 }], //缩进风格
         'linebreak-style': [0, 'error', 'windows', 'unix'], //换行风格
         'quotes': [2, 'single'], // 引号
         'no-caller': 2, //禁止使用arguments.caller或arguments.callee

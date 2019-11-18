@@ -11,8 +11,8 @@ router.get('/:id', (req, res) => {
     // res.failure({ result: '测试成功' }, httpStatus.failedUpdate);
     // res.notFound({ result: '测试成功' }, httpStatus.notFoundUser);
     // res.serverError({ result: '测试成功' }, httpStatus.innerDBError);
-    // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
-    res.tooManyRequests({ result: '测试成功' });
+    res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
+    // res.tooManyRequests({ result: '测试成功' });
 });
 
 router.post('/:id', (req, res) => {

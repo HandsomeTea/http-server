@@ -1,15 +1,17 @@
+debugger; /* eslint-disable-line*/
+
+/**启动前的系统配置加载 */
+import './conf';
+
 import http from 'http';
 import express from 'express';
 import bodyParser from 'body-parser';
-import './server.config';
-/**为process.env挂载值，支持热更新 */
-import './conf';
 import { log, trace, audit, traceId, response } from './utils';
 import restApi from './routes';
 
 const app = express();
 
-/**是否有可挂载的构建代码的处理 */
+/**跟路由处理 */
 app.get('/', (req, res) => {
     // res.redirect('/test/test');
     res.send('no deal');
@@ -52,9 +54,45 @@ app.use((err, req, res, next) => {/* eslint-disable-line*/
     res.status(500).send('Something broke!');
 });
 
-debugger; /* eslint-disable-line*/
+
+const server = http.createServer(app);
 
 /**单例启动，适合于pm2配合使用 */
-http.createServer(app).listen(8008, '0.0.0.0', () => {
-    log().info('server is startup. success!!!');
+server.listen(8008, '0.0.0.0', () => {
+    /** startup */
+});
+
+server.on('error', error => {
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
+    const port = server.address().port;
+
+    const bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+});
+
+server.on('listening', () => {
+    const _location = server.address();
+    const address = typeof location === 'string'
+        ? 'pipe ' + _location
+        : `http://localhost:${_location.port}`;
+
+    log().info(`server is startup on ${address} success!!!`);
+    debugger; /* eslint-disable-line*/
 });

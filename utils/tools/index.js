@@ -1,1 +1,1 @@
-export { UTCTime } from './time';
+export { UTCTime } from './time/format';
