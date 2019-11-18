@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { httpStatus } from '../utils';
+import { httpStatus } from '../../utils';
 
 const router = Router();
 
-router.get('/test/:id', (req, res) => {
+router.get('/:id', (req, res) => {
     req.trace().info('123123123');
     req.log().info(JSON.stringify(req.params));
     req.audit('system').warn('22sssss');
@@ -12,10 +12,10 @@ router.get('/test/:id', (req, res) => {
     // res.notFound({ result: '测试成功' }, httpStatus.notFoundUser);
     // res.serverError({ result: '测试成功' }, httpStatus.innerDBError);
     // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
-    res.tooManyRequests({ result: '测试成功' }, httpStatus.tooMany);
+    res.tooManyRequests({ result: '测试成功' });
 });
 
-router.post('/test/:id', (req, res) => {
+router.post('/:id', (req, res) => {
     req.trace().info('123123123');
     req.log().info('123sdfsdf', '123123ssssssssssssssssssss');
     req.audit('system').warn('22sssss');
@@ -25,5 +25,6 @@ router.post('/test/:id', (req, res) => {
     // res.serverError({ result: '测试成功' }, httpStatus.innerDBError);
     // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
     res.tooManyRequests({ result: '测试成功' }, httpStatus.tooMany);
+    // throw new Error('cuowule');
 });
 export default router;

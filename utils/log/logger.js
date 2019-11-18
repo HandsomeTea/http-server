@@ -3,10 +3,9 @@ import log4js from 'log4js';
 /**
  * 定义日志配置
  *
- * @param {string} [_module='default-module']
  * @returns
  */
-const _log = (_module = 'default-module', _data = {}) => {
+export const updateOrCreateLogInstance = () => {
     log4js.configure({
         appenders: {
             _trace: {
@@ -69,27 +68,19 @@ const _log = (_module = 'default-module', _data = {}) => {
             }
         }
     });
-
-    const [devLogger, traceLogger, auditLogger, systemLogger] = [log4js.getLogger('developLog'), log4js.getLogger('traceLog'), log4js.getLogger('auditLog'), log4js.getLogger('systemLog')];
-
-    devLogger.addContext('Module', _module);
-    traceLogger.addContext('Module', _module);
-    auditLogger.addContext('Module', _module);
-    systemLogger.addContext('Module', _module.toUpperCase());
-
-    traceLogger.addContext('TraceId', _data.traceId || '');
-    traceLogger.addContext('SpanId', _data.spanId || '');
-    traceLogger.addContext('ParentSpanId', _data.parentSpanId || '');
-
-    return { devLogger, traceLogger, auditLogger, systemLogger };
 };
+updateOrCreateLogInstance();
 
 /**
  * 开发时打印日志使用
  * @param {string} _module
  */
 export const log = _module => {
-    return _log(_module).devLogger;
+    const _devLogger = log4js.getLogger('developLog');
+
+    _devLogger.addContext('Module', _module);
+
+    return _devLogger;
 };
 
 /**
@@ -97,7 +88,14 @@ export const log = _module => {
  * @param {string} _module
  */
 export const trace = (_module, _data) => {
-    return _log(_module, _data).traceLogger;
+    const _traceLogger = log4js.getLogger('traceLog');
+
+    _traceLogger.addContext('Module', _module);
+    _traceLogger.addContext('TraceId', _data.traceId || '');
+    _traceLogger.addContext('SpanId', _data.spanId || '');
+    _traceLogger.addContext('ParentSpanId', _data.parentSpanId || '');
+
+    return _traceLogger;
 };
 
 /**
@@ -105,7 +103,11 @@ export const trace = (_module, _data) => {
  * @param {string} _module
  */
 export const audit = _module => {
-    return _log(_module).auditLogger;
+    const _auditLogger = log4js.getLogger('auditLog');
+
+    _auditLogger.addContext('Module', _module);
+
+    return _auditLogger;
 };
 
 /**
@@ -113,7 +115,11 @@ export const audit = _module => {
  * @param {string} _module
  */
 export const system = _module => {
-    return _log(_module).systemLogger;
+    const _systemLogger = log4js.getLogger('systemLog');
+
+    _systemLogger.addContext('Module', _module.toUpperCase());
+
+    return _systemLogger;
 };
 
 

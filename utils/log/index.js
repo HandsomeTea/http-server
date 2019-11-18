@@ -1,1 +1,1 @@
-export { log, trace, audit, system, traceId } from './logger';
+export { createOrUpdateLogInstance, log, trace, audit, system, traceId } from './logger';

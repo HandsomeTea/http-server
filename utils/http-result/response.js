@@ -1,4 +1,4 @@
-import { httpStatus } from './status';
+import httpStatus from './status';
 import { trace } from '../log';
 
 /**
@@ -6,10 +6,10 @@ import { trace } from '../log';
 * Creates an instance of resReult.
 * @param {*} _response
 */
-export default (_response) => new class resReult {
+export default _response => new class resReult {
     constructor() {
         if (!_response) {
-            throw new Error('class resObj : parameter _response is required.');
+            throw new Error('class resReult : parameter _response is required.');
         }
         this.response = _response;
         this.request = _response.req;

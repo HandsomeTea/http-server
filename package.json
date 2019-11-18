@@ -6,10 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./service.js",
+    "build": "node_modules/.bin/babel ./ -d dist --config-file",
     "debug": "node --inspect ./service.js",
     "debug-brk": "node --inspect-brk ./service.js",
-    "build": "node_modules/.bin/babel ./ -d dist --config-file",
-    "fix": "eslint ./ --fix"
+    "fix": "eslint ./ --fix",
+    "upgrade": "./node_modules/.bin/npm-check -u"
   },
   "repository": {
     "type": "git",
@@ -33,7 +34,7 @@
     "express": "^4.17.1",
     "js-yaml": "^3.13.1",
     "jsonwebtoken": "^8.5.1",
-    "log4js": "^5.3.0",
+    "log4js": "^6.0.0",
     "underscore": "^1.9.1"
   },
   "devDependencies": {
@@ -43,6 +44,7 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-minify": "^0.5.1",
     "babel-register": "^6.26.0",
-    "eslint": "^6.6.0"
+    "eslint": "^6.6.0",
+    "npm-check": "^5.9.0"
   }
 }

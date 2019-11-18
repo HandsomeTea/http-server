@@ -4,9 +4,8 @@ import bodyParser from 'body-parser';
 import './server.config';
 /**为process.env挂载值，支持热更新 */
 import './conf';
-import { JWTcheck } from './middlewares';
 import { log, trace, audit, traceId, response } from './utils';
-import test from './controllers';
+import restApi from './routes';
 
 const app = express();
 
@@ -15,9 +14,6 @@ app.get('/', (req, res) => {
     // res.redirect('/test/test');
     res.send('no deal');
 });
-
-/**健全验证等 */
-app.use(JWTcheck);
 
 /**加载解析请求体的中间件 */
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -49,7 +45,7 @@ app.use((req, res, next) => {
 });
 
 /**建立接口路由 */
-app.use('/test', test);
+app.use(restApi);
 
 /**错误处理 */
 app.use((err, req, res, next) => {/* eslint-disable-line*/
