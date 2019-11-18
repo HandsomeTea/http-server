@@ -78,7 +78,7 @@ updateOrCreateLogInstance();
 export const log = _module => {
     const _devLogger = log4js.getLogger('developLog');
 
-    _devLogger.addContext('Module', _module);
+    _devLogger.addContext('Module', _module || 'default-module');
 
     return _devLogger;
 };
@@ -90,7 +90,7 @@ export const log = _module => {
 export const trace = (_module, _data) => {
     const _traceLogger = log4js.getLogger('traceLog');
 
-    _traceLogger.addContext('Module', _module);
+    _traceLogger.addContext('Module', _module || 'default-module');
     _traceLogger.addContext('TraceId', _data.traceId || '');
     _traceLogger.addContext('SpanId', _data.spanId || '');
     _traceLogger.addContext('ParentSpanId', _data.parentSpanId || '');
@@ -105,7 +105,7 @@ export const trace = (_module, _data) => {
 export const audit = _module => {
     const _auditLogger = log4js.getLogger('auditLog');
 
-    _auditLogger.addContext('Module', _module);
+    _auditLogger.addContext('Module', _module || 'default-module');
 
     return _auditLogger;
 };

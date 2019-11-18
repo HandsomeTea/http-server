@@ -24,7 +24,7 @@ router.post('/:id', (req, res) => {
     // res.notFound({ result: '测试成功' }, httpStatus.notFoundUser);
     // res.serverError({ result: '测试成功' }, httpStatus.innerDBError);
     // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
-    res.tooManyRequests({ result: '测试成功' }, httpStatus.tooMany);
-    // throw new Error('cuowule');
+    // res.tooManyRequests({ result: '测试成功' }, httpStatus.tooMany);
+    throw new Error('cuowule');
 });
 export default router;
