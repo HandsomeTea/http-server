@@ -3,7 +3,7 @@ import { httpStatus } from '../../utils';
 
 const router = Router();
 
-router.get('/:id', (req, res) => {
+router.get('/:id', (req, res, next) => {
     req.trace().info('123123123');
     req.log().info(JSON.stringify(req.params));
     req.audit('system').warn('22sssss');
@@ -12,7 +12,8 @@ router.get('/:id', (req, res) => {
     // res.notFound({ result: '测试成功' }, httpStatus.notFoundUser);
     // res.serverError({ result: '测试成功' }, httpStatus.innerDBError);
     res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
-    // res.tooManyRequests({ result: '测试成功' });
+    res.tooManyRequests({ result: '测试成功' });
+    next('cuo wu lw');
 });
 
 router.post('/:id', (req, res) => {
@@ -25,6 +26,6 @@ router.post('/:id', (req, res) => {
     // res.serverError({ result: '测试成功' }, httpStatus.innerDBError);
     // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
     // res.tooManyRequests({ result: '测试成功' }, httpStatus.tooMany);
-    throw new Error('cuowule');
+    throw new Error('错误sss');
 });
 export default router;
