@@ -1,1 +1,5 @@
-export { createOrUpdateLogInstance, log, trace, audit, system, traceId } from './logger';
+const { createOrUpdateLogInstance, log, trace, audit, system, traceId } = require('./logger');
+
+module.exports = {
+    createOrUpdateLogInstance, log, trace, audit, system, traceId
+};

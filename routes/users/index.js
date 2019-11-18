@@ -1,9 +1,9 @@
-import { Router } from 'express';
+const { Router } = require('express');
 
-import search from './search';
+const search = require('./search');
 
 const router = Router();
 
 router.use('/search', search);
 
-export default router;
+module.exports = router;

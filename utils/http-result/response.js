@@ -1,12 +1,12 @@
-import httpStatus from './status';
-import { trace } from '../log';
+const httpStatus = require('./status');
+const { trace } = require('../log');
 
 /**
 * 处理所有http请求,所有http请求的出口在 _resSend() 里
 * Creates an instance of resReult.
 * @param {*} _response
 */
-export default _response => new class resReult {
+module.exports = _response => new class resReult {
     constructor() {
         if (!_response) {
             throw new Error('class resReult : parameter _response is required.');
@@ -101,8 +101,12 @@ export default _response => new class resReult {
      * @param {*} _result
      */
     _resSend(_result) {
-        const addressIpv4 = (this.request.headers['x-forwarded-for'] || this.request.connection.remoteAddress || this.request.socket.remoteAddress || this.request.connection.socket.remoteAddress).match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/);
+        let addressIpv4 = (this.request.headers['x-forwarded-for'] || this.request.connection.remoteAddress || this.request.socket.remoteAddress || this.request.connection.socket.remoteAddress).match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/);
 
+        if (!addressIpv4) {
+            addressIpv4 = '0.0.0.0';
+            this.request.log('system-error').warn('The server does not specify a listening address, set default request address to 0.0.0.0 ');
+        }
         let _datas = '';
 
         if (Object.getOwnPropertyNames(this.request.body).length > 0) {

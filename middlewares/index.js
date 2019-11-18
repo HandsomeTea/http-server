@@ -1,1 +1,3 @@
-export { JWTcheck, JWTgeneral } from './authorization';
+const { JWTcheck, JWTgeneral } = require('./authorization');
+
+module.exports = { JWTcheck, JWTgeneral };

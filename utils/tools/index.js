@@ -1,1 +1,3 @@
-export { UTCTime } from './time/format';
+const { UTCTime } = require('./time/format');
+
+exports = { UTCTime };

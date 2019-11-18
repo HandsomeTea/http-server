@@ -1,11 +1,11 @@
-import log4js from 'log4js';
+const log4js = require('log4js');
 
 /**
  * 定义日志配置
  *
  * @returns
  */
-export const updateOrCreateLogInstance = () => {
+const updateOrCreateLogInstance = () => {
     log4js.configure({
         appenders: {
             _trace: {
@@ -69,13 +69,14 @@ export const updateOrCreateLogInstance = () => {
         }
     });
 };
+
 updateOrCreateLogInstance();
 
 /**
  * 开发时打印日志使用
  * @param {string} _module
  */
-export const log = _module => {
+const log = _module => {
     const _devLogger = log4js.getLogger('developLog');
 
     _devLogger.addContext('Module', _module || 'default-module');
@@ -87,7 +88,7 @@ export const log = _module => {
  * 追踪日志使用
  * @param {string} _module
  */
-export const trace = (_module, _data) => {
+const trace = (_module, _data) => {
     const _traceLogger = log4js.getLogger('traceLog');
 
     _traceLogger.addContext('Module', _module || 'default-module');
@@ -102,7 +103,7 @@ export const trace = (_module, _data) => {
  * 操作日志使用
  * @param {string} _module
  */
-export const audit = _module => {
+const audit = _module => {
     const _auditLogger = log4js.getLogger('auditLog');
 
     _auditLogger.addContext('Module', _module || 'default-module');
@@ -114,7 +115,7 @@ export const audit = _module => {
  * 系统日志使用
  * @param {string} _module
  */
-export const system = _module => {
+const system = _module => {
     const _systemLogger = log4js.getLogger('systemLog');
 
     _systemLogger.addContext('Module', _module.toUpperCase());
@@ -127,7 +128,7 @@ export const system = _module => {
  * 生成跟踪日志的traceID
  * @returns
  */
-export const traceId = () => {
+const traceId = () => {
     const digits = '0123456789abcdef';
 
     let _trace = '';
@@ -138,4 +139,13 @@ export const traceId = () => {
         _trace += digits[rand];
     }
     return _trace;
+};
+
+module.exports = {
+    updateOrCreateLogInstance,
+    traceId,
+    system,
+    audit,
+    trace,
+    log
 };

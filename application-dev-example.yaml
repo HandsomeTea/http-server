@@ -1,3 +1,4 @@
+PORT: 3000
 TRACE_LOG_LEVEL: 'trace'
 AUDIT_LOG_LEVEL: 'trace'
 DEV_LOG_LEVEL: 'trace'

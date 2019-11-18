@@ -1,11 +1,11 @@
-import { system } from '../../utils';
+const { system } = require('../../utils');
 
 /**
  * 检查环境变量设置的值
  * @param {string} _key
  * @param {*} _value
  */
-export const envValidate = (_key, _value) => {
+const envValidate = (_key, _value) => {
     if (_key.includes('LOG_LEVEL')) {
         if (['ALL', 'TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL', 'MARK', 'OFF'].includes(_value.toUpperCase())) {
             return _value;
@@ -15,4 +15,8 @@ export const envValidate = (_key, _value) => {
         }
     }
     return _value;
+};
+
+module.exports = {
+    envValidate
 };

@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { httpStatus } from '../../utils';
+const { Router } = require('express');
+const { httpStatus } = require('../../utils');
 
 const router = Router();
 
@@ -14,4 +14,4 @@ router.post('/:id', (req, res) => {
     // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
     res.tooManyRequests({ result: 'user测试成功' }, httpStatus.tooMany);
 });
-export default router;
+module.exports = router;

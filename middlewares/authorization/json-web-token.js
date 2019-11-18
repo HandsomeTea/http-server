@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
 
 
-const JWTValidate = class JWT {
+module.exports = class JWT {
     constructor(_app, _appId, _appSecert) {
         this.app = _app;
         this.appId = _appId;
@@ -59,5 +59,3 @@ const JWTValidate = class JWT {
         };
     }
 };
-
-export default JWTValidate;

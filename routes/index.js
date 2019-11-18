@@ -1,12 +1,12 @@
-import { Router } from 'express';
-
-import test from './tests';
-import user from './users';
-import { JWTcheck } from '../middlewares';
-
+const { Router } = require('express');
 const rootRouter = Router();
+
+const test = require('./tests');
+const user = require('./users');
+const { JWTcheck } = require('../middlewares');
+
 
 rootRouter.use('/tests', test);
 rootRouter.use('/user', user, JWTcheck);
 
-export default rootRouter;
+module.exports = rootRouter;

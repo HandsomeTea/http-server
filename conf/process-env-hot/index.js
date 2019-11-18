@@ -1,8 +1,8 @@
-import yaml from 'js-yaml';
-import fs from 'fs';
+const yaml = require('js-yaml');
+const fs = require('fs');
 
-import { envValidate } from './env-validate';
-import { system } from '../../utils';
+const { envValidate } = require('./env-validate');
+const { system } = require('../../utils');
 
 const proConfigPath = process.productProcessEnvHotLoadPath;
 const localConfigPath = process.devProcessEnvHotLoadPath;

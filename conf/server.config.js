@@ -1,4 +1,4 @@
-import path from 'path';
+const path = require('path');
 
 /**mongodb数据库的链接地址 */
 process.mongoUrl = '';

@@ -9,6 +9,7 @@ module.exports = {
         es6: true,
         node: true
     },
+    parser: 'babel-eslint',
     extends: 'eslint:recommended',
     rules: {
         'indent': [2, 4, { SwitchCase: 1 }], //缩进风格
@@ -17,7 +18,7 @@ module.exports = {
         'no-caller': 2, //禁止使用arguments.caller或arguments.callee
         'semi': ['error', 'always'], // 分号结尾
         'no-multiple-empty-lines': [2, { 'max': 2 }], // 最大空行2
-        'no-console': 'off', //不能使用console
+        'no-console': 2, //不能使用console
         'no-constant-condition': 2, // 禁止在条件中使用常量表达式 if(true) if(1)
         'no-extra-parens': 2, //禁止非必要的括号
         'no-extra-semi': 2, //禁止多余的冒号

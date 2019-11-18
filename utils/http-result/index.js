@@ -1,7 +1,7 @@
-import response from './response';
-import httpStatus from './status';
+const response = require('./response');
+const httpStatus = require('./status');
 
-export {
+module.exports = {
     response,
     httpStatus
 };

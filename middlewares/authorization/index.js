@@ -1,4 +1,4 @@
-import _validate from './json-web-token';
+const _validate = require('./json-web-token');
 
 const _JWTcheck = new _validate(process.env.JWT_APP_NAME, process.env.JWT_APP_ID, process.env.JWT_APP_SECERT);
 
@@ -6,7 +6,7 @@ const _JWTcheck = new _validate(process.env.JWT_APP_NAME, process.env.JWT_APP_ID
  * 生成json web token
  * @returns
  */
-export const JWTgeneral = () => {
+const JWTgeneral = () => {
     return _JWTcheck.sign();
 };
 
@@ -17,7 +17,7 @@ export const JWTgeneral = () => {
  * @param {*} res
  * @param {*} next
  */
-export const JWTcheck = (req, res, next) => {
+const JWTcheck = (req, res, next) => {
     if (req.headers.authorization) {
         const _array = req.headers.authorization.split(' ');
 
@@ -31,4 +31,9 @@ export const JWTcheck = (req, res, next) => {
     } else {
         res.status(400).send('Bad request(no Authorization)! Refused.');
     }
+};
+
+module.exports = {
+    JWTgeneral,
+    JWTcheck
 };

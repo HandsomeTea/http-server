@@ -1,2 +1,2 @@
-import './server.config';
-import './process-env-hot';
+require('./server.config');
+require('./process-env-hot');

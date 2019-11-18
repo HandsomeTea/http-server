@@ -1,4 +1,4 @@
-export default new class httpStatus {
+module.exports = new class httpStatus {
     constructor() {
         /***************** 200类错误 *********************/
         /**默认 */

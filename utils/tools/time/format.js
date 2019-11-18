@@ -1,4 +1,4 @@
-import _ from 'underscore';
+const _ = require('underscore');
 
 
 /**
@@ -23,7 +23,7 @@ const _toFixed = (_num, _length) => {
  *
  * @returns
  */
-export const UTCTime = () => {
+const UTCTime = () => {
     const now = new Date();
     const { year, month, day, hour, minute, seconds, milliseconds } = {
         year: now.getUTCFullYear(),
@@ -36,4 +36,8 @@ export const UTCTime = () => {
     };
 
     return `${year}-${month}-${day}T${hour}:${minute}:${seconds}.${milliseconds}Z`;
+};
+
+module.exports = {
+    UTCTime
 };
