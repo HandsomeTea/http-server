@@ -6,7 +6,7 @@ const { log, audit } = require('./utils');
 const { logType, auditType } = require('./conf');
 
 process.on('unhandledRejection', (reason) => {
-    // Will print "unhandledRejection err is not defined"
+    // 处理没有catch的promiss
     log(logType.system).fatal(reason);
     audit(auditType.system).fatal(reason);
 });
