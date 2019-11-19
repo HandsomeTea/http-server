@@ -2,7 +2,7 @@
 const path = require('path');
 
 module.exports = {
-    name: 'custom service',
+    name: 'http-server',
     script: 'service.js',
     watch: (() => {
         const _list = ['../routes', '../conf', '../middlewares', '../startup', '../utils', '../app.js', '../service.js'];
