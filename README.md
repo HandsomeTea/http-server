@@ -5,18 +5,18 @@
 # personal-server
 
 ## 概述
-### es6
-- 支持es6语法
-
-
+- 个人瞎搞
 
 
 
 ## http result
 
-
-
-
+- 封装了http的返回格式
+  - `success`
+  - `failure`
+  - `notFound`
+  - `serverError`
+  - `noPermission`
 
 ## 数据库
 
@@ -47,16 +47,56 @@
 
 
 
-## process.env控制
-
-
-
-
-
 ## jwt健全
 
 
 
 
 
-## es6转es5
+## pm2
+
+- 单例模式：`npm run pm2`
+- 集群模式：`npm run cluster`
+
+## api文档
+
+- `npm run doc`，访问3001端口
+
+
+
+## process.env控制
+
+
+
+
+
+## debug
+
+
+
+## 依赖包升级
+
+
+
+
+
+## eslint语法检查
+
+- `npm run fix`
+
+
+
+
+
+## 性能测试
+
+- 压力测试
+- 异常测试
+- 测试覆盖率
+
+
+
+
+
+## redis
+
