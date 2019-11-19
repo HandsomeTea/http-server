@@ -29,7 +29,6 @@ const { createTerminus } = require('@godaddy/terminus');
 /**
  * Normalize a port into a number, string, or false.
  */
-
 const normalizePort = val => {
     let port = parseInt(val, 10);
 
@@ -49,7 +48,6 @@ const normalizePort = val => {
 /**
  * Get port from environment and store in Express.
  */
-
 const port = normalizePort(process.env.PORT || '3000');
 
 app.set('port', port);
@@ -57,7 +55,6 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
-
 const server = http.createServer(app);
 
 const onSignal = () => {
@@ -84,7 +81,6 @@ createTerminus(server, {
 /**
  * Event listener for HTTP server "error" event.
  */
-
 const onError = error => {
     if (error.syscall !== 'listen') {
         throw error;
@@ -112,7 +108,6 @@ const onError = error => {
 /**
  * Event listener for HTTP server "listening" event.
  */
-
 const onListening = () => {
     let addr = server.address();
 
@@ -127,7 +122,6 @@ const onListening = () => {
 /**
  * Listen on provided port, on all network interfaces.
  */
-
 server.listen(port, '0.0.0.0');
 server.on('error', onError);
 server.on('listening', onListening);
