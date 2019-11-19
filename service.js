@@ -1,20 +1,26 @@
 #!/usr/bin/env node
 
 debugger; /* eslint-disable-line*/
+require('./startup');
 
 const { log, audit } = require('./utils');
 const { logType, auditType } = require('./conf');
 
-process.on('unhandledRejection', (reason) => {
-    // 处理没有catch的promiss
+process.on('unhandledRejection', reason => {
+    // 处理没有catch的promiss，第二个参数即为promiss
     log(logType.system).fatal(reason);
     audit(auditType.system).fatal(reason);
+});
+
+process.on('uncaughtException', err => {
+    // 监听未捕获的异常
+    log(logType.system).fatal(err);
+    audit(auditType.system).fatal(err);
 });
 
 /**
  * Module dependencies.
  */
-require('./startup');
 const app = require('./app');
 const http = require('http');
 const { createTerminus } = require('@godaddy/terminus');

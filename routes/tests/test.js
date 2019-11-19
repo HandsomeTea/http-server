@@ -48,8 +48,11 @@ const router = Router();
  * @apiError {String} info 错误信息
  */
 router.get('/:data', (req, res) => {
+    req.trace().info('123123123');
+    req.log().info('123sdfsdf', '123123ssssssssssssssssssss');
+    req.audit().warn('22sssss');
     // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
-    res.success({ user: '' }, httpStatus.successSearch);
+    res.success({ user: 'ss1ssssss23' }, httpStatus.successSearch);
     // throw new Error('cuo wu');
 });
 

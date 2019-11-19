@@ -7,6 +7,7 @@ const log4js = require('log4js');
  */
 const updateOrCreateLogInstance = () => {
     log4js.configure({
+        disableClustering: true, //支持nodejs集群启动模式
         appenders: {
             _trace: {
                 type: 'stdout',
