@@ -1,5 +1,5 @@
 const { createOrUpdateLogInstance, log, trace, audit, system, traceId } = require('./log');
-const { response, httpStatus } = require('./http-result');
+const { response, httpStatus } = require('./http_result');
 const { UTCTime } = require('./tools');
 
 module.exports = {

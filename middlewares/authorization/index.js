@@ -1,4 +1,4 @@
-const _validate = require('./json-web-token');
+const _validate = require('./json_web_token');
 
 const _JWTcheck = new _validate(process.env.JWT_APP_NAME, process.env.JWT_APP_ID, process.env.JWT_APP_SECERT);
 

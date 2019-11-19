@@ -8,7 +8,9 @@
     "debug": "node --inspect ./service.js",
     "debug-brk": "node --inspect-brk ./service.js",
     "fix": "eslint ./ --fix",
-    "upgrade": "./node_modules/.bin/npm-check -u"
+    "upgrade": "./node_modules/.bin/npm-check -u",
+    "doc": "./node_modules/.bin/apidoc -i ./routes -o ./doc && node ./api_server.js",
+    "pm2": "pm2 start ./pm2.config.js"
   },
   "repository": {
     "type": "git",
@@ -37,8 +39,10 @@
     "underscore": "^1.9.1"
   },
   "devDependencies": {
+    "apidoc": "^0.18.0",
     "babel-eslint": "^10.0.3",
     "eslint": "^6.6.0",
-    "npm-check": "^5.9.0"
+    "npm-check": "^5.9.0",
+    "pm2": "^4.1.2"
   }
 }

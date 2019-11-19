@@ -2,13 +2,23 @@
 
 debugger; /* eslint-disable-line*/
 
+const { log, audit } = require('./utils');
+const { logType, auditType } = require('./conf');
+
+process.on('unhandledRejection', (reason) => {
+    // Will print "unhandledRejection err is not defined"
+    log(logType.system).fatal(reason);
+    audit(auditType.system).fatal(reason);
+});
+
 /**
  * Module dependencies.
  */
-require('./conf');
+require('./startup');
 const app = require('./app');
 const http = require('http');
 const { createTerminus } = require('@godaddy/terminus');
+
 
 /**
  * Normalize a port into a number, string, or false.
@@ -45,15 +55,16 @@ app.set('port', port);
 const server = http.createServer(app);
 
 const onSignal = () => {
-    console.log('server will stop , do you have anything to do?');
+    log(logType.stop).info('server will stop , do you have anything to do?');
     // start cleanup of resource, like databases or file descriptors
 };
 
 const onHealthCheck = async () => {
-    console.log('is healthy');
-    throw new Error('wqeqw');
+    log(logType.startup).info('is healthy');
     // checks if the system is healthy, like the db connection is live
     // resolves, if health, rejects if not
+    // throw new Error('wqeqw');//not healthy
+    // return { a: false };//is healthy
 };
 
 createTerminus(server, {
@@ -80,11 +91,11 @@ const onError = error => {
     // handle specific listen errors with friendly messages
     switch (error.code) {
         case 'EACCES':
-            console.error(bind + ' requires elevated privileges');
+            log(logType.startup).error(`${bind} requires elevated privileges`);
             process.exit(1);
             break;
         case 'EADDRINUSE':
-            console.error(bind + ' is already in use');
+            log(logType.startup).error(`${bind} is already in use`);
             process.exit(1);
             break;
         default:
@@ -103,7 +114,7 @@ const onListening = () => {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
 
-    console.log(`Listening on ${bind}`);
+    log(logType.startup).info(`${process.env.SERVICE_NAME} listening on ${bind}`);
     debugger; /* eslint-disable-line*/
 };
 

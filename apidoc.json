@@ -1,0 +1,9 @@
+{
+    "name": "common service",
+    "version": "0.1.0",
+    "description": "common service api document",
+    "apidoc": {
+        "title": "server api",
+        "url": "http://localhost:3001/index.html"
+    }
+}

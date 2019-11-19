@@ -1,5 +1,6 @@
 const httpStatus = require('./status');
 const { trace } = require('../log');
+const { traceType } = require('../../conf');
 
 /**
 * 处理所有http请求,所有http请求的出口在 _resSend() 里
@@ -118,7 +119,7 @@ module.exports = _response => new class resReult {
         if (Object.getOwnPropertyNames(this.request.params).length > 0) {
             _datas += ` params=>${JSON.stringify(this.request.params)}`;
         }
-        trace('req-res', { traceId: this.request.headers['x-b3-traceid'], spanId: this.request.headers['x-b3-spanid'], parentSpanId: this.request.headers['x-b3-parentspanid'] }).info(`[${addressIpv4}(${this.request.method}): ${this.request.protocol}://${this.request.get('host')}${this.request.originalUrl}] request parameter :${_datas || ' no parameter'} , response result : ${JSON.stringify(_result)}`);
+        trace(traceType.default, { traceId: this.request.headers['x-b3-traceid'], spanId: this.request.headers['x-b3-spanid'], parentSpanId: this.request.headers['x-b3-parentspanid'] }).info(`[${addressIpv4}(${this.request.method}): ${this.request.protocol}://${this.request.get('host')}${this.request.originalUrl}] request parameter :${_datas || ' no parameter'} , response result : ${JSON.stringify(_result)}`);
         this.response.send(_result);
     }
 };

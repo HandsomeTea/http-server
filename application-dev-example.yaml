@@ -1,4 +1,6 @@
 PORT: 3000
+DOC_PORT: 3001
+SERVICE_NAME: 'personal server'
 TRACE_LOG_LEVEL: 'trace'
 AUDIT_LOG_LEVEL: 'trace'
 DEV_LOG_LEVEL: 'trace'

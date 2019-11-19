@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 
 const { log, trace, audit, traceId, response } = require('./utils');
+const { logType, auditType, traceType } = require('./conf');
 const restApi = require('./routes');
 
 
@@ -30,9 +31,9 @@ app.use((req, res, next) => {
     }
 
     /**日志封装 */
-    req.log = _module => log(_module);
-    req.trace = _module => trace(_module, { traceId: req.headers['x-b3-traceid'], spanId: req.headers['x-b3-spanid'], parentSpanId: req.headers['x-b3-parentspanid'] });
-    req.audit = _module => audit(_module);
+    req.log = (_module = logType.api) => log(_module);
+    req.trace = (_module = traceType.default) => trace(_module, { traceId: req.headers['x-b3-traceid'], spanId: req.headers['x-b3-spanid'], parentSpanId: req.headers['x-b3-parentspanid'] });
+    req.audit = (_module = auditType.request) => audit(_module);
 
     // /**返回数据封装 */
     const _status = response(res, req);
@@ -50,7 +51,7 @@ app.use((req, res, next) => {
 app.use(restApi);
 
 app.use((err, req, res, next) => {/* eslint-disable-line*/
-    audit('system-error').fatal(`${err.stack}`);
+    audit(auditType.error).fatal(`${err.stack}`);
     res.serverError({ result: 'Something broke! please try again.' });
 });
 

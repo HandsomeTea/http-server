@@ -1,7 +1,7 @@
 const yaml = require('js-yaml');
 const fs = require('fs');
 
-const { envValidate } = require('./env-validate');
+const { envValidate } = require('./env_validate');
 const { system } = require('../../utils');
 
 const proConfigPath = process.productProcessEnvHotLoadPath;
