@@ -9,7 +9,7 @@ module.exports = {
 
         return _list.map(_path => {
             return path.resolve(__dirname, _path);
-        })
+        });
     })(),
     watch_delay: 1000,
     autorestart: true,

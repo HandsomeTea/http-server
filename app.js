@@ -37,7 +37,7 @@ app.use((req, res, next) => {
     req.trace = (_module = traceType.default) => trace(_module, { traceId: req.headers['x-b3-traceid'], spanId: req.headers['x-b3-spanid'], parentSpanId: req.headers['x-b3-parentspanid'] });
     req.audit = (_module = auditType.request) => audit(_module);
 
-    // /**返回数据封装 */
+    /**返回数据封装 */
     const _status = response(res, req);
 
     res.success = (_data, _type = undefined) => _status.success(_data, _type);
