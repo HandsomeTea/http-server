@@ -1,21 +1,20 @@
+/* eslint-disable no-console */
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
 const app = express();
 
-const { log } = require('./utils');
 
-app.use(express.static(path.resolve(process.env.INIT_CWD, 'doc')));
+app.use(express.static(path.resolve(__dirname, 'doc')));
 app.get('/', (req, res) => {
-    let apidoc = path.resolve(process.env.INIT_CWD, 'doc/index.html');
+    let apidoc = path.resolve(__dirname, 'doc/index.html');
 
     if (fs.existsSync(apidoc)) {
         res.sendFile(apidoc);
     } else {
-        res.send('服务器出错...');
+        res.send('文档未找到或未生成.');
     }
-
 });
 
 const server = http.createServer(app);
@@ -31,11 +30,11 @@ const onError = error => {
 
     switch (error.code) {
         case 'EACCES':
-            log('api-doc').error(`${bind} requires elevated privileges`);
+            console.error(`[api-doc] ${bind} requires elevated privileges`);
             process.exit(1);
             break;
         case 'EADDRINUSE':
-            log('api-doc').error(`${bind} is already in use`);
+            console.error(`[api-doc] ${bind} is already in use`);
             process.exit(1);
             break;
         default:
@@ -49,7 +48,7 @@ const onListening = () => {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
 
-    log('api-doc').info(`api doc service listening on ${bind} .`);
+    console.info(`[api-doc] api doc service listening on ${bind} and running on http://localhost:${addr.port} .`);
 };
 
 server.listen(port, '0.0.0.0');

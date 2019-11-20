@@ -1,8 +1,9 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const compression = require('compression');
 
-const { log, trace, audit, traceId, response } = require('./utils');
+const { traceId, response } = require('./utils');
 const { logType, auditType, traceType } = require('./conf');
 const restApi = require('./routes');
 
@@ -15,10 +16,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+app.use(compression());
 
 /**跟路由处理 */
 app.get('/', (req, res) => {
-    // res.redirect('/test/test');
+    // res.redirect('tests/test/12312');
     res.send('no deal');
 });
 

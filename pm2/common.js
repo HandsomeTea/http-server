@@ -5,7 +5,7 @@ module.exports = {
     name: 'http-server',
     script: 'service.js',
     watch: (() => {
-        const _list = ['../routes', '../conf', '../middlewares', '../startup', '../utils', '../app.js', '../service.js'];
+        const _list = ['../conf', '../middlewares', '../routes', '../startup', '../utils', '../app.js', '../service.js'];
 
         return _list.map(_path => {
             return path.resolve(__dirname, _path);
@@ -14,6 +14,7 @@ module.exports = {
     watch_delay: 1000,
     autorestart: true,
     restart_delay: 1000,
+    max_restarts: 3,
     max_memory_restart: '1G',
     env: {
         NODE_ENV: 'development'

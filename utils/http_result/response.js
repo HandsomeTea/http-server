@@ -1,5 +1,4 @@
 const httpStatus = require('./status');
-const { trace } = require('../log');
 const { traceType } = require('../../conf');
 
 /**

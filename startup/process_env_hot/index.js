@@ -2,7 +2,6 @@ const yaml = require('js-yaml');
 const fs = require('fs');
 
 const { envValidate } = require('./env_validate');
-const { system } = require('../../utils');
 
 const proConfigPath = process.productProcessEnvHotLoadPath;
 const localConfigPath = process.devProcessEnvHotLoadPath;
@@ -29,6 +28,9 @@ const _setConfig = _configFile => {
             _arr++;
             system('set-env-value').warn(`process.env.${_key} from ${JSON.stringify(process.env[_key])} to ${JSON.stringify(_config)}`);
             process.env[_key] = _config;
+            if (['TRACE_LOG_LEVEL', 'AUDIT_LOG_LEVEL', 'DEV_LOG_LEVEL'].includes(_key)) {
+                initLog();
+            }
         }
     }
     system('set-env-value').warn(_arr > 0 ? `change env configuration from ${_configFile} success.` : 'the configuration of peocess.env no changed.');

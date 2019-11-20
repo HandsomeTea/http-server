@@ -5,4 +5,4 @@ process.mongoUrl = '';
 /**生产环境下环境变量热加载配置的目录 */
 process.productProcessEnvHotLoadPath = '';
 /**开发环境下环境变量热加载配置的目录 */
-process.devProcessEnvHotLoadPath = path.resolve(process.env.INIT_CWD, 'application-dev-example.yaml');
+process.devProcessEnvHotLoadPath = path.resolve(__dirname, '../application-dev-example.yaml');

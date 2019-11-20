@@ -45,17 +45,17 @@ const updateOrCreateLogInstance = () => {
         categories: {
             default: {
                 appenders: ['_develop', '_trace', '_audit', '_system'],
-                level: 'ALL',
+                level: 'OFF',
                 enableCallStack: true
             },
             developLog: {
                 appenders: ['_develop'],
-                level: process.env.DEV_LOG_LEVEL || 'ALL',
+                level: process.env.NODE_ENV === 'development' ? process.env.DEV_LOG_LEVEL || 'ALL' : 'OFF',
                 enableCallStack: true
             },
             traceLog: {
                 appenders: ['_trace'],
-                level: process.env.TRACE_LOG_LEVEL || 'ALL',
+                level: process.env.NODE_ENV === 'development' ? process.env.TRACE_LOG_LEVEL || 'ALL' : 'OFF',
                 enableCallStack: true
             },
             auditLog: {
@@ -70,8 +70,6 @@ const updateOrCreateLogInstance = () => {
         }
     });
 };
-
-updateOrCreateLogInstance();
 
 /**
  * 开发时打印日志使用
@@ -125,26 +123,8 @@ const system = _module => {
 };
 
 
-/**
- * 生成跟踪日志的traceID
- * @returns
- */
-const traceId = () => {
-    const digits = '0123456789abcdef';
-
-    let _trace = '';
-
-    for (let i = 0; i < 16; i += 1) {
-        const rand = Math.floor(Math.random() * 16);
-
-        _trace += digits[rand];
-    }
-    return _trace;
-};
-
 module.exports = {
     updateOrCreateLogInstance,
-    traceId,
     system,
     audit,
     trace,

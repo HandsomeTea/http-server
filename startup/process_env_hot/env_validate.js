@@ -1,5 +1,3 @@
-const { system } = require('../../utils');
-
 /**
  * 检查环境变量设置的值
  * @param {string} _key

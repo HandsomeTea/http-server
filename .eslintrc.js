@@ -11,6 +11,13 @@ module.exports = {
     },
     parser: 'babel-eslint',
     extends: 'eslint:recommended',
+    globals: {
+        'initLog': true,
+        'log': true,
+        'audit': true,
+        'trace': true,
+        'system': true
+    },
     rules: {
         'indent': [2, 4, { SwitchCase: 1 }], //缩进风格
         'linebreak-style': [0, 'error', 'windows', 'unix'], //换行风格

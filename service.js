@@ -3,7 +3,6 @@
 debugger; /* eslint-disable-line*/
 require('./startup');
 
-const { log, audit } = require('./utils');
 const { logType, auditType } = require('./conf');
 
 process.on('unhandledRejection', reason => {
@@ -12,19 +11,12 @@ process.on('unhandledRejection', reason => {
     audit(auditType.system).fatal(reason);
 });
 
-process.on('uncaughtException', err => {
-    // 监听未捕获的异常
-    log(logType.system).fatal(err);
-    audit(auditType.system).fatal(err);
-});
-
 /**
  * Module dependencies.
  */
 const app = require('./app');
 const http = require('http');
 const { createTerminus } = require('@godaddy/terminus');
-
 
 /**
  * Normalize a port into a number, string, or false.
@@ -115,7 +107,7 @@ const onListening = () => {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
 
-    log(logType.startup).info(`${process.env.SERVICE_NAME} listening on ${bind}`);
+    log(logType.startup).info(`${process.env.SERVICE_NAME} listening on ${bind} and running on http://127.0.0.1:${addr.port}`);
     debugger; /* eslint-disable-line*/
 };
 

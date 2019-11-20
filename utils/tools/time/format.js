@@ -8,7 +8,7 @@ const _ = require('underscore');
  */
 const _toFixed = (_num, _length) => {
     if (!_.isNumber(parseInt(_num)) || !_.isNumber(parseInt(_length))) {
-        console.error('_toFixed: parameter must be number or can be parseInt to number');
+        console.error('_toFixed: parameter must be number or can be parseInt to number');/* eslint-disable-line no-console*/
         return _num;
     }
 

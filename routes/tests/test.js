@@ -5,7 +5,7 @@ const router = Router();
 
 /**
  * @api {post} /tests/test/:data 测试接口
- * @apiName externaluserid
+ * @apiName 测试接口
  * @apiGroup TEST
  * @apiVersion 1.0.0
  * @apiParam (Body) {String[]} userid userid列表.
