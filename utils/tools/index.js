@@ -1,4 +1,4 @@
 const { UTCTime } = require('./time/format');
-const { traceId } = require('./other');
+const { traceId, delay } = require('./other');
 
-module.exports = { UTCTime, traceId };
+module.exports = { UTCTime, traceId, delay };
