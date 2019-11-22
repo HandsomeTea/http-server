@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
 /**加载路由 */
 app.use(restApi);
 
-/**捕捉路由中未处理的错误 */
+/**捕捉路由中未处理的错误，即直接throw new Error的情况 */
 app.use((err, req, res, next) => {/* eslint-disable-line*/
     audit(auditType.error).fatal(`${err.stack}`);
     res.serverError('Something broke! please try again.');
