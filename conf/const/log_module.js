@@ -17,6 +17,6 @@ module.exports = {
         error: 'SYSTEM_ERROR'
     },
     traceType: {
-        default: process.env.SERVICE_NAME || 'common-service'
+        default: process.env.SERVER_NAME || 'common-server'
     }
 };

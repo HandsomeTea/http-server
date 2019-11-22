@@ -49,7 +49,7 @@
         "type": "node",
         "request": "launch",
         "name": "Launch debug",
-        "program": "${workspaceRoot}/service.js",
+        "program": "${workspaceRoot}/server.js",
         "internalConsoleOptions": "openOnSessionStart"
     }]
 }

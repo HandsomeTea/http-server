@@ -107,13 +107,16 @@ const onListening = () => {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
 
-    log(logType.startup).info(`${process.env.SERVICE_NAME} listening on ${bind} and running on http://127.0.0.1:${addr.port}`);
+    log(logType.startup).info(`${process.env.SERVER_NAME} listening on ${bind} and running on http://127.0.0.1:${addr.port}`);
     debugger; /* eslint-disable-line*/
 };
 
 /**
  * Listen on provided port, on all network interfaces.
  */
-server.listen(port, '0.0.0.0');
+server.listen(port, '0.0.0.0', () => {
+    require('./service/mongodb');
+    require('./service/redis');
+});
 server.on('error', onError);
 server.on('listening', onListening);

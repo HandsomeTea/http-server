@@ -2,7 +2,7 @@
 NODE_ENV: 'development'
 PORT: '3000'
 DOC_PORT: '3001'
-SERVICE_NAME: 'personal server'
+SERVER_NAME: 'personal server'
 # start 以下两项 的设置在 NODE_ENV 不为 development 时将失效，该设计意在为非开发模式下服务器提升性能，生产环境下跟踪日志和开发日志是没必要的
 TRACE_LOG_LEVEL: 'trace'
 DEV_LOG_LEVEL: 'trace'

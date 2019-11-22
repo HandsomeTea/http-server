@@ -3,9 +3,9 @@ const path = require('path');
 
 module.exports = {
     name: 'http-server',
-    script: 'service.js',
+    script: 'server.js',
     watch: (() => {
-        const _list = ['../conf', '../middlewares', '../routes', '../startup', '../utils', '../app.js', '../service.js'];
+        const _list = ['../conf', '../middlewares', '../routes', '../service', '../startup', '../utils', '../app.js', '../server.js'];
 
         return _list.map(_path => {
             return path.resolve(__dirname, _path);

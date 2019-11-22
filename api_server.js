@@ -48,7 +48,7 @@ const onListening = () => {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
 
-    console.info(`[api-doc] api doc service listening on ${bind} and running on http://localhost:${addr.port} .`);
+    console.info(`[api-doc] api doc server listening on ${bind} and running on http://localhost:${addr.port} .`);
 };
 
 server.listen(port, '0.0.0.0');

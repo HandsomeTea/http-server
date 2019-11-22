@@ -4,9 +4,9 @@
   "description": "common web server",
   "main": "index.js",
   "scripts": {
-    "start": "node ./service.js",
-    "debug": "node --inspect ./service.js",
-    "debug-brk": "node --inspect-brk ./service.js",
+    "start": "node ./server.js",
+    "debug": "node --inspect ./server.js",
+    "debug-brk": "node --inspect-brk ./server.js",
     "fix": "eslint ./ --fix",
     "upgrade": "./node_modules/.bin/npm-check -u",
     "doc": "./node_modules/.bin/apidoc -i ./routes -o ./doc && node ./api_server.js",
