@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const asyncHandler = require('express-async-handler');
 
-const { httpStatus, delay } = require('../../utils');
+const { httpStatus } = require('../../utils');
 
 const router = Router();
 
@@ -50,11 +50,13 @@ const router = Router();
  * @apiError {String} info 错误信息
  */
 router.get('/:data', asyncHandler(async (req, res) => {
-    req.trace().info('123123123');
-    await delay(3000);
-    req.audit().warn('22sssss');
+    // req.trace().info('123123123');
+    // let 你说 = 'you say';
+
+    // await delay(3000);
+    // req.audit().warn('22sssss');
     // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
-    res.success({ user: 'ss1ssssss23' }, httpStatus.successSearch);
+    res.success({ test: 'siege test' }, httpStatus.successSearch);
     // throw new Error('cuo wu');
 }));
 
