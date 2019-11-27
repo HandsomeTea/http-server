@@ -41,7 +41,7 @@ exports.setENV = _configFile => {
             _arr++;
             system('set-env-value').warn(`process.env.${_key} from ${JSON.stringify(process.env[_key])} to ${JSON.stringify(_config)}`);
             process.env[_key] = _config;
-            if (['TRACE_LOG_LEVEL', 'AUDIT_LOG_LEVEL', 'DEV_LOG_LEVEL'].includes(_key)) {
+            if (['TRACE_LOG_LEVEL', 'AUDIT_LOG_LEVEL', 'DEV_LOG_LEVEL', 'NODE_ENV'].includes(_key)) {
                 updateOrCreateLogInstance();
             }
         }

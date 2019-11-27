@@ -9,3 +9,7 @@ AUDIT_LOG_LEVEL: 'trace'
 JWT_APP_NAME: 'nodejs-server'
 JWT_APP_ID: 'appid'
 JWT_APP_SECERT: 'appsecert'
+# service
+REDIS_URL: 'redis://localhost:6379'
+MONGO_URL: 'mongodb://localhost:3001/meteor'
+ROOT_URL: 'http://loaclhost:3000'
