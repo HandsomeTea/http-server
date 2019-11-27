@@ -2,6 +2,7 @@ const { Router } = require('express');
 const asyncHandler = require('express-async-handler');
 
 const { httpStatus } = require('../../utils');
+const redis = require('../../service/redis');
 
 const router = Router();
 
@@ -52,11 +53,11 @@ const router = Router();
 router.get('/:data', asyncHandler(async (req, res) => {
     // req.trace().info('123123123');
     // let 你说 = 'you say';
-
     // await delay(3000);
     // req.audit().warn('22sssss');
     // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
-    res.success({ test: 'siege test' }, httpStatus.successSearch);
+    // res.success({ test: await redis.testSet() }, httpStatus.successSearch);
+    res.success({ test: await redis.testGet() }, httpStatus.successSearch);
     // throw new Error('cuo wu');
 }));
 

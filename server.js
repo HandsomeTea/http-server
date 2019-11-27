@@ -115,7 +115,7 @@ const onListening = () => {
  * Listen on provided port, on all network interfaces.
  */
 server.listen(port, '0.0.0.0', () => {
-    require('./service/mongodb');
+    require('./service/mongodb/mongo');
     require('./service/redis');
 });
 server.on('error', onError);
