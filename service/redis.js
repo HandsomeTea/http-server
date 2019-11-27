@@ -14,6 +14,7 @@ class Redis {
 
         this.redis.on('error', error => {
             system('redis-connect').error(`Error ${error}`);
+            audit('redis-connect').error(`Error ${error}`);
         });
 
         this.redis.on('connect', () => {
