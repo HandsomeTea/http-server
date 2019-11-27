@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 
-const { auditType } = require('./conf');
+const { auditModule } = require('./config/logger.config');
 const { responseType, devLogger, auditLogger, traceLogger } = require('./middlewares');
 const restApi = require('./routes');
 
@@ -38,7 +38,7 @@ app.use(restApi);
 
 /**捕捉路由中未处理的错误，即直接throw new Error的情况 */
 app.use((err, req, res, next) => {/* eslint-disable-line*/
-    audit(auditType.error).fatal(`${err.stack}`);
+    audit(auditModule.error).fatal(`${err.stack}`);
     res.serverError('Something broke! please try again.');
 });
 

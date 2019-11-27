@@ -7,11 +7,12 @@
     "start": "node ./server.js",
     "debug": "node --inspect ./server.js",
     "debug-brk": "node --inspect-brk ./server.js",
+    "pm2": "pm2 start ./pm2/pm2.dev.config.js",
+    "cluster": "pm2 start ./pm2/pm2.cluster.config.js",
     "fix": "eslint ./ --fix",
     "upgrade": "./node_modules/.bin/npm-check -u",
-    "doc": "./node_modules/.bin/apidoc -i ./routes -o ./doc && node ./api_server.js",
-    "pm2": "pm2 start ./pm2/pm2.dev.config.js",
-    "cluster": "pm2 start ./pm2/pm2.cluster.config.js"
+    "test": "./node_modules/.bin/mocha",
+    "doc": "./node_modules/.bin/apidoc -i ./routes -o ./doc && node ./api_server.js"
   },
   "repository": {
     "type": "git",
@@ -24,10 +25,10 @@
   },
   "homepage": "https://github.com/HandsomeTea/personal-server#readme",
   "apidoc": {
-    "name": "User-Manager",
+    "name": "admin-Manager",
     "version": "1.0.0",
     "description": "",
-    "title": "User-Manager",
+    "title": "admin-api",
     "url": ""
   },
   "dependencies": {
@@ -45,6 +46,7 @@
     "apidoc": "^0.18.0",
     "babel-eslint": "^10.0.3",
     "eslint": "^6.6.0",
+    "mocha": "^6.2.2",
     "npm-check": "^5.9.0",
     "siege": "^0.2.0"
   }

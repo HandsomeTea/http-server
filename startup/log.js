@@ -1,4 +1,4 @@
-const { updateOrCreateLogInstance, log, trace, audit, system } = require('./logger');
+const { updateOrCreateLogInstance, log, trace, audit, system } = require('../config/logger.config');
 
 global.initLog = updateOrCreateLogInstance;
 initLog();

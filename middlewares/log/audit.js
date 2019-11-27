@@ -1,6 +1,6 @@
-const { auditType } = require('../../conf');
+const { auditModule } = require('../../config/logger.config');
 
 module.exports = (req, res, next) => {
-    req.audit = (_module = auditType.request) => audit(_module);
+    req.audit = (_module = auditModule.request) => audit(_module);
     next();
 };

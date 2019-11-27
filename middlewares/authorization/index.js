@@ -6,7 +6,7 @@ const _JWTcheck = new _validate(process.env.JWT_APP_NAME, process.env.JWT_APP_ID
  * 生成json web token
  * @returns
  */
-const JWTgeneral = () => {
+exports.JWTgeneral = () => {
     return _JWTcheck.sign();
 };
 
@@ -17,7 +17,7 @@ const JWTgeneral = () => {
  * @param {*} res
  * @param {*} next
  */
-const JWTcheck = (req, res, next) => {
+exports.JWTcheck = (req, res, next) => {
     if (req.headers.authorization) {
         const _array = req.headers.authorization.split(' ');
 
@@ -31,9 +31,4 @@ const JWTcheck = (req, res, next) => {
     } else {
         res.status(400).send('Bad request(no Authorization)! Refused.');
     }
-};
-
-module.exports = {
-    JWTgeneral,
-    JWTcheck
 };

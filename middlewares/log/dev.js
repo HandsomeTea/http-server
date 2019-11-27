@@ -1,6 +1,6 @@
-const { logType } = require('../../conf');
+const { logModule } = require('../../config/logger.config');
 
 module.exports = (req, res, next) => {
-    req.log = (_module = logType.api) => log(_module);
+    req.log = (_module = logModule.api) => log(_module);
     next();
 };

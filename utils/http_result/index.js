@@ -1,7 +1,2 @@
-const response = require('./response');
-const httpStatus = require('./status');
-
-module.exports = {
-    response,
-    httpStatus
-};
+exports.response = require('./response');
+exports.httpStatus = require('./status');

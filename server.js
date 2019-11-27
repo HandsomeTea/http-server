@@ -3,12 +3,12 @@
 debugger; /* eslint-disable-line*/
 require('./startup');
 
-const { logType, auditType } = require('./conf');
+const { logModule, auditModule } = require('./config/logger.config');
 
 process.on('unhandledRejection', reason => {
     // 处理没有catch的promiss，第二个参数即为promiss
-    log(logType.system).fatal(reason);
-    audit(auditType.system).fatal(reason);
+    log(logModule.system).fatal(reason);
+    audit(auditModule.system).fatal(reason);
 });
 
 /**
@@ -40,7 +40,7 @@ const normalizePort = val => {
 /**
  * Get port from environment and store in Express.
  */
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(3000);
 
 app.set('port', port);
 
@@ -50,12 +50,12 @@ app.set('port', port);
 const server = http.createServer(app);
 
 const onSignal = () => {
-    log(logType.stop).info('server will stop , do you have anything to do?');
+    log(logModule.stop).info('server will stop , do you have anything to do?');
     // start cleanup of resource, like databases or file descriptors
 };
 
 const onHealthCheck = async () => {
-    log(logType.startup).info('is healthy');
+    log(logModule.startup).info('is healthy');
     // checks if the system is healthy, like the db connection is live
     // resolves, if health, rejects if not
     // throw new Error('wqeqw');//not healthy
@@ -85,11 +85,11 @@ const onError = error => {
     // handle specific listen errors with friendly messages
     switch (error.code) {
         case 'EACCES':
-            log(logType.startup).error(`${bind} requires elevated privileges`);
+            log(logModule.startup).error(`${bind} requires elevated privileges`);
             process.exit(1);
             break;
         case 'EADDRINUSE':
-            log(logType.startup).error(`${bind} is already in use`);
+            log(logModule.startup).error(`${bind} is already in use`);
             process.exit(1);
             break;
         default:
@@ -107,7 +107,7 @@ const onListening = () => {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
 
-    log(logType.startup).info(`${process.env.SERVER_NAME} listening on ${bind} and running on http://127.0.0.1:${addr.port}`);
+    log(logModule.startup).info(`${process.env.SERVER_NAME} listening on ${bind} and running on http://127.0.0.1:${addr.port}`);
     debugger; /* eslint-disable-line*/
 };
 

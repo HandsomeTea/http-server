@@ -5,7 +5,7 @@ const log4js = require('log4js');
  *
  * @returns
  */
-const updateOrCreateLogInstance = () => {
+exports.updateOrCreateLogInstance = () => {
     log4js.configure({
         disableClustering: true, //支持nodejs集群启动模式
         appenders: {
@@ -75,7 +75,7 @@ const updateOrCreateLogInstance = () => {
  * 开发时打印日志使用
  * @param {string} _module
  */
-const log = _module => {
+exports.log = _module => {
     const _devLogger = log4js.getLogger('developLog');
 
     _devLogger.addContext('Module', _module || 'default-module');
@@ -87,7 +87,7 @@ const log = _module => {
  * 追踪日志使用
  * @param {string} _module
  */
-const trace = (_module, _data) => {
+exports.trace = (_module, _data) => {
     const _traceLogger = log4js.getLogger('traceLog');
 
     _traceLogger.addContext('Module', _module || 'default-module');
@@ -102,7 +102,7 @@ const trace = (_module, _data) => {
  * 操作日志使用
  * @param {string} _module
  */
-const audit = _module => {
+exports.audit = _module => {
     const _auditLogger = log4js.getLogger('auditLog');
 
     _auditLogger.addContext('Module', _module || 'default-module');
@@ -114,7 +114,7 @@ const audit = _module => {
  * 系统日志使用
  * @param {string} _module
  */
-const system = _module => {
+exports.system = _module => {
     const _systemLogger = log4js.getLogger('systemLog');
 
     _systemLogger.addContext('Module', _module.toUpperCase());
@@ -122,11 +122,45 @@ const system = _module => {
     return _systemLogger;
 };
 
+/**
+ * 生成跟踪日志的traceID
+ * @returns {string}
+ */
+exports.traceId = () => {
+    const digits = '0123456789abcdef';
 
-module.exports = {
-    updateOrCreateLogInstance,
-    system,
-    audit,
-    trace,
-    log
+    let _trace = '';
+
+    for (let i = 0; i < 16; i += 1) {
+        const rand = Math.floor(Math.random() * 16);
+
+        _trace += digits[rand];
+    }
+    return _trace;
+};
+
+/**开发日志的日志模块定义 */
+exports.logModule = {
+    api: 'HTTP_REQUEST',
+    startup: 'SYSREM_STARTUP',
+    stop: 'SYSREM_STOP_CLEAN',
+    db: 'DATABASE',
+    system: 'SYSTEM'
+};
+
+/**audit日志的日志模块定义 */
+exports.auditModule = {
+    startup: 'SYSTEM_STARTUP',
+    add: 'ADD',
+    del: 'DELETE',
+    update: 'UPDATE',
+    search: 'SEARCH',
+    system: 'SYSTEM',
+    request: 'REST_API',
+    error: 'SYSTEM_ERROR'
+};
+
+/**追踪类日志的日志模块定义 */
+exports.traceModule = {
+    default: process.env.SERVER_NAME || 'common-server'
 };

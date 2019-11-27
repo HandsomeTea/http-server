@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 });
 
 const server = http.createServer(app);
-const port = process.env.DOC_PORT || 3001;
+const port = 3001;
 const onError = error => {
     if (error.syscall !== 'listen') {
         throw error;
