@@ -41,6 +41,7 @@
     "apidoc": "^0.18.0",
     "babel-eslint": "^10.0.3",
     "eslint": "^6.7.1",
+    "lint-staged": "^9.5.0",
     "mocha": "^6.2.2",
     "npm-check": "^5.9.0",
     "siege": "^0.2.0"
@@ -49,5 +50,8 @@
     "hooks": {
       "pre-commit": "npm run fix"
     }
+  },
+  "lint-staged": {
+    "*": "npm run fix"
   }
 }
