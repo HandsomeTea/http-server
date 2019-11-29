@@ -117,10 +117,8 @@ const onListening = () => {
 server.listen(port, '0.0.0.0', () => {
     require('./service/mongodb/mongo');
     require('./service/redis/redis');
-    try {
+    if (process.send) {
         process.send('ready');
-    } catch (e) {
-        /**nothing to do. */
     }
 });
 server.on('error', onError);

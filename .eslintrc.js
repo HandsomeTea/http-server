@@ -12,11 +12,11 @@ module.exports = {
     parser: 'babel-eslint',
     extends: 'eslint:recommended',
     globals: {
-        'initLog': true,
-        'log': true,
-        'audit': true,
-        'trace': true,
-        'system': true
+        'initLog': 'readonly',
+        'log': 'readonly',
+        'audit': 'readonly',
+        'trace': 'readonly',
+        'system': 'readonly'
     },
     rules: {
         'indent': [2, 4, { SwitchCase: 1 }], //缩进风格
