@@ -117,6 +117,7 @@ const onListening = () => {
 server.listen(port, '0.0.0.0', () => {
     require('./service/mongodb/mongo');
     require('./service/redis/redis');
+    process.send('ready');
 });
 server.on('error', onError);
 server.on('listening', onListening);
