@@ -59,7 +59,6 @@ router.get('/:data', asyncHandler(async (req, res) => {
     // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
     // res.success({ test: await redis.testSet() }, httpStatus.successSearch);
     // res.success({ test: await redis.testGet() }, httpStatus.successSearch);
-    console.log(123332);
     res.success({ test: await users.findAll() }, httpStatus.successSearch);
     // throw new Error('cuo wu');
 }));
