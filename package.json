@@ -44,5 +44,10 @@
     "mocha": "^6.2.2",
     "npm-check": "^5.9.0",
     "siege": "^0.2.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run fix"
+    }
   }
 }
