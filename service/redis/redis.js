@@ -8,7 +8,7 @@ class Redis {
     }
 
     _init() {
-        this.redis = redis.createClient({ url: process.env.REDIS_URL });
+        this.redis = redis.createClient({ url: process.env.REDIS_URL, retry_strategy: () => 5000 });/* eslint-disable-line camelcase*/
 
         this.redis.on('ready', () => {
             system('redis').info(`connect on ${process.env.REDIS_URL} success and ready to use.`);
