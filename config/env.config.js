@@ -29,7 +29,7 @@ exports.setENV = _configFile => {
     try {
         config = yaml.safeLoad(fs.readFileSync(_configFile, 'utf8'));
     } catch (err) {
-        system('set-env-value').error(`change env config failed : ${JSON.stringify({ response: err.response, message: err.message })}`);
+        system('set-env').error(`change env config failed : ${JSON.stringify({ response: err.response, message: err.message })}`);
     }
 
     let _arr = 0;
@@ -39,12 +39,12 @@ exports.setENV = _configFile => {
 
         if (process.env[_key] !== _config) {
             _arr++;
-            system('set-env-value').warn(`process.env.${_key} from ${JSON.stringify(process.env[_key])} to ${JSON.stringify(_config)}`);
+            system('set-env').warn(`process.env.${_key} from ${JSON.stringify(process.env[_key])} to ${JSON.stringify(_config)}`);
             process.env[_key] = _config;
             if (['TRACE_LOG_LEVEL', 'AUDIT_LOG_LEVEL', 'DEV_LOG_LEVEL', 'NODE_ENV'].includes(_key)) {
                 updateOrCreateLogInstance();
             }
         }
     }
-    system('set-env-value').warn(_arr > 0 ? `change env configuration from ${_configFile} success.` : 'the configuration of peocess.env no changed.');
+    system('set-env').warn(_arr > 0 ? `change env configuration from ${_configFile} success.` : 'the configuration of peocess.env no changed.');
 };

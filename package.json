@@ -24,15 +24,8 @@
     "url": "https://github.com/HandsomeTea/personal-server/issues"
   },
   "homepage": "https://github.com/HandsomeTea/personal-server#readme",
-  "apidoc": {
-    "name": "admin-Manager",
-    "version": "1.0.0",
-    "description": "",
-    "title": "admin-api",
-    "url": ""
-  },
   "dependencies": {
-    "@godaddy/terminus": "^4.2.1",
+    "@godaddy/terminus": "^4.3.0",
     "compression": "^1.7.4",
     "cookie-parser": "~1.4.4",
     "express": "^4.17.1",
@@ -40,13 +33,14 @@
     "js-yaml": "^3.13.1",
     "jsonwebtoken": "^8.5.1",
     "log4js": "^6.1.0",
+    "mongoose": "^5.7.12",
     "redis": "^2.8.0",
     "underscore": "^1.9.1"
   },
   "devDependencies": {
     "apidoc": "^0.18.0",
     "babel-eslint": "^10.0.3",
-    "eslint": "^6.6.0",
+    "eslint": "^6.7.1",
     "mocha": "^6.2.2",
     "npm-check": "^5.9.0",
     "siege": "^0.2.0"

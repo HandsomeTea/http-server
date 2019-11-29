@@ -2,7 +2,8 @@ const { Router } = require('express');
 const asyncHandler = require('express-async-handler');
 
 const { httpStatus } = require('../../utils');
-const redis = require('../../service/redis');
+// const redis = require('../../service/redis/redis');
+const { users } = require('../../service/mongodb');
 
 const router = Router();
 
@@ -57,7 +58,8 @@ router.get('/:data', asyncHandler(async (req, res) => {
     // req.audit().warn('22sssss');
     // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
     // res.success({ test: await redis.testSet() }, httpStatus.successSearch);
-    res.success({ test: await redis.testGet() }, httpStatus.successSearch);
+    // res.success({ test: await redis.testGet() }, httpStatus.successSearch);
+    res.success({ test: await users.findAll() }, httpStatus.successSearch);
     // throw new Error('cuo wu');
 }));
 

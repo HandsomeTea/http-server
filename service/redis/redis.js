@@ -2,33 +2,39 @@ const redis = require('redis');
 
 class Redis {
     constructor() {
-        this.redis = redis.createClient({ url: process.env.REDIS_URL || 'redis://192.168.1.153:6379' });
+        this.redis = null;
+
+        this._init();
+    }
+
+    _init() {
+        this.redis = redis.createClient({ url: process.env.REDIS_URL });
 
         this.redis.on('ready', () => {
-            system('redis-connect').info('redis ready ro used.');
+            system('redis').info(`connect on ${process.env.REDIS_URL} success and ready to use.`);
         });
 
         this.redis.on('end', () => {
-            system('redis-connect').info('end');
+            system('redis').fatal('disconnected! connection is break off.');
         });
 
         this.redis.on('error', error => {
-            system('redis-connect').error(`Error ${error}`);
-            audit('redis-connect').error(`Error ${error}`);
+            system('redis').error(error.toString());
+            audit('redis').error(error);
         });
 
         this.redis.on('connect', () => {
-            system('redis-connect').info('redis connect success.');
+            system('redis').trace('connect success.');
         });
     }
 
     async _async(_redisApiName, ...args) {
         return new Promise((resolve, reject) => {
-            this.redis[_redisApiName](...args, (err, res) => {
+            this.redis[_redisApiName](...args, (err, result) => {
                 if (err) {
                     return reject(err);
                 }
-                return resolve(res);
+                return resolve(result);
             });
         });
     }

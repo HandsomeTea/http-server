@@ -10,6 +10,5 @@ JWT_APP_NAME: 'nodejs-server'
 JWT_APP_ID: 'appid'
 JWT_APP_SECERT: 'appsecert'
 # service
-REDIS_URL: 'redis://192.168.1.153:6379'
-MONGO_URL: 'mongodb://localhost:3001/meteor'
-ROOT_URL: 'http://loaclhost:3000'
+REDIS_URL: 'redis://192.168.1.131:6379'
+MONGO_URL: 'mongodb://192.168.1.131:27017/test'
