@@ -1,4 +1,6 @@
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
 const app = express();
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -28,10 +30,17 @@ app.use(traceLogger);
 app.use(auditLogger);
 app.use(devLogger);
 app.use(responseType);
+app.use(express.static(path.resolve(__dirname, 'doc')));
 /**跟路由处理 */
 app.get('/', (req, res) => {
-    // res.redirect('tests/test/12312');
-    res.send('no deal');
+    let apidoc = path.resolve(__dirname, 'doc/index.html');
+
+    if (fs.existsSync(apidoc)) {
+        res.sendFile(apidoc);
+    } else {
+        // res.redirect('tests/test/12312');
+        res.send('文档未找到或未生成.');
+    }
 });
 /**加载路由 */
 app.use(restApi);

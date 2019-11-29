@@ -12,7 +12,7 @@
     "fix": "./node_modules/.bin/eslint ./ --fix",
     "upgrade": "./node_modules/.bin/npm-check -u",
     "test": "./node_modules/.bin/mocha",
-    "doc": "./node_modules/.bin/apidoc -i ./routes -o ./doc && node ./api_server.js",
+    "doc": "./node_modules/.bin/apidoc -i ./routes -o ./doc",
     "testunit": "node -v"
   },
   "repository": {

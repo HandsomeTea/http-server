@@ -107,7 +107,8 @@ const onListening = () => {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
 
-    log(logModule.startup).info(`${process.env.SERVER_NAME} listening on ${bind} and running on http://127.0.0.1:${addr.port}`);
+    log(logModule.startup).info(`${process.env.SERVER_NAME} listening on ${bind}.`);
+    log(logModule.startup).info(`api document running on http://127.0.0.1:${addr.port} .`);
     debugger; /* eslint-disable-line*/
 };
 
