@@ -1,19 +1,16 @@
 const { db, schema } = require('../mongo');
 
 
-module.exports = new class Users {
+class Users {
     constructor() {
-        this._users = null;
-        this.users = null;
+        this._users = db.model('users', new schema(this._model()), 'users');
+        this.users = db.collection('users');
+
         this._init();
     }
 
     _init() {
-        const _modelUsersTable = db.model('users', new schema(this._model()), 'users');
-        const _originUserTable = db.collection('users');
 
-        this._users = _modelUsersTable;
-        this.users = _originUserTable;
     }
 
     _model() {
@@ -40,4 +37,12 @@ module.exports = new class Users {
     async modelFindAll() {
         return await this._users.find({});
     }
-};
+}
+
+const users = new Users();
+
+Object.freeze(users);
+Object.defineProperty(users, 'users', { configurable: false, writable: false });
+Object.defineProperty(users, '_users', { configurable: false, writable: false });
+
+module.exports = users;
