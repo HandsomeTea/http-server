@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 debugger; /* eslint-disable-line*/
 require('./startup');
 
@@ -12,77 +10,42 @@ process.on('unhandledRejection', reason => {
 });
 
 /**
- * Module dependencies.
+ * 处理端口
+ * @param {*} val
  */
-const app = require('./app');
-const http = require('http');
-const { createTerminus } = require('@godaddy/terminus');
+const _getPort = val => {
+    const port = parseInt(val, 10);
 
-/**
- * Normalize a port into a number, string, or false.
- */
-const normalizePort = val => {
-    let port = parseInt(val, 10);
-
+    // named pipe
     if (isNaN(port)) {
-        // named pipe
         return val;
     }
 
+    // port number
     if (port >= 0) {
-        // port number
         return port;
     }
 
     return false;
 };
 
-/**
- * Get port from environment and store in Express.
- */
-const port = normalizePort(3000);
+const port = _getPort(3000);
+const app = require('./app');
 
+/**Get port from environment and store in Express. */
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
+
+const http = require('http');
 const server = http.createServer(app);
 
-const onSignal = () => {
-    log(logModule.stop).info('server will stop , do you have anything to do?');
-    // start cleanup of resource, like databases or file descriptors
-};
-
-const onHealthCheck = async () => {
-    log(logModule.startup).info('is healthy');
-    // checks if the system is healthy, like the db connection is live
-    // resolves, if health, rejects if not
-    // throw new Error('wqeqw');//not healthy
-    // return { a: false };//is healthy
-};
-
-createTerminus(server, {
-    signal: 'SIGINT',
-    healthChecks: {
-        '/healthcheck': onHealthCheck
-    },
-    onSignal
-});
-
-/**
- * Event listener for HTTP server "error" event.
- */
+/** Event listener for HTTP server "error" event. */
 const onError = error => {
     if (error.syscall !== 'listen') {
         throw error;
     }
+    let bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
-    let bind = typeof port === 'string'
-        ? 'Pipe ' + port
-        : 'Port ' + port;
-
-    // handle specific listen errors with friendly messages
     switch (error.code) {
         case 'EACCES':
             log(logModule.startup).error(`${bind} requires elevated privileges`);
@@ -97,9 +60,7 @@ const onError = error => {
     }
 };
 
-/**
- * Event listener for HTTP server "listening" event.
- */
+/** Event listener for HTTP server "listening" event. */
 const onListening = () => {
     let addr = server.address();
 
@@ -112,14 +73,57 @@ const onListening = () => {
     debugger; /* eslint-disable-line*/
 };
 
+
+const redis = require('./service/redis/redis');
+const mongodb = require('./service/mongodb/mongo');
 /**
- * Listen on provided port, on all network interfaces.
+ * 当服务将要停止时的钩子函数
  */
+const _willShutDown = async () => {
+    log(logModule.stop).info('server connection will stop normally.');
+    await mongodb.closeMongoConnection();
+    await redis.quitRedis();
+    process.on('SIGINT', () => {
+        process.exit(0);
+    });
+};
+
+/**
+ * 健康检查的钩子函数
+ */
+const _healthCheck = async () => {
+    const result = mongodb.mongoStatus() === true && redis.redisStatus() === true;
+
+    if (!result) {
+        log(logModule.startup).fatal('system is shut down.');
+        throw new Error('wqeqw');
+    }
+    log(logModule.startup).debug('system is normal.');
+};
+
+/** 健康检查机制 */
+const { createTerminus } = require('@godaddy/terminus');
+
+createTerminus(server, {
+    signal: 'SIGINT',
+    healthChecks: {
+        '/healthcheck': _healthCheck
+    },
+    onSignal: _willShutDown
+});
+
+/** 服务开始监听请求 */
 server.listen(port, '0.0.0.0', () => {
-    require('./service/mongodb/mongo');
-    require('./service/redis/redis');
     if (process.send) {
-        process.send('ready');
+        const _fn = async () => {
+            const result = mongodb.mongoStatus() === true && redis.redisStatus() === true;
+
+            if (result) {
+                process.send('ready');
+                clearTimeout(_check);/* eslint-disable-line no-use-before-define*/
+            }
+        };
+        var _check = setTimeout(_fn, 1000);/* eslint-disable-line no-var*/
     }
 });
 server.on('error', onError);

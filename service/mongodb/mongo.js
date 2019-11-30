@@ -18,29 +18,49 @@ const _connect = () => {
 
 class MongoDB {
     constructor() {
-        this.db = null;
+        // 属性定义
+        this.db = mongoose.connection;
         this.schema = mongoose.Schema;
+        let _status = false;
+
+        this.mongoStatus = () => {
+            return _status;
+        };
+
+        // 初始化操作
+        this.db.once('connected', () => {// 连接成功
+            system('mongodb').info(`connect on ${process.env.MONGO_URL} success and ready to use.`);
+            _status = true;
+        });
+
+        this.db.on('disconnected', () => {// 连接失败或中断
+            system('mongodb').fatal(`disconnected! connection is break off. it will be retried in ${RECONNET_TIME} ms after every reconnect until success unless process exit.`);
+            _status = false;
+        });
+
+        this.db.on('reconnected', () => {// 重新连接成功
+            system('mongodb').info(`reconnect on ${process.env.MONGO_URL} success and ready to use.`);
+            _status = true;
+        });
+
         this._init();
     }
 
     _init() {
-        const _db = mongoose.connection;
-
-        // 连接成功
-        _db.once('connected', () => {
-            system('mongodb').info(`connect on ${process.env.MONGO_URL} success and ready to use.`);
-        });
-        // 连接失败或中断
-        _db.on('disconnected', () => {
-            system('mongodb').fatal(`disconnected! connection is break off. it will be retried in ${RECONNET_TIME} ms after every reconnect until success.`);
-        });
-        // 重新连接成功
-        _db.on('reconnected', () => {
-            system('mongodb').info(`reconnect on ${process.env.MONGO_URL} success and ready to use.`);
-        });
-        this.db = _db;
         _connect();
+    }
+
+    async closeMongoConnection() {
+        await mongoose.connection.close();
     }
 }
 
-module.exports = new MongoDB();
+const _mongodb = new MongoDB();
+
+Object.freeze(_mongodb);
+Object.defineProperty(_mongodb, 'db', { configurable: false, writable: false });
+Object.defineProperty(_mongodb, 'schema', { configurable: false, writable: false });
+Object.defineProperty(_mongodb, 'mongoStatus', { configurable: false, writable: false });
+
+
+module.exports = _mongodb;
