@@ -17,8 +17,12 @@ class Redis {
         });
 
         this.redis.on('end', () => {
-            system('redis').fatal('disconnected! connection is break off. will try to reconnect.');
+            system('redis').fatal('disconnected! connection is break off.');
             _status = false;
+        });
+
+        this.redis.on('reconnecting', retry => {
+            system('redis').warn(`try to reconnect for ${retry.attempt} times. the last reconnect was ${retry.delay}ms ago`);
         });
 
         this.redis.on('error', error => {
