@@ -3,7 +3,7 @@ const asyncHandler = require('express-async-handler');
 
 const { httpStatus } = require('../../utils');
 // const redis = require('../../service/redis/redis');
-const { users } = require('../../service/mongodb');
+const { Users } = require('../../service/mongodb');
 
 const router = Router();
 
@@ -51,7 +51,7 @@ const router = Router();
  * @apiError {String} type 失败类型
  * @apiError {String} info 错误信息
  */
-router.get('/:data', asyncHandler(async (req, res) => {
+router.get('/api', asyncHandler(async (req, res) => {
     // req.trace().info('123123123');
     // let 你说 = 'you say';
     // await delay(3000);
@@ -59,7 +59,7 @@ router.get('/:data', asyncHandler(async (req, res) => {
     // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
     // res.success({ test: await redis.testSet() }, httpStatus.successSearch);
     // res.success({ test: await redis.testGet() }, httpStatus.successSearch);
-    res.success({ test: await users.findAll() }, httpStatus.successSearch);
+    res.success({ test: await Users.insert([{ name: '123123', ff: 'pro', aa: 'test', t: 123 }, { name: 'test', ff: 'test', aa: 'lhf' }]) }, httpStatus.successSearch);
     // throw new Error('cuo wu');
 }));
 
