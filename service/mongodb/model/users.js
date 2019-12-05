@@ -3,6 +3,7 @@ const Base = require('./_base');
 class User extends Base {
     constructor(collectionName) {
         const model = {
+            _id: { type: String, required: true, trim: true },
             name: { type: String, default: '', required: true, trim: true },
             ff: { type: String, default: 'test', enum: ['test', 'pro', 'dev'] },
             dt: { type: Date, default: new Date() }
@@ -17,8 +18,8 @@ class User extends Base {
 
     }
 
-    async findTest(test) {
-        return await this.find({ test });
+    async test(test) {
+        return await this.find(test);
     }
 }
 
