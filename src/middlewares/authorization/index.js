@@ -2,13 +2,6 @@ const _validate = require('./json_web_token');
 
 const _JWTcheck = new _validate(process.env.JWT_APP_NAME, process.env.JWT_APP_ID, process.env.JWT_APP_SECERT);
 
-/**
- * 生成json web token
- * @returns
- */
-exports.JWTgeneral = () => {
-    return _JWTcheck.sign();
-};
 
 /**
  * 验证json web token
@@ -17,7 +10,7 @@ exports.JWTgeneral = () => {
  * @param {*} res
  * @param {*} next
  */
-exports.JWTcheck = (req, res, next) => {
+module.exports = (req, res, next) => {
     if (req.headers.authorization) {
         const _array = req.headers.authorization.split(' ');
 

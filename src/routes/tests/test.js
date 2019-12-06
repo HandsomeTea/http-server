@@ -60,7 +60,7 @@ router.get('/api', asyncHandler(async (req, res) => {
     // res.success({ test: await redis.testSet() }, httpStatus.successSearch);
     // res.success({ test: await redis.testGet() }, httpStatus.successSearch);
     // res.success({ test: await Users.insert([{ name: '123123', ff: 'pro', aa: 'test', t: 123 }, { name: 'test', ff: 'test', aa: 'lhf' }]) }, httpStatus.successSearch);
-    res.success(await Users.test({ ff: 'test' }), httpStatus.successSearch);
+    res.success(await Users.test([{ ff: 'test', name: 'lhf' }, { ff: 'test', name: 'lhf' }, { ff: 'test', name: 'lhf' }]), httpStatus.successSearch);
     // throw new Error('cuo wu');
 }));
 

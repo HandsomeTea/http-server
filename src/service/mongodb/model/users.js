@@ -19,7 +19,7 @@ class User extends Base {
     }
 
     async test(test) {
-        return await this.find(test);
+        return await this.insertMany(test);
     }
 }
 

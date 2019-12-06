@@ -1,4 +1,5 @@
 const log4js = require('log4js');
+const { traceModule, auditModule, logModule } = require('./log.type');
 
 /**
  * 定义日志配置
@@ -73,9 +74,11 @@ exports.updateOrCreateLogInstance = () => {
 
 /**
  * 开发时打印日志使用
- * @param {string} _module
+ *
+ * @param {*} [_module=logModule.api]
+ * @returns
  */
-exports.log = _module => {
+exports.log = (_module = logModule.api) => {
     const _devLogger = log4js.getLogger('developLog');
 
     _devLogger.addContext('Module', _module || 'default-module');
@@ -85,9 +88,12 @@ exports.log = _module => {
 
 /**
  * 追踪日志使用
- * @param {string} _module
+ *
+ * @param {*} [_module=traceModule.default]
+ * @param {*} _data
+ * @returns
  */
-exports.trace = (_module, _data) => {
+exports.trace = (_module = traceModule.default, _data) => {
     const _traceLogger = log4js.getLogger('traceLog');
 
     _traceLogger.addContext('Module', _module || 'default-module');
@@ -100,9 +106,11 @@ exports.trace = (_module, _data) => {
 
 /**
  * 操作日志使用
- * @param {string} _module
+ *
+ * @param {*} [_module=auditModule.request]
+ * @returns
  */
-exports.audit = _module => {
+exports.audit = (_module = auditModule.request) => {
     const _auditLogger = log4js.getLogger('auditLog');
 
     _auditLogger.addContext('Module', _module || 'default-module');
@@ -137,30 +145,4 @@ exports.traceId = () => {
         _trace += digits[rand];
     }
     return _trace;
-};
-
-/**开发日志的日志模块定义 */
-exports.logModule = {
-    api: 'HTTP_REQUEST',
-    startup: 'SYSREM_STARTUP',
-    stop: 'SYSREM_STOP_CLEAN',
-    db: 'DATABASE',
-    system: 'SYSTEM'
-};
-
-/**audit日志的日志模块定义 */
-exports.auditModule = {
-    startup: 'SYSTEM_STARTUP',
-    add: 'ADD',
-    del: 'DELETE',
-    update: 'UPDATE',
-    search: 'SEARCH',
-    system: 'SYSTEM',
-    request: 'REST_API',
-    error: 'SYSTEM_ERROR'
-};
-
-/**追踪类日志的日志模块定义 */
-exports.traceModule = {
-    default: process.env.SERVER_NAME || 'common-server'
 };

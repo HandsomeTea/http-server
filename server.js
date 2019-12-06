@@ -1,7 +1,7 @@
 debugger; /* eslint-disable-line*/
 require('./startup');
 
-const { logModule, auditModule } = require('./config/logger.config');
+const { logModule, auditModule } = require('./config/log.type');
 
 process.on('unhandledRejection', reason => {
     // 处理没有catch的promiss，第二个参数即为promiss
@@ -30,7 +30,7 @@ const _getPort = val => {
 };
 
 const port = _getPort(3000);
-const app = require('./app');
+const app = require('./src/app');
 
 /**Get port from environment and store in Express. */
 app.set('port', port);
@@ -74,8 +74,8 @@ const onListening = () => {
 };
 
 
-const redis = require('./service/redis/redis');
-const mongodb = require('./service/mongodb/mongo');
+const redis = require('./src/service/redis/redis');
+const mongodb = require('./src/service/mongodb/mongo');
 /**
  * 当服务将要停止时的钩子函数
  */

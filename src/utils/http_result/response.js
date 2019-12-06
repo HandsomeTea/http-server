@@ -1,5 +1,5 @@
 const httpStatus = require('./status');
-const { traceModule } = require('../../config/logger.config');
+const { traceModule } = require('../../../config/logger.config');
 
 /**
 * 处理所有http请求,所有http请求的出口在 _resSend() 里
@@ -92,7 +92,7 @@ module.exports = _response => new class resReult {
      * @param {*} _data
      * @param {*} _type
      */
-    internalError(_data, _type) {
+    serverError(_data, _type) {
         this._resultDefine(_data, 500, _type || httpStatus.innerError);
     }
 

@@ -18,19 +18,19 @@ module.exports = class BaseDB {
         return _data;
     }
 
-    async insertOne(data = {}) {
-        return await new this.model(this._id(data)[0]).save();
+    async insert(data = {}) {
+        return (await new this.model(this._id(data)[0]).save())._id;
     }
 
-    async insert(data = []) {
-        return await this.model.insertMany(this._id(data));
-    }
-
-    async removeOne(query = {}) {
-        return (await this.model.deleteOne(query)).deletedCount;
+    async insertMany(data = []) {
+        return (await this.model.insertMany(this._id(data))).map(_result => _result._id);
     }
 
     async remove(query = {}) {
+        return (await this.model.deleteOne(query)).deletedCount;
+    }
+
+    async removeMany(query = {}) {
         return (await this.model.deleteMany(query)).deletedCount;
     }
 

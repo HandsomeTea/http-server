@@ -31,9 +31,9 @@ class Redis {
             _status = false;
         });
 
-        this.redis.on('connect', () => {
-            system('redis').trace('connect success.');
-        });
+        // this.redis.on('connect', () => {
+        //     system('redis').trace('connect success.');
+        // });
 
         this._init();
     }

@@ -6,8 +6,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 
-const { auditModule } = require('./config/logger.config');
-const { responseType, devLogger, auditLogger, traceLogger } = require('./middlewares');
+const { JWTcheck, acceptRequestHandle, successResponseHandle, error } = require('./middlewares');
 const restApi = require('./routes');
 
 
@@ -25,30 +24,36 @@ app.use(cookieParser());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(compression());
-/**工具函数封装 */
-app.use(traceLogger);
-app.use(auditLogger);
-app.use(devLogger);
-app.use(responseType);
-app.use(express.static(path.resolve(__dirname, 'doc')));
-/**跟路由处理 */
-app.get('/', (req, res) => {
-    let apidoc = path.resolve(__dirname, 'doc/index.html');
+/**自定义中间件 */
+// app.use(JWTcheck);
+app.use(acceptRequestHandle);
+app.use(successResponseHandle);
 
-    if (fs.existsSync(apidoc)) {
-        res.sendFile(apidoc);
+app.use(express.static(path.resolve(__dirname, 'doc')));
+
+app.get('/', (req, res) => {
+    if (process.env.NODE_ENV === 'development') {
+        let apidoc = path.resolve(__dirname, '../doc/index.html');
+
+        if (fs.existsSync(apidoc)) {
+            res.sendFile(apidoc);
+        } else {
+            res.send('文档未找到或未生成.');
+        }
     } else {
-        // res.redirect('tests/test/12312');
-        res.send('文档未找到或未生成.');
+        res.send('welcome');
     }
 });
+
+
 /**加载路由 */
 app.use(restApi);
 
-/**捕捉路由中未处理的错误，即直接throw new Error的情况 */
-app.use((err, req, res, next) => {/* eslint-disable-line*/
-    audit(auditModule.error).fatal(`${err.stack}`);
-    res.serverError('Something broke! please try again.');
+app.use('*', () => {
+    throw new Error(JSON.stringify({ status: 404, type: errorConfig.errorType.URL_NOT_FOUND, msg: 'URL not found!' }));
 });
+
+/**捕捉路由中throw new Error的情况 */
+app.use(error);
 
 module.exports = app;
