@@ -19,7 +19,7 @@ class User extends Base {
     }
 
     async test(test) {
-        return await this.insertMany(test);
+        return await this.model.find({}, { ff: 1 }).sort({ _id: -1 });
     }
 }
 

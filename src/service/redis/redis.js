@@ -35,15 +35,16 @@ class Redis {
         //     system('redis').trace('connect success.');
         // });
 
+        this.quitRedis = async () => {
+            await this.redis.quit();
+            _status = false;
+        };
+
         this._init();
     }
 
     _init() {
 
-    }
-
-    async quitRedis() {
-        await this.redis.quit();
     }
 
     async _async(_redisApiName, ...args) {

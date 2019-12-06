@@ -38,7 +38,7 @@ module.exports = class BaseDB {
         return (await this.model.updateOne(query, set, option)).nModified;
     }
 
-    async update(query = {}, set = {}, option = {}) {
+    async updateMany(query = {}, set = {}, option = {}) {
         return (await this.model.updateMany(query, set, option)).nModified;
     }
 
@@ -52,5 +52,13 @@ module.exports = class BaseDB {
 
     async findById(_id) {
         return await this.model.findById(_id);
+    }
+
+    async count(query = {}) {
+        return await this.model.count(query);
+    }
+
+    async aggregate(query = {}) {
+        return await this.model.aggregate(query);
     }
 };

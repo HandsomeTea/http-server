@@ -78,15 +78,9 @@ const redis = require('./src/service/redis/redis');
 const mongodb = require('./src/service/mongodb/mongo');
 /**
  * 当服务将要停止时的钩子函数
+ * 比如向其他服务通知当前服务已经停止
  */
-const _willShutDown = async () => {
-    log(logModule.stop).info('server connection will stop normally.');
-    await mongodb.closeMongoConnection();
-    await redis.quitRedis();
-    process.on('SIGINT', () => {
-        process.exit(0);
-    });
-};
+const _willShutDown = async () => { };
 
 /**
  * 健康检查的钩子函数
@@ -110,6 +104,19 @@ createTerminus(server, {
         '/healthcheck': _healthCheck
     },
     onSignal: _willShutDown
+});
+
+process.on('SIGINT', () => {
+    process.exit(0);
+});
+
+process.on('exit', async () => {
+    log(logModule.stop).info('server connection will stop normally.');
+
+    await mongodb.closeMongoConnection();
+    await redis.quitRedis();
+
+    log(logModule.stop).info('server connection has stoped.');
 });
 
 /** 服务开始监听请求 */

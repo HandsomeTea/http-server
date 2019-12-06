@@ -47,16 +47,17 @@ class MongoDB {
             _status = true;
         });
 
+        this.closeMongoConnection = async () => {
+            _retry = null;
+            _status = false;
+            await mongoose.connection.close();
+        };
+
         this._init();
     }
 
     _init() {
         _connect();
-    }
-
-    async closeMongoConnection() {
-        _retry = null;
-        await mongoose.connection.close();
     }
 }
 
