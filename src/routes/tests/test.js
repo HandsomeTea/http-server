@@ -49,6 +49,7 @@ const { Users } = require('../../models');
  * @apiError {String} type 失败类型
  * @apiError {String} info 错误信息
  */
+
 router.get('/api', asyncHandler(async (req, res) => {
     // log(logModule.api).error('test error log.');
     // res.failure({ result: '测试成功' });
@@ -57,7 +58,7 @@ router.get('/api', asyncHandler(async (req, res) => {
     // res.noPermission({ result: '测试成功' }, HttpError.noPermissionUser);
     // res.tooManyRequests({ result: '测试成功' }, HttpError.tooMany);
     res.success(new Date((await Users.find({}))[0].createdAt).getTime());
-    // throw new Error('cuo wu');
+    // throw new Exception('cuo wu');
 }));
 
 module.exports = router;

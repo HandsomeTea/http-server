@@ -16,7 +16,8 @@ module.exports = {
         log: 'readonly',
         audit: 'readonly',
         trace: 'readonly',
-        system: 'readonly'
+        system: 'readonly',
+        Exception: 'readonly'
     },
     rules: {
         'indent': [2, 4, { SwitchCase: 1 }], //缩进风格
