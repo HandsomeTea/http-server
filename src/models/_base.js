@@ -1,6 +1,6 @@
 const { ObjectId } = require('mongoose').Types;
 const _ = require('underscore');
-const { db, schema } = require('../mongo');
+const { db, schema } = require('../db/mongo');
 
 module.exports = class BaseDB {
     constructor(_collectionName, _model) {
@@ -18,7 +18,7 @@ module.exports = class BaseDB {
         return _data;
     }
 
-    async insert(data = {}) {
+    async insertOne(data = {}) {
         return (await new this.model(this._id(data)[0]).save())._id;
     }
 
@@ -42,23 +42,27 @@ module.exports = class BaseDB {
         return (await this.model.updateMany(query, set, option)).nModified;
     }
 
-    async find(query = {}, projection = {}) {
-        return await this.model.find(query, projection);
+    async find(query = {}, option = {}) {
+        return await this.model.find(query, option);
     }
 
-    async findOne(query = {}, projection = {}) {
-        return await this.model.findOne(query, projection);
+    async findOne(query = {}, option = {}) {
+        return await this.model.findOne(query, option);
     }
 
     async findById(_id) {
         return await this.model.findById(_id);
     }
 
-    async count(query = {}) {
-        return await this.model.count(query);
+    async paging(query = {}, sort = {}, skip = 0, limit = 0) {
+        return await this.model.find(query).sort(sort).skip(skip).limit(limit);
     }
 
-    async aggregate(query = {}) {
-        return await this.model.aggregate(query);
+    async count(query = {}) {
+        return await this.model.countDocuments(query);
+    }
+
+    async aggregate(aggregations = []) {
+        return await this.model.aggregate(aggregations);
     }
 };

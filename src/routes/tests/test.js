@@ -1,11 +1,9 @@
-const { Router } = require('express');
+const router = require('express').Router();
 const asyncHandler = require('express-async-handler');
-
-const { httpStatus } = require('../../utils');
+// const HttpError = require('../../../config/http.error.type');
 // const redis = require('../../service/redis/redis');
-const { Users } = require('../../service/mongodb');
-
-const router = Router();
+const { Users } = require('../../models');
+// const { logModule } = require('../../../config/log.type');
 
 /**
  * @api {post} /tests/test/:data 测试接口
@@ -52,27 +50,14 @@ const router = Router();
  * @apiError {String} info 错误信息
  */
 router.get('/api', asyncHandler(async (req, res) => {
-    // req.trace().info('123123123');
-    // let 你说 = 'you say';
-    // await delay(3000);
-    // req.audit().warn('22sssss');
-    // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
-    // res.success({ test: await redis.testSet() }, httpStatus.successSearch);
-    // res.success({ test: await redis.testGet() }, httpStatus.successSearch);
-    // res.success({ test: await Users.insert([{ name: '123123', ff: 'pro', aa: 'test', t: 123 }, { name: 'test', ff: 'test', aa: 'lhf' }]) }, httpStatus.successSearch);
-    res.success(await Users.test(), httpStatus.successSearch);
+    // log(logModule.api).error('test error log.');
+    // res.failure({ result: '测试成功' });
+    // res.notFound({ result: '测试成功' }, HttpError.notFoundUser);
+    // res.serverError({ result: '测试成功' }, HttpError.innerDBError);
+    // res.noPermission({ result: '测试成功' }, HttpError.noPermissionUser);
+    // res.tooManyRequests({ result: '测试成功' }, HttpError.tooMany);
+    res.success(new Date((await Users.find({}))[0].createdAt).getTime());
     // throw new Error('cuo wu');
 }));
 
-router.post('/:id', (req, res) => {
-    // req.trace().info('123123123');
-    // req.log().info('123sdfsdf', '123123ssssssssssssssssssss');
-    // req.audit().warn('22sssss');
-    // res.success({ result: '测试成功' }, httpStatus.successSearch);
-    // res.failure({ result: '测试成功' }, httpStatus.failedUpdate);
-    // res.notFound({ result: '测试成功' }, httpStatus.notFoundUser);
-    // res.serverError({ result: '测试成功' }, httpStatus.innerDBError);
-    // res.noPermission({ result: '测试成功' }, httpStatus.noPermissionUser);
-    res.tooManyRequests({ result: '测试成功' }, httpStatus.tooMany);
-});
 module.exports = router;

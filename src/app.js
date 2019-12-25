@@ -6,8 +6,18 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 
-const { JWTcheck, acceptRequestHandle, successResponseHandle, error } = require('./middlewares');
+const { serverJWTcheck,
+    acceptRequestHandle,
+    successResponseHandle,
+    errorHandle,
+    failureHandle,
+    noPermissionHandle,
+    notFoundHandle,
+    serverErrorHandle,
+    tooManyRequestsHandle
+} = require('./middlewares');
 const restApi = require('./routes');
+const HttpError = require('../config/http.error.type');
 
 
 /**
@@ -25,11 +35,16 @@ app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(compression());
 /**自定义中间件 */
-// app.use(JWTcheck);
+app.use(serverJWTcheck);
 app.use(acceptRequestHandle);
 app.use(successResponseHandle);
+app.use(failureHandle);
+app.use(noPermissionHandle);
+app.use(notFoundHandle);
+app.use(serverErrorHandle);
+app.use(tooManyRequestsHandle);
 
-app.use(express.static(path.resolve(__dirname, 'doc')));
+app.use(express.static(path.resolve(__dirname, '../doc')));
 
 app.get('/', (req, res) => {
     if (process.env.NODE_ENV === 'development') {
@@ -50,10 +65,10 @@ app.get('/', (req, res) => {
 app.use(restApi);
 
 app.use('*', () => {
-    throw new Error(JSON.stringify({ status: 404, type: errorConfig.errorType.URL_NOT_FOUND, msg: 'URL not found!' }));
+    throw new Error(JSON.stringify({ status: 404, type: HttpError.urlNotFound, msg: 'URL not found!' }));
 });
 
 /**捕捉路由中throw new Error的情况 */
-app.use(error);
+app.use(errorHandle);
 
 module.exports = app;

@@ -26,6 +26,8 @@ module.exports = new class httpStatus {
         this.notFound = 'NOT_FOUND';
         /**相关操作的用户未找到 */
         this.notFoundUser = 'USER_NOT_FOUND';
+        /**访问的地址未找到 */
+        this.urlNotFound = 'URL_NOT_FOUND';
 
 
         /***************** 429类错误 ***********************/

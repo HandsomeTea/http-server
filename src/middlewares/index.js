@@ -1,4 +1,9 @@
-exports.JWTcheck = require('./authorization');
+exports.serverJWTcheck = require('./authorization');
 exports.acceptRequestHandle = require('./receive');
 exports.successResponseHandle = require('./send');
-exports.error = require('./error');
+exports.errorHandle = require('./error');
+exports.failureHandle = require('./failure');
+exports.noPermissionHandle = require('./noPermission');
+exports.notFoundHandle = require('./notFound');
+exports.serverErrorHandle = require('./serverError');
+exports.tooManyRequestsHandle = require('./tooManyRequests');

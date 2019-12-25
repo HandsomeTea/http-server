@@ -1,4 +1,4 @@
-const JWTValidate = require('../../middlewares/authorization/json_web_token');
+const JWTValidate = require('../middlewares/authorization/json_web_token');
 
 /**
  * 生成json web token

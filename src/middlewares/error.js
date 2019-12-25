@@ -1,4 +1,5 @@
-const { auditModule } = require('../../config/log.type');
+const { auditModule, traceModule } = require('../../config/log.type');
+const HttpError = require('../../config/http.error.type');
 
 /**
  * 捕捉路由中未处理的错误，即直接throw new Error的情况
@@ -8,6 +9,9 @@ const { auditModule } = require('../../config/log.type');
  * @param {*} next
  */
 module.exports = (err, req, res, next) => { /* eslint-disable-line*/
+    const result = { result: false, type: HttpError.innerError, info: 'Something broke! please try again.' };
+
     audit(auditModule.error).fatal(`${err.stack}`);
-    res.send('Something broke! please try again.');
+    trace(traceModule.default, { traceId: req.headers['x-b3-traceid'], spanId: req.headers['x-b3-spanid'], parentSpanId: req.headers['x-b3-parentspanid'] }).warn(`[${req.ip}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] response error with : Error[${err.message}] . result : ${JSON.stringify(result)} .`);
+    res.status(500).send(result);
 };

@@ -1,10 +1,4 @@
-const { response, httpStatus } = require('./http_result');
-const { UTCTime, traceId, delay } = require('./lib');
-
-module.exports = {
-    traceId,
-    response,
-    httpStatus,
-    UTCTime,
-    delay
-};
+exports.delay = require('./delay');
+exports.UTCTime = require('./UTCTime');
+exports.fixedNumString = require('./fixed_num_str');
+exports.JWTgeneral = require('./createJWT');

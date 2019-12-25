@@ -74,8 +74,8 @@ const onListening = () => {
 };
 
 
-const redis = require('./src/service/redis/redis');
-const mongodb = require('./src/service/mongodb/mongo');
+const redis = require('./src/db/redis');
+const mongodb = require('./src/db/mongo');
 /**
  * 当服务将要停止时的钩子函数
  * 比如向其他服务通知当前服务已经停止
@@ -111,12 +111,9 @@ process.on('SIGINT', () => {
 });
 
 process.on('exit', async () => {
+    mongodb.closeMongoConnection();
+    redis.quitRedis();
     log(logModule.stop).info('server connection will stop normally.');
-
-    await mongodb.closeMongoConnection();
-    await redis.quitRedis();
-
-    log(logModule.stop).info('server connection has stoped.');
 });
 
 /** 服务开始监听请求 */
