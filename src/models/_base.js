@@ -59,7 +59,7 @@ module.exports = class BaseDB {
     }
 
     async count(query = {}) {
-        if (query && Object.keys(query).length > 0) {
+        if (query && !_.isEmpty(query)) {
             return await this.model.countDocuments(query);
         } else {
             return await this.model.estimatedDocumentCount();
