@@ -18,12 +18,12 @@ module.exports = class BaseDB {
         return _data;
     }
 
-    async insertOne(data = {}) {
-        return (await new this.model(this._id(data)[0]).save())._id;
-    }
-
-    async insertMany(data = []) {
-        return (await this.model.insertMany(this._id(data))).map(_result => _result._id);
+    async create(data) {
+        if (_.isObject(data)) {
+            return (await new this.model(this._id(data)[0]).save())._id;
+        } else {
+            return (await this.model.insertMany(this._id(data))).map(_result => _result._id);
+        }
     }
 
     async remove(query = {}) {
@@ -59,7 +59,11 @@ module.exports = class BaseDB {
     }
 
     async count(query = {}) {
-        return await this.model.countDocuments(query);
+        if (query && Object.keys(query).length > 0) {
+            return await this.model.countDocuments(query);
+        } else {
+            return await this.model.estimatedDocumentCount();
+        }
     }
 
     async aggregate(aggregations = []) {
