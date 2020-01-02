@@ -72,6 +72,7 @@ const _mongodb = new MongoDB();
 
 Object.freeze(_mongodb);
 Object.defineProperty(_mongodb, 'mongoStatus', { configurable: false, writable: false });
+Object.defineProperty(_mongodb, 'closeMongoConnection', { configurable: false, writable: false });
 
 
 module.exports = _mongodb;
