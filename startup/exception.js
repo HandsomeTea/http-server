@@ -1,4 +1,4 @@
-const { traceModule } = require('../config/log.type');
+const { traceModule } = require('../config/http.error.type');
 
 global.Exception = class Exception extends Error {
     constructor(message, type) {
