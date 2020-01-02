@@ -1,42 +1,40 @@
 const redis = require('redis');
+const redisConnection = redis.createClient({ url: process.env.REDIS_URL, retry_strategy: () => 5000 });/* eslint-disable-line camelcase*/
 
 class Redis {
     constructor() {
-        // 属性定义
-        this.redis = redis.createClient({ url: process.env.REDIS_URL, retry_strategy: () => 5000 });/* eslint-disable-line camelcase*/
         let _status = false;
 
         this.redisStatus = () => {
             return _status;
         };
 
-        // 初始操作
-        this.redis.on('ready', () => {
+        redisConnection.on('ready', () => {
             system('redis').info(`connect on ${process.env.REDIS_URL} success and ready to use.`);
             _status = true;
         });
 
-        this.redis.on('end', () => {
+        redisConnection.on('end', () => {
             system('redis').fatal('disconnected! connection is break off.');
             _status = false;
         });
 
-        this.redis.on('reconnecting', retry => {
+        redisConnection.on('reconnecting', retry => {
             system('redis').warn(`try to reconnect for ${retry.attempt} times. the last reconnect was ${retry.delay}ms ago`);
         });
 
-        this.redis.on('error', error => {
+        redisConnection.on('error', error => {
             system('redis').error(error.toString());
             audit('redis').error(error);
             _status = false;
         });
 
-        // this.redis.on('connect', () => {
+        // redisConnection.on('connect', () => {
         //     system('redis').trace('connect success.');
         // });
 
         this.quitRedis = async () => {
-            await this.redis.quit();
+            await redisConnection.quit();
             _status = false;
         };
 
@@ -45,6 +43,10 @@ class Redis {
 
     _init() {
 
+    }
+
+    get redis() {
+        return redisConnection;
     }
 
     async _async(_redisApiName, ...args) {
@@ -69,7 +71,7 @@ class Redis {
 
 const _redis = new Redis();
 
-Object.defineProperty(_redis, 'redis', { writable: false });
 Object.defineProperty(_redis, 'redisStatus', { writable: false });
+Object.defineProperty(_redis, 'quitRedis', { writable: false });
 
 module.exports = _redis;

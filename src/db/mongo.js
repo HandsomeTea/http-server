@@ -21,9 +21,8 @@ const _connect = () => {
 
 class MongoDB {
     constructor() {
-        // 属性定义
-        this.db = mongoose.connection;
-        this.schema = mongoose.Schema;
+        const _connection = mongoose.connection;
+
         let _status = false;
 
         this.mongoStatus = () => {
@@ -31,18 +30,18 @@ class MongoDB {
         };
 
         // 初始化操作
-        this.db.once('connected', () => {// 连接成功
+        _connection.once('connected', () => {// 连接成功
             system('mongodb').info(`connect on ${process.env.MONGO_URL} success and ready to use.`);
             _retry = null;
             _status = true;
         });
 
-        this.db.on('disconnected', () => {// 连接失败或中断
+        _connection.on('disconnected', () => {// 连接失败或中断
             system('mongodb').fatal(`disconnected! connection is break off. it will be retried in ${RECONNET_TIME} ms after every reconnect until success unless process exit.`);
             _status = false;
         });
 
-        this.db.on('reconnected', () => {// 重新连接成功
+        _connection.on('reconnected', () => {// 重新连接成功
             system('mongodb').info(`reconnect on ${process.env.MONGO_URL} success and ready to use.`);
             _status = true;
         });
@@ -59,13 +58,19 @@ class MongoDB {
     _init() {
         _connect();
     }
+
+    get db() {
+        return mongoose.connection;
+    }
+
+    get schema() {
+        return mongoose.Schema;
+    }
 }
 
 const _mongodb = new MongoDB();
 
 Object.freeze(_mongodb);
-Object.defineProperty(_mongodb, 'db', { configurable: false, writable: false });
-Object.defineProperty(_mongodb, 'schema', { configurable: false, writable: false });
 Object.defineProperty(_mongodb, 'mongoStatus', { configurable: false, writable: false });
 
 
