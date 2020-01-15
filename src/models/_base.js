@@ -19,7 +19,7 @@ module.exports = class BaseDB {
     }
 
     async create(data) {
-        if (_.isObject(data)) {
+        if (!_.isArray(data)) {
             return (await new this.model(this._id(data)[0]).save())._id;
         } else {
             return (await this.model.insertMany(this._id(data))).map(_result => _result._id);
