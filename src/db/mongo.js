@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const { system } = require('../../config/logger.config');
+
 const RECONNET_TIME = 5000; // Reconnect every 5000ms
 
 let _retry = null; /* eslint-disable-line no-unused-vars*/

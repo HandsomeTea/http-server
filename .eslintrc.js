@@ -13,11 +13,9 @@ module.exports = {
     extends: 'eslint:recommended',
     globals: {
         initLog: 'readonly',
-        log: 'readonly',
-        audit: 'readonly',
-        trace: 'readonly',
-        system: 'readonly',
-        Exception: 'readonly'
+        Exception: 'readonly',
+        WebsocketServer: 'readonly',
+        IntervalPing: 'readonly'
     },
     rules: {
         'indent': [2, 4, { SwitchCase: 1 }], //缩进风格

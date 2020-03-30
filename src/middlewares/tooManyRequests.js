@@ -1,5 +1,6 @@
 const { traceModule } = require('../../config/log.type');
 const HttpError = require('../../config/http.error.type');
+const { trace } = require('../../config/logger.config');
 
 /**
  * 服务器收到的请求达到上限的处理

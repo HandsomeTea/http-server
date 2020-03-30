@@ -2,6 +2,7 @@ debugger; /* eslint-disable-line*/
 require('./startup');
 
 const { logModule, auditModule } = require('./config/log.type');
+const { audit, log } = require('./config/logger.config');
 
 process.on('unhandledRejection', reason => {
     // 处理没有catch的promiss，第二个参数即为promiss
@@ -37,7 +38,24 @@ app.set('port', port);
 
 
 const http = require('http');
+const crypto = require('crypto');
+const WebSocket = require('ws');
 const server = http.createServer(app);
+
+global.WebsocketServer = new WebSocket.Server({ server });
+/** 封装socket */
+WebsocketServer.on('connection', (socket, request) => {
+    global.socketConnectionNum++;
+    socket.attempt = {
+        connection: {
+            id: crypto.randomBytes(24).toString('hex').substring(0, 16),
+            ip: request.connection.remoteAddress
+        }
+    };
+    socket.middlewareMap = {};
+    require('./src/socket/core')(socket);
+    require('./src/socket/methods')(socket);
+});
 
 /** Event listener for HTTP server "error" event. */
 const onError = error => {

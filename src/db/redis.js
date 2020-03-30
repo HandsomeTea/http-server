@@ -1,5 +1,6 @@
-const redis = require('redis');
-const redisConnection = redis.createClient({ url: process.env.REDIS_URL, retry_strategy: () => 5000 });/* eslint-disable-line camelcase*/
+const ioredis = require('ioredis');
+
+const { system, audit } = require('../../config/logger.config');
 
 class Redis {
     constructor() {
@@ -9,32 +10,24 @@ class Redis {
             return _status;
         };
 
-        redisConnection.on('ready', () => {
+        this.redis.on('connect', () => {
             system('redis').info(`connect on ${process.env.REDIS_URL} success and ready to use.`);
             _status = true;
         });
 
-        redisConnection.on('end', () => {
-            system('redis').fatal('disconnected! connection is break off.');
+        this.redis.on('close', () => {
+            system('redis').fatal('disconnected! connection is break off. but still trying again');
             _status = false;
         });
 
-        redisConnection.on('reconnecting', retry => {
-            system('redis').warn(`try to reconnect for ${retry.attempt} times. the last reconnect was ${retry.delay}ms ago`);
-        });
-
-        redisConnection.on('error', error => {
+        this.redis.on('error', error => {
             system('redis').error(error.toString());
             audit('redis').error(error);
             _status = false;
         });
 
-        // redisConnection.on('connect', () => {
-        //     system('redis').trace('connect success.');
-        // });
-
         this.quitRedis = async () => {
-            await redisConnection.quit();
+            await this.redis.quit();
             _status = false;
         };
 
@@ -46,26 +39,12 @@ class Redis {
     }
 
     get redis() {
-        return redisConnection;
-    }
-
-    async _async(_redisApiName, ...args) {
-        return new Promise((resolve, reject) => {
-            this.redis[_redisApiName](...args, (err, result) => {
-                if (err) {
-                    return reject(err);
-                }
-                return resolve(result);
-            });
+        return new ioredis(process.env.REDIS_URL, {
+            retryStrategy: function () {
+                // do something when connection is disconnected
+                system('redis').fatal('disconnected! connection is break off.');
+            }
         });
-    }
-
-    async testSet() {
-        return await this._async('set', 'string_key', '123123');
-    }
-
-    async testGet() {
-        return await this._async('get', 'string_key');
     }
 }
 

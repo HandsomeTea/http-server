@@ -1,5 +1,6 @@
 const { traceId } = require('../../config/logger.config');
 const { traceModule } = require('../../config/log.type');
+const { log, trace } = require('../../config/logger.config');
 
 /**
  * 服务器接收到请求的相关处理

@@ -1,5 +1,6 @@
 const { traceModule } = require('../../config/log.type');
 const HttpError = require('../../config/http.error.type');
+const { trace } = require('../../config/logger.config');
 
 /**
  * 服务器成功处理完请求返回

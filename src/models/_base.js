@@ -3,14 +3,14 @@ const _ = require('underscore');
 const httpContext = require('express-http-context');
 const { db, schema } = require('../db/mongo');
 
-module.exports = class BaseDB {
+exports.BaseDB = class BaseDB {
     constructor(_collectionName, _model, _index = []) {
         this.modelMap = {};
         this.model = () => {
             const name = (httpContext.get('tenantId') ? httpContext.get('tenantId') + '-' : '') + _collectionName;
 
             if (!this.modelMap[name]) {
-                const _schema = new schema(_model, { _id: false, timestamps: { createdAt: true, updatedAt: '_updatedAt' } });
+                const _schema = new schema(_model, { _id: false, versionKey: false, timestamps: { createdAt: true, updatedAt: '_updatedAt' } });
 
                 for (let i = 0; i < _index.length; i++) {
                     if (!_.isArray(_index[i])) {
@@ -95,5 +95,101 @@ module.exports = class BaseDB {
 
     async aggregate(aggregations = []) {
         return await this.model().aggregate(aggregations);
+    }
+};
+
+exports.BaseRedis = class BaseRedis {
+    constructor() {
+        this.redis = require('../db/redis').redis;
+    }
+
+    /**
+     *
+     *
+     * @param {string} [key='']
+     * @param {*} value
+     * @param {boolean} [whenNotExist=true] 默认为true，表示当键不存在时进行操作
+     * @param {number} [expiryTime=60] 默认为60
+     * @param {boolean} [expiryAsSecond=true] 数据过期时间单位是否为秒，默认为true
+     * @returns
+     */
+    async set(key = '', value, whenNotExist = true, expiryTime = 60, expiryAsSecond = true) {
+        return await this.redis.set(key.toString(), JSON.stringify(value), expiryAsSecond === true ? 'EX' : 'PX', expiryTime, whenNotExist === true ? 'NX' : 'XX') === 'OK';
+    }
+    /**
+     *
+     *
+     * @param {*} [dataObj={}]
+     * @param {boolean} [whenNotExist=true] 默认为true
+     * @param {number} [expiryTime=60] 默认为60
+     * @param {boolean} [expiryAsSecond=true] 数据过期时间单位是否为秒，默认为true
+     * @returns
+     */
+    async mset(dataObj = {}, whenNotExist = true, expiryTime = 60, expiryAsSecond = true) {
+        for (let key in dataObj) {
+            await this.set(key, dataObj[key], whenNotExist, expiryTime, expiryAsSecond);
+        }
+        return true;
+    }
+    /**
+     *
+     *
+     * @param {*} key
+     * @returns
+     */
+    async get(key) {
+        return JSON.parse(await this.redis.get(key.toString()));
+    }
+    /**
+     *
+     *
+     * @param {array} [keys=[]]
+     * @param {boolean} [showNotExistKey=false] 是否汇总不存在的key集合，默认false
+     * @param {boolean} [mapModel=false] 是否汇总为map的结构，默认false
+     * @returns
+     */
+    async mget(keys = [], showNotExistKey = false, mapModel = false) {
+        if (!showNotExistKey && !mapModel) {
+            return _.without((await this.redis.mget(keys)).map(_r => JSON.parse(_r)), null);
+        } else {
+            let _res = [], _mapRes = {}, notExistKey = [];
+
+            keys.map(async _key => {
+                const r = await this.get(_key);
+
+                if (r) {
+                    if (mapModel) {
+                        _mapRes[_key] = r;
+                    } else {
+                        _res.push(r);
+                    }
+                } else {
+                    notExistKey.push(_key);
+                }
+            });
+
+            if (showNotExistKey) {
+                return {
+                    result: mapModel ? _mapRes : _res,
+                    no: notExistKey
+                };
+            } else {
+                return mapModel ? _mapRes : _res;
+            }
+        }
+    }
+
+    /**
+     *
+     *
+     * @param {String|Array} key 字符串或者字符串数组
+     * @returns
+     */
+    async delete(key) {
+        if (_.isArray(key)) {
+            return await this.redis.del(...key);
+        } else {
+            return await this.redis.del(key);
+        }
     }
 };

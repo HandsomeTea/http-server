@@ -1,5 +1,6 @@
 const { auditModule, traceModule } = require('../../config/log.type');
 const HttpError = require('../../config/http.error.type');
+const { audit, trace } = require('../../config/logger.config');
 
 /**
  * 捕捉路由中未处理的错误，即直接throw new Error的情况

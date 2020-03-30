@@ -11,5 +11,5 @@ JWT_APP_NAME: 'nodejs-server'
 JWT_APP_ID: 'appid'
 JWT_APP_SECERT: 'appsecert'
 # service
-REDIS_URL: 'redis://192.168.1.148:6379'
+REDIS_URL: 'redis://192.168.1.156:6379'
 MONGO_URL: 'mongodb://localhost:27017/test'

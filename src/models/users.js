@@ -1,6 +1,6 @@
-const Base = require('./_base');
+const { BaseDB } = require('./_base');
 
-class User extends Base {
+class User extends BaseDB {
     constructor(collectionName) {
         const model = {
             _id: { type: String, required: true, trim: true },
