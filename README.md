@@ -31,6 +31,14 @@
 
 
 
+## socket
+
+- 封装了socket长连接服务
+- 封装了socket的中间件
+- 可向一个或多个客户端发送消息
+
+
+
 ## Dockerfile
 
 
