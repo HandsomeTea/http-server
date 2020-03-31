@@ -107,7 +107,6 @@ const _healthCheck = async () => {
 
     if (!result) {
         log('SYSREM_STARTUP').fatal('system is shut down.');
-        throw new Error('wqeqw');
     }
     log('SYSREM_STARTUP').debug('system is normal.');
 };
