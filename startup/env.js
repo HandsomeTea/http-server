@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { setENV } = require('../config/env.config');
+const { setENV } = require('../src/configs');
 const proConfigPath = '/opt/config/application.yaml';
 const localConfigPath = path.resolve(__dirname, '../application-dev-example.yaml');
 

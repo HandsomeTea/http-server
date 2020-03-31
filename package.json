@@ -13,7 +13,7 @@
     "check": "npm run fix",
     "upgrade": "./node_modules/.bin/npm-check -u",
     "test": "./node_modules/.bin/mocha",
-    "doc": "./node_modules/.bin/apidoc -i ./src -o ./doc",
+    "doc": "./node_modules/.bin/apidoc -i ./src -o ./public/doc",
     "testunit": "node -v"
   },
   "repository": {

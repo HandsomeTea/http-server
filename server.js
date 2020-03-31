@@ -1,13 +1,12 @@
 debugger; /* eslint-disable-line*/
 require('./startup');
 
-const { logModule, auditModule } = require('./config/log.type');
-const { audit, log } = require('./config/logger.config');
+const { audit, log } = require('./src/configs');
 
 process.on('unhandledRejection', reason => {
     // 处理没有catch的promiss，第二个参数即为promiss
-    log(logModule.system).fatal(reason);
-    audit(auditModule.system).fatal(reason);
+    log('SYSTEM').fatal(reason);
+    audit('SYSTEM').fatal(reason);
 });
 
 /**
@@ -66,11 +65,11 @@ const onError = error => {
 
     switch (error.code) {
         case 'EACCES':
-            log(logModule.startup).error(`${bind} requires elevated privileges`);
+            log('SYSREM_STARTUP').error(`${bind} requires elevated privileges`);
             process.exit(1);
             break;
         case 'EADDRINUSE':
-            log(logModule.startup).error(`${bind} is already in use`);
+            log('SYSREM_STARTUP').error(`${bind} is already in use`);
             process.exit(1);
             break;
         default:
@@ -86,8 +85,8 @@ const onListening = () => {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
 
-    log(logModule.startup).info(`${process.env.SERVER_NAME} listening on ${bind}.`);
-    log(logModule.startup).info(`api document running on http://127.0.0.1:${addr.port} .`);
+    log('SYSREM_STARTUP').info(`${process.env.SERVER_NAME} listening on ${bind}.`);
+    log('SYSREM_STARTUP').info(`api document running on http://127.0.0.1:${addr.port} .`);
     debugger; /* eslint-disable-line*/
 };
 
@@ -107,10 +106,10 @@ const _healthCheck = async () => {
     const result = mongodb.mongoStatus() === true && redis.redisStatus() === true;
 
     if (!result) {
-        log(logModule.startup).fatal('system is shut down.');
+        log('SYSREM_STARTUP').fatal('system is shut down.');
         throw new Error('wqeqw');
     }
-    log(logModule.startup).debug('system is normal.');
+    log('SYSREM_STARTUP').debug('system is normal.');
 };
 
 /** 健康检查机制 */
@@ -131,7 +130,7 @@ process.on('SIGINT', () => {
 process.on('exit', async () => {
     mongodb.closeMongoConnection();
     redis.quitRedis();
-    log(logModule.stop).info('server connection will stop normally.');
+    log('SYSREM_STOP_CLEAN').info('server connection will stop normally.');
 });
 
 /** 服务开始监听请求 */
@@ -147,6 +146,7 @@ server.listen(port, '0.0.0.0', () => {
         };
         var _check = setTimeout(_fn, 1000);/* eslint-disable-line no-var*/
     }
+    global.isServerRunning = true;
 });
 server.on('error', onError);
 server.on('listening', onListening);

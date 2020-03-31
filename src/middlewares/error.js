@@ -1,6 +1,4 @@
-const { auditModule, traceModule } = require('../../config/log.type');
-const HttpError = require('../../config/http.error.type');
-const { audit, trace } = require('../../config/logger.config');
+const { audit, trace } = require('../../src/configs');
 
 /**
  * 捕捉路由中未处理的错误，即直接throw new Error的情况
@@ -10,9 +8,9 @@ const { audit, trace } = require('../../config/logger.config');
  * @param {*} next
  */
 module.exports = (err, req, res, next) => { /* eslint-disable-line*/
-    const result = { result: false, type: HttpError.innerError, info: 'Something broke! please try again.' };
+    const result = { result: false, type: err.type, info: err.message };
 
-    audit(auditModule.error).fatal(`${err.stack}`);
-    trace(traceModule.default, { traceId: req.headers['x-b3-traceid'], spanId: req.headers['x-b3-spanid'], parentSpanId: req.headers['x-b3-parentspanid'] }).warn(`[${req.ip}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] response error with : Error[${err.type}: ${err.message}] . result : ${JSON.stringify(result)} .`);
-    res.status(500).send(result);
+    audit('SYSTEM_ERROR').fatal(`${err.stack}`);
+    trace('http-error', { traceId: req.headers['x-b3-traceid'], spanId: req.headers['x-b3-spanid'], parentSpanId: req.headers['x-b3-parentspanid'] }).warn(`[${req.ip}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] response error with : Error[${err.type}: ${err.message}] . result : ${JSON.stringify(result)} .`);
+    res.status(err.status).send(result);
 };

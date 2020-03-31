@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const { system } = require('../../config/logger.config');
+const { system } = require('../../src/configs');
 
 const RECONNET_TIME = 5000; // Reconnect every 5000ms
 

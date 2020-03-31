@@ -21,13 +21,13 @@ const _envValidate = (_key, _value) => {
 
 /**
  * 将配置文件设置的环境变量更新到程序中
- * @param {string} _configFile
+ * @param {string} filePath
  */
-exports.setENV = _configFile => {
+exports.setENV = filePath => {
     let config = {};
 
     try {
-        config = yaml.safeLoad(fs.readFileSync(_configFile, 'utf8'));
+        config = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'));
     } catch (err) {
         system('set-env').error(`change env config failed : ${JSON.stringify({ response: err.response, message: err.message })}`);
     }
@@ -46,5 +46,5 @@ exports.setENV = _configFile => {
             }
         }
     }
-    system('set-env').warn(_arr > 0 ? `change env configuration from ${_configFile} success.` : 'the configuration of peocess.env no changed.');
+    system('set-env').warn(_arr > 0 ? `change env configuration from ${filePath} success.` : 'the configuration of peocess.env no changed.');
 };

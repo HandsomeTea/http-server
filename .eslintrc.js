@@ -12,7 +12,7 @@ module.exports = {
     parser: 'babel-eslint',
     extends: 'eslint:recommended',
     globals: {
-        initLog: 'readonly',
+        isServerRunning: 'readonly',
         Exception: 'readonly',
         WebsocketServer: 'readonly',
         IntervalPing: 'readonly'

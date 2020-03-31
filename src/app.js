@@ -17,7 +17,7 @@ const { serverJWTcheck,
     tooManyRequestsHandle
 } = require('./middlewares');
 const restApi = require('./routes');
-const HttpError = require('../config/http.error.type');
+const { errorType } = require('../src/configs');
 
 
 /**
@@ -34,21 +34,12 @@ app.use(cookieParser());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(compression());
-/**自定义中间件 */
-app.use(serverJWTcheck);
-app.use(acceptRequestHandle);
-app.use(successResponseHandle);
-app.use(failureHandle);
-app.use(noPermissionHandle);
-app.use(notFoundHandle);
-app.use(serverErrorHandle);
-app.use(tooManyRequestsHandle);
 
-app.use(express.static(path.resolve(__dirname, '../doc')));
+app.use(express.static(path.resolve(__dirname, '../public/doc')));
 
 app.get('/', (req, res) => {
     if (process.env.NODE_ENV === 'development') {
-        let apidoc = path.resolve(__dirname, '../doc/index.html');
+        let apidoc = path.resolve(__dirname, '../public/doc/index.html');
 
         if (fs.existsSync(apidoc)) {
             res.sendFile(apidoc);
@@ -60,15 +51,24 @@ app.get('/', (req, res) => {
     }
 });
 
+/**自定义中间件 */
+app.use(serverJWTcheck);
+app.use(acceptRequestHandle);
+app.use(successResponseHandle);
+app.use(failureHandle);
+app.use(noPermissionHandle);
+app.use(notFoundHandle);
+app.use(serverErrorHandle);
+app.use(tooManyRequestsHandle);
 
 /**加载路由 */
 app.use(restApi);
 
 app.use('*', () => {
-    throw new Error(JSON.stringify({ status: 404, type: HttpError.urlNotFound, msg: 'URL not found!' }));
+    throw new Exception('URL not found!', errorType.URL_NOT_FOUND);
 });
 
-/**捕捉路由中throw new Error的情况 */
+/**捕捉路由中throw new Eexception的情况 */
 app.use(errorHandle);
 
 module.exports = app;

@@ -1,5 +1,4 @@
 const log4js = require('log4js');
-const { traceModule, auditModule, logModule } = require('./log.type');
 
 /**
  * 定义日志配置
@@ -14,25 +13,25 @@ exports.updateOrCreateLogInstance = () => {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%h] [%X{Module}] [%X{TraceId}|%X{SpanId}|%X{ParentSpanId}]%] %m'
+                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%h] [%X{Module}] [%X{TraceId}|%X{SpanId}|%X{ParentSpanId}]%] %m%n'
                 }
             },
             _audit: {
                 type: 'dateFile',
-                filename: 'logs/audit', //您要写入日志文件的路径
+                filename: 'public/logs/audit', //您要写入日志文件的路径
                 alwaysIncludePattern: true, //（默认为false） - 将模式包含在当前日志文件的名称以及备份中
                 pattern: 'yyyy-MM-dd.log', //（可选，默认为.yyyy-MM-dd） - 用于确定何时滚动日志的模式。格式:.yyyy-MM-dd-hh:mm:ss.log
                 encoding: 'utf-8',
                 layout: {
                     type: 'pattern',
-                    pattern: '[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] [%X{Module}] %m'
+                    pattern: '[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] [%X{Module}] %m%n'
                 }
             },
             _develop: {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d] [%p] [%X{Module} %f:%l:%o]%] %m'
+                    pattern: '%[[%d] [%p] [%X{Module} %f:%l:%o]%] %m%n'
                 }
             },
             _system: {
@@ -75,13 +74,13 @@ exports.updateOrCreateLogInstance = () => {
 /**
  * 开发时打印日志使用
  *
- * @param {*} [_module=logModule.api]
+ * @param {string} [module='HTTP_REQUEST']
  * @returns
  */
-exports.log = (_module = logModule.api) => {
+exports.log = (module = 'HTTP_REQUEST') => {
     const _devLogger = log4js.getLogger('developLog');
 
-    _devLogger.addContext('Module', _module || 'default-module');
+    _devLogger.addContext('Module', module || 'default-module');
 
     return _devLogger;
 };
@@ -89,17 +88,20 @@ exports.log = (_module = logModule.api) => {
 /**
  * 追踪日志使用
  *
- * @param {*} [_module=traceModule.default]
- * @param {*} _data
+ * @param {string} [module='']
+ * @param {object} [data={ traceId: '', spanId: '', parentSpanId: '' }]
+ * @param {string} data.traceId
+ * @param {string} data.spanId
+ * @param {string} data.parentSpanId
  * @returns
  */
-exports.trace = (_module = traceModule.default, _data) => {
+exports.trace = (module = '', data = { traceId: '', spanId: '', parentSpanId: '' }) => {
     const _traceLogger = log4js.getLogger('traceLog');
 
-    _traceLogger.addContext('Module', _module || 'default-module');
-    _traceLogger.addContext('TraceId', _data.traceId || '');
-    _traceLogger.addContext('SpanId', _data.spanId || '');
-    _traceLogger.addContext('ParentSpanId', _data.parentSpanId || '');
+    _traceLogger.addContext('Module', (module || process.env.SERVER_NAME || 'default-module').toUpperCase());
+    _traceLogger.addContext('TraceId', data.traceId || '');
+    _traceLogger.addContext('SpanId', data.spanId || '');
+    _traceLogger.addContext('ParentSpanId', data.parentSpanId || '');
 
     return _traceLogger;
 };
@@ -107,25 +109,25 @@ exports.trace = (_module = traceModule.default, _data) => {
 /**
  * 操作日志使用
  *
- * @param {*} [_module=auditModule.request]
+ * @param {string} [module='']
  * @returns
  */
-exports.audit = (_module = auditModule.request) => {
+exports.audit = (module = '') => {
     const _auditLogger = log4js.getLogger('auditLog');
 
-    _auditLogger.addContext('Module', _module || 'default-module');
+    _auditLogger.addContext('Module', (module || 'default-module').toUpperCase());
 
     return _auditLogger;
 };
 
 /**
  * 系统日志使用
- * @param {string} _module
+ * @param {string} module
  */
-exports.system = _module => {
+exports.system = module => {
     const _systemLogger = log4js.getLogger('systemLog');
 
-    _systemLogger.addContext('Module', _module.toUpperCase());
+    _systemLogger.addContext('Module', module.toUpperCase());
 
     return _systemLogger;
 };

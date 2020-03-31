@@ -1,6 +1,4 @@
-const { traceId } = require('../../config/logger.config');
-const { traceModule } = require('../../config/log.type');
-const { log, trace } = require('../../config/logger.config');
+const { traceId, log, trace } = require('../../src/configs');
 
 /**
  * 服务器接收到请求的相关处理
@@ -35,7 +33,7 @@ module.exports = (req, res, next) => {
         req.headers['x-b3-spanid'] = traceId();
     }
 
-    trace(traceModule.default, { traceId: req.headers['x-b3-traceid'], spanId: req.headers['x-b3-spanid'], parentSpanId: req.headers['x-b3-parentspanid'] }).info(`[${addressIpv4}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] request parameter :${_datas || ' no parameter'} .`);
+    trace('receive-request', { traceId: req.headers['x-b3-traceid'], spanId: req.headers['x-b3-spanid'], parentSpanId: req.headers['x-b3-parentspanid'] }).info(`[${addressIpv4}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] request parameter :${_datas || ' no parameter'} .`);
 
     next();
 };

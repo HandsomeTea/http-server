@@ -1,9 +1,7 @@
 const router = require('express').Router();
 const asyncHandler = require('express-async-handler');
-// const HttpError = require('../../../config/http.error.type');
-// const redis = require('../../service/redis/redis');
-const { Users } = require('../../models');
-// const { logModule } = require('../../../config/log.type');
+// const { errorType, log } = require('../../../src/configs');
+// const { Users } = require('../../models');
 
 /**
  * @api {post} /tests/test/:data 测试接口
@@ -51,14 +49,14 @@ const { Users } = require('../../models');
  */
 
 router.get('/api', asyncHandler(async (req, res) => {
-    // log(logModule.api).error('test error log.');
+    // log('HTTP_REQUEST').error('test error log.');
     // res.failure({ result: '测试成功' });
-    // res.notFound({ result: '测试成功' }, HttpError.notFoundUser);
-    // res.serverError({ result: '测试成功' }, HttpError.innerDBError);
-    // res.noPermission({ result: '测试成功' }, HttpError.noPermissionUser);
-    // res.tooManyRequests({ result: '测试成功' }, HttpError.tooMany);
-    res.success(new Date((await Users.find({}))[0].createdAt).getTime());
-    // throw new Exception('cuo wu');
+    res.notFound({ result: '测试成功' });
+    // res.serverError({ result: '测试成功' });
+    // res.noPermission({ result: '测试成功' });
+    // res.tooMany({ result: '测试成功' });
+    // res.success(new Date((await Users.find({}))[0].createdAt).getTime());
+    // throw new Exception('cuo wu', errorType.FORBIDDEN);
 }));
 
 module.exports = router;

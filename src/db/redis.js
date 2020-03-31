@@ -1,6 +1,6 @@
 const ioredis = require('ioredis');
 
-const { system, audit } = require('../../config/logger.config');
+const { system, audit } = require('../../src/configs');
 
 class Redis {
     constructor() {
