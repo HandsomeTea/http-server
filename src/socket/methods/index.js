@@ -1,6 +1,6 @@
 const _ = require('underscore');
 
-const { log } = require('../../../config/logger.config');
+const { log, errorType } = require('../../configs');
 const middleware = require('../middleware');
 const methods = require('./method-map');
 const { Users } = require('../../models');
@@ -11,6 +11,7 @@ module.exports = socket => {
         const data = JSON.parse(params);
 
         if (data.msg === 'connect') {
+            socket.attempt.userId = data.user;
             socket.send(JSON.stringify({ msg: 'connected', session: socket.attempt.connection.id }));
         } else if (data.msg === 'sub') {
             socket.send(JSON.stringify({ msg: 'ready', subs: [data.id] }));
@@ -40,7 +41,7 @@ module.exports = socket => {
                         };
                     }
                 } catch (e) {
-                    socket.send(JSON.stringify({ msg: 'result', id: data.id, result: 'INTERNAL_SERVER_ERROR' }));
+                    socket.send(JSON.stringify({ msg: 'result', id: data.id, result: errorType.INTERNAL_SERVER_ERROR }));
                     return;
                 }
             }
@@ -65,7 +66,7 @@ module.exports = socket => {
                 }
             } catch (e) {
                 log(`socket-${data.method}-result`).error(e);
-                socket.send(JSON.stringify({ msg: 'result', id: data.id, error: { reason: 'INTERNAL_SERVER_ERROR' } }));
+                socket.send(JSON.stringify({ msg: 'result', id: data.id, error: { reason: errorType.INTERNAL_SERVER_ERROR } }));
             }
         }
     });
