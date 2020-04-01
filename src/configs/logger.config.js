@@ -50,12 +50,12 @@ exports.updateOrCreateLogInstance = () => {
             },
             developLog: {
                 appenders: ['_develop'],
-                level: process.env.NODE_ENV === 'development' ? process.env.DEV_LOG_LEVEL || 'ALL' : 'OFF',
+                level: process.env.NODE_ENV === 'production' ? 'OFF' : process.env.DEV_LOG_LEVEL || 'ALL',
                 enableCallStack: true
             },
             traceLog: {
                 appenders: ['_trace'],
-                level: process.env.NODE_ENV === 'development' ? process.env.TRACE_LOG_LEVEL || 'ALL' : 'OFF',
+                level: process.env.NODE_ENV === 'production' ? 'OFF' : process.env.TRACE_LOG_LEVEL || 'ALL',
                 enableCallStack: true
             },
             auditLog: {
