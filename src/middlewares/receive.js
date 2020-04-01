@@ -8,7 +8,7 @@ const { traceId, log, trace } = require('../../src/configs');
  */
 module.exports = (req, res, next) => {
 
-    let _datas = '';
+    let _datas = ` header=>${JSON.stringify(req.headers)}`;
 
     if (Object.getOwnPropertyNames(req.body).length > 0) {
         _datas += ` body=>${JSON.stringify(req.body)}`;
