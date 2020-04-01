@@ -1,11 +1,10 @@
 const jwt = require('jsonwebtoken');
 
-
-module.exports = class JWT {
-    constructor(_app, _appId, _appSecert) {
-        this.app = _app;
-        this.appId = _appId;
-        this.appSecert = _appSecert;
+class JWT {
+    constructor() {
+        this.app = process.env.JWT_APP_NAME;
+        this.appId = process.env.JWT_APP_ID;
+        this.appSecert = process.env.JWT_APP_SECERT;
     }
 
     /**
@@ -58,4 +57,6 @@ module.exports = class JWT {
             info: 'Server Check Sucess by Authorization.'
         };
     }
-};
+}
+
+module.exports = new JWT();

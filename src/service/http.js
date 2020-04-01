@@ -1,10 +1,8 @@
 const axios = require('axios');
 const httpContext = require('express-http-context');
 
-const { errorType } = require('../configs');
-const { traceId } = require('../configs');
-const jwt = require('./jsonwebtoken');
-const { log } = require('../configs');
+const { errorType, traceId, log } = require('../configs');
+const { JWT } = require('../service');
 
 class Request {
     constructor() {
@@ -20,7 +18,7 @@ class Request {
                 method,
                 baseURL,
                 headers: {
-                    Authorization: jwt.sign(),
+                    Authorization: JWT.sign(),
                     'X-B3-SpanId': traceId(),
                     'X-B3-TraceId': httpContext.get('traceId') || traceId(),
                     'X-B3-ParentSpanId': httpContext.get('spanId') || traceId(),
