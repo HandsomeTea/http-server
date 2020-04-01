@@ -5,6 +5,7 @@ const app = express();
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const compression = require('compression');
+const httpContext = require('express-http-context');
 
 const { serverJWTcheck,
     acceptRequestHandle,
@@ -34,6 +35,7 @@ app.use(cookieParser());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(compression());
+app.use(httpContext.middleware);
 
 app.use(express.static(path.resolve(__dirname, '../public/doc')));
 
