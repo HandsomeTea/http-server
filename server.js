@@ -51,7 +51,7 @@ WebsocketServer.on('connection', (socket, request) => {
             ip: request.connection.remoteAddress
         }
     };
-    socket.middlewareMap = {};
+    socket.middlewareMap = new Set();
     require('./src/socket/core')(socket);
     require('./src/socket/methods')(socket);
 });

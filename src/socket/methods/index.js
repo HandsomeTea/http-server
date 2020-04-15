@@ -8,11 +8,19 @@ const { Users } = require('../../models');
 module.exports = socket => {
     socket.on('message', async params => {
         //数据格式化
-        const data = JSON.parse(params);
+        let data = null;
+
+        try {
+            data = JSON.parse(params);
+        } catch (e) {
+            log('socket-recieve').error(`unknown message with ${params}`);
+        }
 
         if (data.msg === 'connect') {
             socket.attempt.userId = data.user;
             socket.send(JSON.stringify({ msg: 'connected', session: socket.attempt.connection.id }));
+        } else if (data.msg === 'pong') {
+            socket.lastPing = +new Date();
         } else if (data.msg === 'sub') {
             socket.send(JSON.stringify({ msg: 'ready', subs: [data.id] }));
         } else if (data.msg === 'method' && methods[data.method]) {
@@ -26,9 +34,9 @@ module.exports = socket => {
             middleware(socket);
 
             //执行中间件：中间件函数必须return一个object才可以将结果添加到attempt中
-            for (let fnId in socket.middlewareMap) {
+            for (const _middleFn of socket.middlewareMap) {
                 try {
-                    const _result = await socket.middlewareMap[fnId](data.method, [...data.params], socket);
+                    const _result = await _middleFn(data.method, [...data.params], socket);
 
                     if (_.isError(_result)) {
                         log(`socket-${data.method}-result`).error(_result);
