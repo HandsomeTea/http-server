@@ -3,6 +3,7 @@ module.exports = socket => {
         global.socketConnectionNum--;
         if (socket.attempt.userId) {
             global.socketOnlineNum--;
+            global.WebsocketServerMap[socket.attempt.userId].delete(socket);
         }
         clearInterval(socket.pingInterval);
         clearInterval(socket.pingCheckInterval);

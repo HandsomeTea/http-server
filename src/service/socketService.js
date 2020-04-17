@@ -1,10 +1,12 @@
 const WS = require('ws');
+const _ = require('underscore');
 
 const { log } = require('../configs');
 
 module.exports = new class WebsocketService {
     constructor() {
         this.server = null;
+        this.serverMap = null;
 
         this._init();
     }
@@ -13,6 +15,7 @@ module.exports = new class WebsocketService {
         let _t = setInterval(() => {
             if (global.isServerRunning) {
                 this.server = global.WebsocketServer;
+                this.serverMap = global.WebsocketServerMap;
                 clearInterval(_t);
                 _t = null;
             }
@@ -26,16 +29,23 @@ module.exports = new class WebsocketService {
      * @param {string} [connectionId='']
      */
     logoutUser(userId, connectionId = '') {
-        for (const client of this.server.clients) {
-            if (client.readyState === WS.OPEN && userId === client.attempt.userId) {
-                log('socket-logout-user').debug(`user id : ${client.attempt.userId}, connection id : ${client.attempt.connection.id}`);
-                if (connectionId) {
-                    if (client.attempt.connection.id === connectionId) {
+        if (!userId) {
+            return;
+        }
+        const _clients = this.serverMap[userId] || new Set();
+
+        if (_clients.size > 0) {
+            for (const client of _clients) {
+                if (client.readyState === WS.OPEN) {
+                    log('socket-logout-user').debug(`user id : ${client.attempt.userId}, connection id : ${client.attempt.connection.id}`);
+                    if (connectionId) {
+                        if (client.attempt.connection.id === connectionId) {
+                            client.close();
+                            break;
+                        }
+                    } else {
                         client.close();
-                        break;
                     }
-                } else {
-                    client.close();
                 }
             }
         }
@@ -49,17 +59,24 @@ module.exports = new class WebsocketService {
      */
     sendMessageToUsers(userId, message) {
         const _userId = new Set([].concat(userId));
+        const targetMap = _.pick(this.serverMap, ..._userId);
 
-        this.server.clients.forEach(client => {
-            if (client.readyState === WS.OPEN && _userId.has(client.attempt.userId)) {
+        let targetClients = new Set();
+
+        _.values(targetMap).map(c => {
+            targetClients = new Set([...targetClients, ...c]);
+        });
+
+        for (const client of targetClients) {
+            if (client.readyState === WS.OPEN) {
                 log(`socket-send-to-user-${client.attempt.userId}`).debug(message);
                 client.send(JSON.stringify(message));
             }
-        });
+        }
     }
 
     /**
-     * 获取一个用户有几个客户端在线
+     * 获取当前instance某个用户有几个客户端登录
      *
      * @param {*} userId
      * @returns
@@ -67,8 +84,8 @@ module.exports = new class WebsocketService {
     getLoginClientCount(userId) {
         let num = 0;
 
-        this.server.clients.forEach(client => {
-            if (client.readyState === WS.OPEN && client.attempt.userId === userId) {
+        this.serverMap[userId].forEach(client => {
+            if (client.readyState === require('ws').OPEN) {
                 num++;
             }
         });

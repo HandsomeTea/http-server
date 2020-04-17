@@ -41,6 +41,7 @@ const crypto = require('crypto');
 const WebSocket = require('ws');
 const server = http.createServer(app);
 
+global.WebsocketServerMap = {};
 global.WebsocketServer = new WebSocket.Server({ server });
 /** 封装socket */
 WebsocketServer.on('connection', (socket, request) => {

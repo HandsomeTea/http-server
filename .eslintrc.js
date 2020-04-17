@@ -15,6 +15,7 @@ module.exports = {
         isServerRunning: 'readonly',
         Exception: 'readonly',
         WebsocketServer: 'readonly',
+        WebsocketServerMap: 'readonly',
         IntervalPing: 'readonly'
     },
     rules: {
