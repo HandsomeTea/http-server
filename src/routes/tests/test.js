@@ -4,7 +4,7 @@ const asyncHandler = require('express-async-handler');
 // const { Users } = require('../../models');
 
 /**
- * @api {post} /tests/test/:data 测试接口
+ * @api {post} /tests/test/api 测试接口
  * @apiName 测试接口
  * @apiGroup TEST
  * @apiVersion 1.0.0
@@ -50,12 +50,12 @@ const asyncHandler = require('express-async-handler');
 
 router.get('/api', asyncHandler(async (req, res) => {
     // log('HTTP_REQUEST').error('test error log.');
-    // res.failure({ result: '测试成功' });
-    res.notFound({ result: '测试成功' });
-    // res.serverError({ result: '测试成功' });
-    // res.noPermission({ result: '测试成功' });
-    // res.tooMany({ result: '测试成功' });
-    // res.success(new Date((await Users.find({}))[0].createdAt).getTime());
+    // return res.failure({ result: '测试成功' });
+    // return res.notFound({ result: '测试成功' });
+    // return res.serverError({ result: '测试成功' });
+    // return res.noPermission({ result: '测试成功' });
+    return res.tooMany({ result: '测试成功' });
+    // return res.success(new Date((await Users.find({}))[0].createdAt).getTime());
     // throw new Exception('cuo wu', errorType.FORBIDDEN);
 }));
 
