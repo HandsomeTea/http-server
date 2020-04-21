@@ -66,7 +66,6 @@ module.exports = new class RequestServer {
             ...type(data) === 'string' ? { info: data } : data
         };
 
-        log('request-server').error(errorResult);
         throw new Exception(JSON.stringify(errorResult), errorType.INTERNAL_SERVER_ERROR);
     }
 
