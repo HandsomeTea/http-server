@@ -1,7 +1,7 @@
 const axios = require('axios');
 const httpContext = require('express-http-context');
 
-const { errorType, traceId, log } = require('../configs');
+const { traceId, log } = require('../configs');
 const { JWT } = require('.');
 const { type } = require('../utils');
 
@@ -46,7 +46,7 @@ module.exports = new class RequestServer {
 
     async _beforeSendToServerButError(error) {
         log('request-server').error(error);
-        throw new Exception('request server send to other service error', errorType.INTERNAL_SERVER_ERROR);
+        return Promise.reject(error);
     }
 
     async _receiveSuccessResponse(response) {
@@ -68,7 +68,7 @@ module.exports = new class RequestServer {
             ...type(data) === 'string' ? { info: data } : data
         };
 
-        throw new Exception(JSON.stringify(errorResult), errorType.INTERNAL_SERVER_ERROR);
+        return Promise.reject(JSON.stringify(errorResult));
     }
 
     async send(url, method, options = { query: {}, header: {}, body: {} }, baseURL) {
