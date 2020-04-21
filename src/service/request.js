@@ -55,12 +55,19 @@ module.exports = new class RequestServer {
     }
 
     async _receiveResponseNotSuccess(error) {
-        const { response/*, config, request */ } = error;
+        const { response, config/*, request */ } = error;
+        const { url, baseURL, method } = config;
         const { status, statusText, data } = response;
         // const { message, name, description, number, fileName, lineNumber, columnNumber, stack, code } = error.toJSON();
+        const errorResult = {
+            sendRequest: `(${method}): ${baseURL ? baseURL + url : url}`,
+            status,
+            httpInfo: statusText,
+            ...type(data) === 'string' ? { info: data } : data
+        };
 
-        log('request-server').error({ status, httpInfo: statusText, ...type(data) === 'string' ? { info: data } : data });
-        throw new Exception(statusText, errorType.INTERNAL_SERVER_ERROR);
+        log('request-server').error(errorResult);
+        throw new Exception(JSON.stringify(errorResult), errorType.INTERNAL_SERVER_ERROR);
     }
 
     async send(url, method, options = { query: {}, header: {}, body: {} }, baseURL) {
