@@ -2,7 +2,7 @@ const axios = require('axios');
 const httpContext = require('express-http-context');
 
 const { errorType, traceId, log } = require('../configs');
-const { JWT } = require('../service');
+const { JWT } = require('.');
 const { type } = require('../utils');
 
 module.exports = new class RequestServer {

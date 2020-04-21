@@ -1,4 +1,4 @@
-const request = require('./request');
+const HTTP = require('./httpService');
 
 class Request {
     constructor() {
@@ -6,7 +6,7 @@ class Request {
     }
 
     async sendBaidu(method, url, options = { query: {}, header: {}, body: {} }) {
-        return await request.send(url, method, options, 'www.baidu.com');
+        return await HTTP.send(url, method, options, 'www.baidu.com');
     }
 }
 

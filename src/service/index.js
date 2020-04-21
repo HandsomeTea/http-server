@@ -1,4 +1,4 @@
 exports.socketService = require('./socketService');
-exports.request = require('./request');
-exports.HTTP = require('./vendorHttpService');
+exports.HTTP = require('./httpService');
+exports.vendorHttp = require('./vendorHttpService');
 exports.JWT = require('./jwtService');
