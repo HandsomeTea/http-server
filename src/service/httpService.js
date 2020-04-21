@@ -51,7 +51,9 @@ module.exports = new class RequestServer {
 
     async _receiveSuccessResponse(response) {
         // 这里只处理 response.status >= 200 && response.status <= 207 的情况
-        return Promise.resolve(response.data);
+        const { data/*, config, headers, request, status, statusText*/ } = response;
+
+        return Promise.resolve(data);
     }
 
     async _receiveResponseNotSuccess(error) {
