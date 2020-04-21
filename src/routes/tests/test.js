@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const asyncHandler = require('express-async-handler');
 // const { errorType, log } = require('../../../src/configs');
-// const { Users } = require('../../models');
+const { Users } = require('../../models');
 
 /**
  * @api {post} /tests/test/api 测试接口
@@ -54,8 +54,8 @@ router.get('/api', asyncHandler(async (req, res) => {
     // return res.notFound({ result: '测试成功' });
     // return res.serverError({ result: '测试成功' });
     // return res.noPermission({ result: '测试成功' });
-    return res.tooMany({ result: '测试成功' });
-    // return res.success(new Date((await Users.find({}))[0].createdAt).getTime());
+    // return res.tooMany({ result: '测试成功' });
+    return res.success(new Date((await Users.find({}))[0].createdAt).getTime());
     // throw new Exception('cuo wu', errorType.FORBIDDEN);
 }));
 

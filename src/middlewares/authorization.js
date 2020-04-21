@@ -14,8 +14,8 @@ module.exports = (req, res, next) => {
         const authType = _array[0];
         const result = JWT.verify(authToken);
 
-        if (authType === 'JWT' && result.allowed === false) {
-            res.status(400).send(`Bad request(wrong Authorization)! Refused : ${result.info}`);
+        if (authType !== 'JWT' || result.allowed === false) {
+            res.status(400).send(`Bad request(wrong Authorization)! Refused. ${result.info}`);
         } else {
             next();
         }

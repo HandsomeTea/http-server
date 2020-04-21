@@ -22,6 +22,34 @@ module.exports = new class WebsocketService {
         }, 500);
     }
 
+    get connectionNum() {
+        return this.server.clients.size;
+    }
+
+    get onlineConnectionNum() {
+        let num = 0;
+
+        this.server.clients.forEach(client => {
+            if (client.readyState === WS.OPEN && client.attempt.userId) {
+                num++;
+            }
+        });
+
+        return num;
+    }
+
+    get onLineUserNum() {
+        let _temp = new Set();
+
+        this.server.clients.forEach(client => {
+            if (client.readyState === WS.OPEN && client.attempt.userId) {
+                _temp.add(client.attempt.userId);
+            }
+        });
+
+        return _temp.size;
+    }
+
     /**
      * 登出某个用户在当前instance下的所有客户端,如果有connectionId,则只登出connectionId对应的客户端
      *
@@ -57,7 +85,7 @@ module.exports = new class WebsocketService {
      * @param {string|array} userId 一个或多个用户id
      * @param {*} message
      */
-    sendMessageToUsers(userId, message) {
+    async sendMessageToUsers(userId, message) {
         const _userId = new Set([].concat(userId));
         const targetMap = _.pick(this.serverMap, ..._userId);
 
@@ -84,8 +112,8 @@ module.exports = new class WebsocketService {
     getLoginClientCount(userId) {
         let num = 0;
 
-        this.serverMap[userId].forEach(client => {
-            if (client.readyState === require('ws').OPEN) {
+        this.server.clients.forEach(client => {
+            if (client.readyState === WS.OPEN && client.attempt.userId === userId) {
                 num++;
             }
         });

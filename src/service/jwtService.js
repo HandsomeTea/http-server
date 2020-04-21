@@ -42,19 +42,22 @@ class JWT {
         } catch (err) {
             return {
                 allowed: false,
-                info: `Server Check Failed. ${err.name}: ${JSON.stringify(err.message)}`
+                // info: `${err.name}: ${JSON.stringify(err.message)}`
+                info: ''
             };
         }
         if (data.exp >= Date.now() / 1000 + 60) {
             return {
                 allowed: false,
-                info: 'Server Check Failed by Authorization. Timeout!'
+                // info: 'Server Check Failed by Authorization. Timeout!'
+                info: ''
             };
         }
 
         return {
             allowed: true,
-            info: 'Server Check Sucess by Authorization.'
+            // info: 'Server Check Sucess by Authorization.'
+            info: ''
         };
     }
 }
