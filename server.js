@@ -136,20 +136,18 @@ process.on('exit', async () => {
 
 /** 服务开始监听请求 */
 server.listen(port, '0.0.0.0', async () => {
-    await mongodb.init();
-    await redis.init();
+    // if (process.send) {
+    let _check = setInterval(() => {
 
-    if (process.send) {
-        let _check = setInterval(() => {
-            const result = mongodb.status === true && redis.status === true;
+        const result = mongodb.status === true && redis.status === true;
 
-            if (result) {
-                global.isServerRunning = true;
-                process.send('ready');
-                clearInterval(_check);
-            }
-        }, 1000);
-    }
+        if (result) {
+            global.isServerRunning = true;
+            // process.send('ready');
+            clearInterval(_check);
+        }
+    }, 1000);
+    // }
 });
 server.on('error', onError);
 server.on('listening', onListening);

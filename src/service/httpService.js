@@ -1,6 +1,7 @@
 const axios = require('axios');
 const httpContext = require('express-http-context');
 const Agent = require('agentkeepalive');
+const _ = require('underscore');
 
 const { traceId, log } = require('../configs');
 const { JWT } = require('.');
@@ -61,16 +62,22 @@ class Request {
     }
 
     async _receiveResponseNotSuccess(error) {
+        // const { message, name, description, number, fileName, lineNumber, columnNumber, stack, code } = error.toJSON();
         const { response, config/*, request */ } = error;
         const { url, baseURL, method } = config;
-        const { status, statusText, data } = response;
-        // const { message, name, description, number, fileName, lineNumber, columnNumber, stack, code } = error.toJSON();
         const errorResult = {
-            sendRequest: `(${method}): ${baseURL ? baseURL + url : url}`,
-            status,
-            httpInfo: statusText,
-            ...type(data) === 'string' ? { info: data } : data
+            sendRequest: `(${method}): ${baseURL ? baseURL + url : url}`
         };
+
+        if (response) {
+            const { status, statusText, data } = response;
+
+            _.extend(errorResult, {
+                status,
+                httpInfo: statusText,
+                ...type(data) === 'string' ? { info: data } : data
+            });
+        }
 
         return Promise.reject(JSON.stringify(errorResult));
     }

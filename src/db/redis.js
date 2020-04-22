@@ -4,17 +4,10 @@ const { system, audit } = require('../../src/configs');
 
 class Redis {
     constructor() {
-
+        this._init();
     }
 
-    async init() {
-        this.redis = new ioredis(process.env.REDIS_URL, {
-            retryStrategy: function () {
-                // do something when connection is disconnected
-                system('redis').fatal('disconnected! connection is break off.');
-            }
-        });
-
+    _init() {
         this.redis.on('connect', () => {
             system('redis').info(`connect on ${process.env.REDIS_URL} success and ready to use.`);
         });
@@ -29,8 +22,18 @@ class Redis {
         });
     }
 
+    get redis() {
+        return new ioredis(process.env.REDIS_URL, {
+            enableReadyCheck: true,
+            retryStrategy: function () {
+                // do something when connection is disconnected
+                system('redis').fatal('disconnected! connection is break off.');
+            }
+        });
+    }
+
     get status() {
-        return this.redis.status === 'ready';
+        return this.redis.status === 'ready' || this.redis.status === 'connecting';
     }
 
     async close() {

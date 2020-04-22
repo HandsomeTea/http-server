@@ -35,9 +35,11 @@ class MongoDB {
         this.db.on('reconnected', () => {// 重新连接成功
             system('mongodb').info(`reconnect on ${process.env.MONGO_URL} success and ready to use.`);
         });
+
+        this._init();
     }
 
-    async init() {
+    async _init() {
         return await _connect();
     }
 
