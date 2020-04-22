@@ -87,7 +87,6 @@ const onListening = () => {
         : 'port ' + addr.port;
 
     log('SYSREM_STARTUP').info(`${process.env.SERVER_NAME} listening on ${bind}.`);
-    log('SYSREM_STARTUP').info(`api document running on http://127.0.0.1:${addr.port} .`);
     debugger; /* eslint-disable-line*/
 };
 
@@ -136,18 +135,20 @@ process.on('exit', async () => {
 
 /** 服务开始监听请求 */
 server.listen(port, '0.0.0.0', async () => {
-    // if (process.send) {
     let _check = setInterval(() => {
-
         const result = mongodb.status === true && redis.status === true;
 
         if (result) {
             global.isServerRunning = true;
-            // process.send('ready');
+            if (process.send) {
+                process.send('ready');
+            }
             clearInterval(_check);
+            log('SYSREM_STARTUP').info(`api document running on http://127.0.0.1:${port} .`);
+        } else {
+            log('SYSREM_STARTUP').error('mongodb or redis connection is unusual');
         }
     }, 1000);
-    // }
 });
 server.on('error', onError);
 server.on('listening', onListening);
