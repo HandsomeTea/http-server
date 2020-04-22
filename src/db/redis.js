@@ -4,53 +4,38 @@ const { system, audit } = require('../../src/configs');
 
 class Redis {
     constructor() {
-        let _status = false;
-
-        this.redisStatus = () => {
-            return _status;
-        };
-
-        this.redis.on('connect', () => {
-            system('redis').info(`connect on ${process.env.REDIS_URL} success and ready to use.`);
-            _status = true;
-        });
-
-        this.redis.on('close', () => {
-            system('redis').fatal('disconnected! connection is break off. but still trying again');
-            _status = false;
-        });
-
-        this.redis.on('error', error => {
-            system('redis').error(error.toString());
-            audit('redis').error(error);
-            _status = false;
-        });
-
-        this.quitRedis = async () => {
-            await this.redis.quit();
-            _status = false;
-        };
-
-        this._init();
-    }
-
-    _init() {
 
     }
 
-    get redis() {
-        return new ioredis(process.env.REDIS_URL, {
+    async init() {
+        this.redis = new ioredis(process.env.REDIS_URL, {
             retryStrategy: function () {
                 // do something when connection is disconnected
                 system('redis').fatal('disconnected! connection is break off.');
             }
         });
+
+        this.redis.on('connect', () => {
+            system('redis').info(`connect on ${process.env.REDIS_URL} success and ready to use.`);
+        });
+
+        this.redis.on('close', () => {
+            system('redis').fatal('disconnected! connection is break off. but still trying again');
+        });
+
+        this.redis.on('error', error => {
+            system('redis').error(error.toString());
+            audit('redis').error(error);
+        });
+    }
+
+    get status() {
+        return this.redis.status === 'ready';
+    }
+
+    async close() {
+        return await this.redis.quit();
     }
 }
 
-const _redis = new Redis();
-
-Object.defineProperty(_redis, 'redisStatus', { writable: false });
-Object.defineProperty(_redis, 'quitRedis', { writable: false });
-
-module.exports = _redis;
+module.exports = new Redis();

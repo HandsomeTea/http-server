@@ -1,17 +1,21 @@
 const axios = require('axios');
 const httpContext = require('express-http-context');
+const Agent = require('agentkeepalive');
 
 const { traceId, log } = require('../configs');
 const { JWT } = require('.');
 const { type } = require('../utils');
 
-module.exports = new class RequestServer {
+class Request {
     constructor() {
-        this._init();
-    }
-
-    _init() {
         axios.defaults.timeout = 10000;
+        axios.defaults.httpAgent = new Agent({
+            keepAlive: true,
+            maxSockets: 100,
+            maxFreeSockets: 10,
+            timeout: 60000, // active socket keepalive for 60 seconds
+            freeSocketTimeout: 30000 // free socket keepalive for 30 seconds
+        });
         // axios.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
         // 请求拦截器
@@ -96,5 +100,30 @@ module.exports = new class RequestServer {
 
     async get(url, options = { query: {}, header: {} }, baseURL) {
         return this.send(url, 'get', { query: options.query, header: options.header }, baseURL);
+    }
+}
+
+class VendorRequest extends Request {
+    constructor() {
+        super();
+    }
+
+    async sendBaidu(method, url, options = { query: {}, header: {}, body: {} }) {
+        return await this.send(url, method, options, 'www.baidu.com');
+    }
+}
+
+module.exports = new class HTTP extends VendorRequest {
+    constructor() {
+        super();
+        this._init();
+    }
+
+    _init() {
+
+    }
+
+    async search() {
+        return await this.sendBaidu('post', '/search', { query: { s: 'test' } });
     }
 };

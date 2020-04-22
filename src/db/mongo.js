@@ -5,8 +5,8 @@ const { system } = require('../../src/configs');
 const RECONNET_TIME = 5000; // Reconnect every 5000ms
 
 let _retry = null; /* eslint-disable-line no-unused-vars*/
-const _connect = () => {
-    mongoose.connect(process.env.MONGO_URL, {
+const _connect = async () => {
+    return await mongoose.connect(process.env.MONGO_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useCreateIndex: true,
@@ -23,42 +23,22 @@ const _connect = () => {
 
 class MongoDB {
     constructor() {
-        const _connection = mongoose.connection;
-
-        let _status = false;
-
-        this.mongoStatus = () => {
-            return _status;
-        };
-
-        // 初始化操作
-        _connection.once('connected', () => {// 连接成功
+        this.db.once('connected', () => {// 连接成功
             system('mongodb').info(`connect on ${process.env.MONGO_URL} success and ready to use.`);
             _retry = null;
-            _status = true;
         });
 
-        _connection.on('disconnected', () => {// 连接失败或中断
+        this.db.on('disconnected', () => {// 连接失败或中断
             system('mongodb').fatal(`disconnected! connection is break off. it will be retried in ${RECONNET_TIME} ms after every reconnect until success unless process exit.`);
-            _status = false;
         });
 
-        _connection.on('reconnected', () => {// 重新连接成功
+        this.db.on('reconnected', () => {// 重新连接成功
             system('mongodb').info(`reconnect on ${process.env.MONGO_URL} success and ready to use.`);
-            _status = true;
         });
-
-        this.closeMongoConnection = async () => {
-            _retry = null;
-            _status = false;
-            await mongoose.connection.close();
-        };
-
-        this._init();
     }
 
-    _init() {
-        _connect();
+    async init() {
+        return await _connect();
     }
 
     get db() {
@@ -68,13 +48,14 @@ class MongoDB {
     get schema() {
         return mongoose.Schema;
     }
+
+    get status() {
+        return this.db.readyState === 1;
+    }
+
+    async close() {
+        return await mongoose.connection.close();
+    }
 }
 
-const _mongodb = new MongoDB();
-
-Object.freeze(_mongodb);
-Object.defineProperty(_mongodb, 'mongoStatus', { configurable: false, writable: false });
-Object.defineProperty(_mongodb, 'closeMongoConnection', { configurable: false, writable: false });
-
-
-module.exports = _mongodb;
+module.exports = new MongoDB();

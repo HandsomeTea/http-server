@@ -94,6 +94,7 @@ const onListening = () => {
 
 const redis = require('./src/db/redis');
 const mongodb = require('./src/db/mongo');
+
 /**
  * 当服务将要停止时的钩子函数
  * 比如向其他服务通知当前服务已经停止
@@ -104,7 +105,7 @@ const _willShutDown = async () => { };
  * 健康检查的钩子函数
  */
 const _healthCheck = async () => {
-    const result = mongodb.mongoStatus() === true && redis.redisStatus() === true;
+    const result = mongodb.status === true && redis.status === true;
 
     if (!result) {
         log('SYSREM_STARTUP').fatal('system is shut down.');
@@ -128,25 +129,27 @@ process.on('SIGINT', () => {
 });
 
 process.on('exit', async () => {
-    mongodb.closeMongoConnection();
-    redis.quitRedis();
+    await mongodb.close();
+    await redis.close();
     log('SYSREM_STOP_CLEAN').info('server connection will stop normally.');
 });
 
 /** 服务开始监听请求 */
-server.listen(port, '0.0.0.0', () => {
+server.listen(port, '0.0.0.0', async () => {
+    await mongodb.init();
+    await redis.init();
+
     if (process.send) {
-        const _fn = async () => {
-            const result = mongodb.mongoStatus() === true && redis.redisStatus() === true;
+        let _check = setInterval(() => {
+            const result = mongodb.status === true && redis.status === true;
 
             if (result) {
+                global.isServerRunning = true;
                 process.send('ready');
-                clearTimeout(_check);/* eslint-disable-line no-use-before-define*/
+                clearInterval(_check);
             }
-        };
-        var _check = setTimeout(_fn, 1000);/* eslint-disable-line no-var*/
+        }, 1000);
     }
-    global.isServerRunning = true;
 });
 server.on('error', onError);
 server.on('listening', onListening);
