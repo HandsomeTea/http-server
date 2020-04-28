@@ -37,7 +37,6 @@ app.set('port', port);
 
 
 const http = require('http');
-const crypto = require('crypto');
 const WebSocket = require('ws');
 const server = http.createServer(app);
 
@@ -45,11 +44,11 @@ global.WebsocketServerMap = {};
 global.WebsocketServer = new WebSocket.Server({ server });
 /** 封装socket */
 WebsocketServer.on('connection', (socket, request) => {
-    global.socketConnectionNum++;
     socket.attempt = {
         connection: {
-            id: crypto.randomBytes(24).toString('hex').substring(0, 16),
-            ip: request.connection.remoteAddress
+            id: request.headers['sec-websocket-key'],
+            ip: request.connection.remoteAddress,
+            device: request.headers['user-agent'] || 'unknown'
         }
     };
     socket.middlewareMap = new Set();

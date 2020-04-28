@@ -19,9 +19,6 @@ module.exports = async (/*params, socket*/) => {
     // // set user session
     // await Sessions.insertUserSession(userId, socket.attempt.connection.id, socket.attempt.connection.device);
 
-    // // set online count
-    // global.socketOnlineNum++;
-
     // // add to global socket map
     // if (!global.WebsocketServerMap[userId]) {
     //     global.WebsocketServerMap[userId] = new Set();

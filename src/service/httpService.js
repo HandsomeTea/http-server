@@ -46,6 +46,23 @@ class Request {
         if (!config.headers['x-tenantId']) {
             config.headers['x-tenantId'] = httpContext.get('tenantId') || '';
         }
+
+        const zh = config.url.match(/[\u4e00-\u9fa5]/g);
+
+        if (zh) {
+            let _obj = {};
+
+            for (let i = 0; i < zh.length; i++) {
+                if (!_obj[zh[i]]) {
+                    _obj[zh[i]] = encodeURIComponent(zh[i]);
+                }
+            }
+
+            for (const key in _obj) {
+                config.url = config.url.replace(new RegExp(key, 'g'), _obj[key]);
+            }
+        }
+
         return config;
     }
 

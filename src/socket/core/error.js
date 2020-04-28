@@ -1,5 +1,7 @@
+const { log } = require('../../configs');
+
 module.exports = socket => {
     socket.on('error', err => {
-        console.log(err); /* eslint-disable-line no-console */
+        log('socket-error').error(err);
     });
 };
