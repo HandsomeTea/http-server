@@ -83,7 +83,9 @@ class Request {
         const { response, config/*, request */ } = error;
         const { url, baseURL, method } = config;
         const errorResult = {
-            sendRequest: `(${method}): ${baseURL ? baseURL + url : url}`
+            sendRequest: `(${method}): ${baseURL ? baseURL + url : url}`,
+            status: 500,
+            type: 'INTERNAL_SERVER_ERROR'
         };
 
         if (response) {
@@ -94,9 +96,12 @@ class Request {
                 httpInfo: statusText,
                 ...type(data) === 'string' ? { info: data } : data
             });
+
+            log(`request-to-${baseURL ? baseURL : url}`).error(errorResult);
+            throw new Exception(`request to (${method}): ${baseURL ? baseURL + url : url} error${errorResult.httpInfo ? ' : ' + errorResult.httpInfo : ''}.`, errorResult.type, status);
         }
 
-        return Promise.reject(JSON.stringify(errorResult));
+        throw new Exception(`request to (${method}): ${baseURL ? baseURL + url : url} error : no response.`);
     }
 
     async send(url, method, options = { query: {}, header: {}, body: {} }, baseURL) {
