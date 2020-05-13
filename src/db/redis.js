@@ -8,6 +8,14 @@ class Redis {
     }
 
     _init() {
+        this.redis = new ioredis(process.env.REDIS_URL, {
+            enableReadyCheck: true,
+            retryStrategy: function () {
+                // do something when connection is disconnected
+                system('redis').fatal('disconnected! connection is break off.');
+            }
+        });
+
         this.redis.on('connect', () => {
             system('redis').info(`connect on ${process.env.REDIS_URL} success and ready to use.`);
         });
@@ -19,16 +27,6 @@ class Redis {
         this.redis.on('error', error => {
             system('redis').error(error.toString());
             audit('redis').error(error);
-        });
-    }
-
-    get redis() {
-        return new ioredis(process.env.REDIS_URL, {
-            enableReadyCheck: true,
-            retryStrategy: function () {
-                // do something when connection is disconnected
-                system('redis').fatal('disconnected! connection is break off.');
-            }
         });
     }
 

@@ -4,7 +4,7 @@ const Agent = require('agentkeepalive');
 const _ = require('underscore');
 
 const { traceId, log } = require('../configs');
-const { JWT } = require('.');
+const JWT = require('./jwtService');
 const { type } = require('../utils');
 
 class Request {
@@ -62,6 +62,15 @@ class Request {
                 config.url = config.url.replace(new RegExp(key, 'g'), _obj[key]);
             }
         }
+
+        const { url, baseURL, method, params, data, headers } = config;
+
+        log('send-to-other-server').debug({
+            target: `(${method}): ${baseURL ? baseURL + url : url}`,
+            headers,
+            params: params || {},
+            data: data || {}
+        });
 
         return config;
     }
