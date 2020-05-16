@@ -77,7 +77,7 @@ class Request {
 
     async _beforeSendToServerButError(error) {
         log('request-server').error(error);
-        return Promise.reject(error);
+        throw new Exception(error);
     }
 
     async _receiveSuccessResponse(response) {

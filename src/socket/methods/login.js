@@ -12,7 +12,7 @@ module.exports = async (/*params, socket*/) => {
     // const _user = await Users.findById(userId);
 
     // if (!_user) {
-    //     return new Exception('user is not found.', errorType.USER_NOT_FOUND);
+    //     throw new Exception('user is not found.', errorType.USER_NOT_FOUND);
     // }
 
 

@@ -38,18 +38,14 @@ module.exports = socket => {
                 try {
                     const _result = await _middleFn(data.method, [...data.params], socket);
 
-                    if (_.isError(_result)) {
-                        log(`socket-${data.method}-result`).error(_result);
-                        socket.send(JSON.stringify({ msg: 'result', id: data.id, result: _result.message }));
-                        return;
-                    } else if (_.isObject(_result) && !_.isArray(_result) && !_.isFunction(_result)) {
+                    if (_.isObject(_result) && !_.isArray(_result) && !_.isFunction(_result)) {
                         socket.attempt = {
                             ...socket.attempt,
                             ..._result
                         };
                     }
                 } catch (e) {
-                    socket.send(JSON.stringify({ msg: 'result', id: data.id, result: errorType.INTERNAL_SERVER_ERROR }));
+                    socket.send(JSON.stringify({ msg: 'result', id: data.id, result: e.type || errorType.INTERNAL_SERVER_ERROR }));
                     return;
                 }
             }
@@ -62,19 +58,15 @@ module.exports = socket => {
 
                 // log(`socket-do-${data.method}-attempt`).info(JSON.stringify(socket.attempt));
                 log(`socket-${data.method}-result`).info(JSON.stringify(result));
-                if (_.isError(result)) {
-                    socket.send(JSON.stringify({ msg: 'result', id: data.id, error: { reason: result.message } }));
-                } else {
-                    if (data.method === 'login') {
-                        const user = await Users.findById(socket.attempt.userId);
+                if (data.method === 'login') {
+                    const user = await Users.findById(socket.attempt.userId);
 
-                        socket.send(JSON.stringify({ msg: 'added', collection: 'users', id: socket.attempt.userId, fields: { emails: user.emails, username: user.username } }));
-                    }
-                    socket.send(JSON.stringify({ msg: 'result', id: data.id, result }));
+                    socket.send(JSON.stringify({ msg: 'added', collection: 'users', id: socket.attempt.userId, fields: { emails: user.emails, username: user.username } }));
                 }
+                socket.send(JSON.stringify({ msg: 'result', id: data.id, result }));
             } catch (e) {
                 log(`socket-${data.method}-result`).error(e);
-                socket.send(JSON.stringify({ msg: 'result', id: data.id, error: { reason: errorType.INTERNAL_SERVER_ERROR } }));
+                socket.send(JSON.stringify({ msg: 'result', id: data.id, error: { reason: e.type || errorType.INTERNAL_SERVER_ERROR } }));
             }
         }
     });
