@@ -1,4 +1,5 @@
 const { JWT } = require('../service');
+const { errorType } = require('../configs/http.error.type');
 
 /**
  * 验证json web token
@@ -20,6 +21,6 @@ module.exports = (req, res, next) => {
             next();
         }
     } else {
-        res.status(400).send('Bad request(no Authorization)! Refused.');
+        res.status(400).send({ result: false, type: errorType.BAD_REQUEST, error: { info: 'Bad request(no Authorization)! Refused.' } });
     }
 };

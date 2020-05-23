@@ -1,6 +1,6 @@
 const _ = require('underscore');
 
-const { type } = require('../../utils');
+const { isType } = require('../../utils');
 const { log } = require('../../configs');
 
 module.exports = socket => {
@@ -17,7 +17,7 @@ module.exports = socket => {
         } else if (_.isObject(message)) {
             message = Buffer.from(JSON.stringify(message));
         } else {
-            log('send-as-buffer').error(`we do not support type ${type(message)} of message, message is :`);
+            log('send-as-buffer').error(`we do not support type ${isType(message)} of message, message is :`);
             log('send-as-buffer').error(message);
             return;
         }

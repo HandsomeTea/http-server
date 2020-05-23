@@ -1,5 +1,5 @@
 const { errorType } = require('../configs');
-const isType = require('./type');
+const isType = require('./isType');
 
 /**
  * 只用于检查http请求中参数的合法性

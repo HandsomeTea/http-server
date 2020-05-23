@@ -5,7 +5,7 @@ const _ = require('underscore');
 
 const { traceId, log } = require('../configs');
 const JWT = require('./jwtService');
-const { type } = require('../utils');
+const { isType } = require('../utils');
 
 class Request {
     constructor() {
@@ -103,7 +103,7 @@ class Request {
             _.extend(errorResult, {
                 status,
                 httpInfo: statusText,
-                ...type(data) === 'string' ? { info: data } : data
+                ...isType(data) === 'string' ? { info: data } : data
             });
 
             log(`request-to-${baseURL ? baseURL : url}`).error(errorResult);
@@ -113,31 +113,31 @@ class Request {
         throw new Exception(`request to (${method}): ${baseURL ? baseURL + url : url} error : no response.`);
     }
 
-    async send(url, method, options = { query: {}, header: {}, body: {} }, baseURL) {
+    async send(url, method, options = { params: {}, headers: {}, data: {} }, baseURL) {
         return await axios.request({
             url,
             method,
             baseURL,
-            headers: options.header,
-            params: options.query,
-            data: options.body
+            headers: options.headers,
+            params: options.params,
+            data: options.data
         });
     }
 
-    async post(url, options = { query: {}, header: {}, body: {} }, baseURL) {
-        return this.send(url, 'post', { query: options.query, header: options.header, body: options.body }, baseURL);
+    async post(url, options = { params: {}, headers: {}, data: {} }, baseURL) {
+        return this.send(url, 'post', { params: options.params, headers: options.headers, data: options.data }, baseURL);
     }
 
-    async delete(url, options = { query: {}, header: {}, body: {} }, baseURL) {
-        return this.send(url, 'delete', { query: options.query, header: options.header, body: options.body }, baseURL);
+    async delete(url, options = { params: {}, headers: {}, data: {} }, baseURL) {
+        return this.send(url, 'delete', { params: options.params, headers: options.headers, data: options.data }, baseURL);
     }
 
-    async put(url, options = { query: {}, header: {}, body: {} }, baseURL) {
-        return this.send(url, 'put', { query: options.query, header: options.header, body: options.body }, baseURL);
+    async put(url, options = { params: {}, headers: {}, data: {} }, baseURL) {
+        return this.send(url, 'put', { params: options.params, headers: options.headers, data: options.data }, baseURL);
     }
 
-    async get(url, options = { query: {}, header: {} }, baseURL) {
-        return this.send(url, 'get', { query: options.query, header: options.header }, baseURL);
+    async get(url, options = { params: {}, headers: {}, data: {} }, baseURL) {
+        return this.send(url, 'get', { params: options.params, headers: options.headers, data: options.data }, baseURL);
     }
 }
 

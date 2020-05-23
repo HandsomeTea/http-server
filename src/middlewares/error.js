@@ -8,7 +8,13 @@ const { audit, trace } = require('../../src/configs');
  * @param {*} next
  */
 module.exports = (err, req, res, next) => { /* eslint-disable-line*/
-    const result = { result: false, type: err.type, info: err.message };
+    const result = {
+        result: false,
+        type: err.type,
+        error: {
+            info: err.message
+        }
+    };
 
     audit('SYSTEM_ERROR').fatal(`${err.stack}`);
     trace('http-error', { traceId: req.headers['x-b3-traceid'], spanId: req.headers['x-b3-spanid'], parentSpanId: req.headers['x-b3-parentspanid'] }).warn(`[${req.ip}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] response error with : Error[${err.type}: ${err.message}] . result : ${JSON.stringify(result)} .`);
