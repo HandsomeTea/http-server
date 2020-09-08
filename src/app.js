@@ -54,7 +54,7 @@ app.get('/', (req, res) => {
 });
 
 /**自定义中间件 */
-app.use(serverJWTcheck);
+// app.use(serverJWTcheck);
 app.use(acceptRequestHandle);
 app.use(successResponseHandle);
 app.use(failureHandle);
