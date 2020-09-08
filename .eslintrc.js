@@ -49,7 +49,7 @@ module.exports = {
         'no-var': 2, //禁用var，用let和const代替
         'brace-style': [1, '1tbs'], //大括号风格
         'arrow-spacing': 0, //=>的前/后括号
-        'comma-spacing': [2, { "before": false, "after": true }], //逗号前后的空格
+        'comma-spacing': [2, { 'before': false, 'after': true }], //逗号前后的空格
         'comma-style': [2, 'last'], //逗号风格，换行时在行首还是行尾
         'curly': [2, 'all'], //必须使用 if(){} 中的{}
         'default-case': 2, //switch语句最后必须有default
@@ -66,6 +66,6 @@ module.exports = {
         'strict': 2, //使用严格模式
         'use-isnan': 2, //禁止比较时使用NaN，只能用isNaN()
         'valid-typeof': 2, //必须使用合法的typeof的值
-        'no-useless-escape': 2, //可以进行必要的转义，考虑正则表达式
+        'no-useless-escape': 2 //可以进行必要的转义，考虑正则表达式
     }
 };

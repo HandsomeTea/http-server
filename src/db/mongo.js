@@ -25,7 +25,7 @@ class MongoDB {
     constructor() {
         this.db.once('connected', () => {// 连接成功
             system('mongodb').info(`connect on ${process.env.MONGO_URL} success and ready to use.`);
-            _retry = null;
+            _retry = null; /* eslint-disable-line no-unused-vars*/
         });
 
         this.db.on('disconnected', () => {// 连接失败或中断
