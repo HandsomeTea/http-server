@@ -1,5 +1,5 @@
 const { errorType } = require('../configs');
-const isType = require('./isType');
+const { typeIs } = require('./type');
 
 /**
  * 只用于检查http请求中参数的合法性
@@ -21,7 +21,7 @@ module.exports = (param, type, allowedEmpty = true, error = errorType.INVALID_AR
     }
 
     if (param.constructor !== type) {
-        throw new Exception(msg || `Invalid arguments: require ${isType(new type())}, but get ${isType(param)}`, error || errorType.INVALID_ARGUMENTS);
+        throw new Exception(msg || `Invalid arguments: require ${typeIs(new type())}, but get ${typeIs(param)}`, error || errorType.INVALID_ARGUMENTS);
     }
 
     if (!allowedEmpty) {

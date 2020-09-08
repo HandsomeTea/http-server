@@ -1,4 +1,4 @@
-const typeCheck = require('./isType');
+const typeCheck = require('./type');
 
 exports.typeIs = typeCheck.typeIs;
 exports.isString = typeCheck.isString;
@@ -27,3 +27,4 @@ exports.base64Encode = require('./base64Encode');
 exports.check = require('./checkHttpParams');
 exports.isEmail = require('./isEmail');
 exports.isURL = require('./isURL');
+exports.isPhone = require('./isPhone');
