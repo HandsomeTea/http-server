@@ -33,7 +33,7 @@ module.exports = (req, res, next) => {
         req.headers['x-b3-spanid'] = traceId();
     }
 
-    trace('receive-request', { traceId: req.headers['x-b3-traceid'], spanId: req.headers['x-b3-spanid'], parentSpanId: req.headers['x-b3-parentspanid'] }).info(`[${addressIpv4}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] request parameter :${_datas || ' no parameter'} .`);
+    trace('receive-request', { traceId: req.headers['x-b3-traceid'], spanId: req.headers['x-b3-spanid'], parentSpanId: req.headers['x-b3-parentspanid'] }).debug(`[${addressIpv4}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] request parameter :${_datas || ' no parameter'} .`);
 
     next();
 };

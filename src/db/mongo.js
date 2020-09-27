@@ -58,6 +58,12 @@ class MongoDB {
     async close() {
         return await mongoose.connection.close();
     }
+
+    async collectionExist(collectionName) {
+        const allCollections = await this.db.db.collections();
+
+        return allCollections.find(col => col.s.namespace.collection === collectionName);
+    }
 }
 
 module.exports = new MongoDB();

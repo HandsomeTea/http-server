@@ -5,7 +5,7 @@ const _ = require('underscore');
 
 const { traceId, log } = require('../configs');
 const JWT = require('./jwtService');
-const { isType } = require('../utils');
+const { isString } = require('../utils');
 
 class Request {
     constructor() {
@@ -17,7 +17,6 @@ class Request {
             timeout: 60000, // active socket keepalive for 60 seconds
             freeSocketTimeout: 30000 // free socket keepalive for 30 seconds
         });
-        // axios.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
         // 请求拦截器
         axios.interceptors.request.use(this._beforeSendToServer, this._beforeSendToServerButError);
@@ -89,10 +88,19 @@ class Request {
 
     async _receiveResponseNotSuccess(error) {
         // const { message, name, description, number, fileName, lineNumber, columnNumber, stack, code } = error.toJSON();
-        const { response, config/*, request */ } = error;
-        const { url, baseURL, method } = config;
+        const { response, config, request: { responseURL } } = error;
+
+        let target = null;
+
+        if (config) {
+            const { url, baseURL, method } = config;
+
+            target = `(${method}): ${baseURL ? baseURL + url : url}`;
+        } else {
+            target = responseURL;
+        }
         const errorResult = {
-            sendRequest: `(${method}): ${baseURL ? baseURL + url : url}`,
+            sendRequest: target,
             status: 500,
             type: 'INTERNAL_SERVER_ERROR'
         };
@@ -103,14 +111,14 @@ class Request {
             _.extend(errorResult, {
                 status,
                 httpInfo: statusText,
-                ...isType(data) === 'string' ? { info: data } : data
+                ...isString(data) ? { info: data } : data
             });
 
-            log(`request-to-${baseURL ? baseURL : url}`).error(errorResult);
-            throw new Exception(`request to (${method}): ${baseURL ? baseURL + url : url} error${errorResult.httpInfo ? ' : ' + errorResult.httpInfo : ''}.`, errorResult.type, status);
+            log(`request-to-${target}`).error(errorResult);
+            throw new Exception(`request to ${target} error${errorResult.httpInfo ? ' : ' + errorResult.httpInfo : ''}.`, errorResult.type, status);
         }
 
-        throw new Exception(`request to (${method}): ${baseURL ? baseURL + url : url} error : no response.`);
+        throw new Exception(`request to ${target} error : no response.`);
     }
 
     async send(url, method, options = { params: {}, headers: {}, data: {} }, baseURL) {

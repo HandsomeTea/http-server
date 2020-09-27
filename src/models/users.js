@@ -33,7 +33,7 @@ class User extends BaseDB {
     }
 
     async upsertOne(query = {}, update = {}) {
-        return await this.updateOne(query, { $set: update }, { upsert: true });
+        return await this.upsertOne(query, { $set: update });
     }
 }
 

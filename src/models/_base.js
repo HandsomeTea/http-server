@@ -2,57 +2,65 @@ const { ObjectId } = require('mongoose').Types;
 const _ = require('underscore');
 const httpContext = require('express-http-context');
 const { db, schema } = require('../db/mongo');
+const { isString, isArray, isObject, isEmptyObj } = require('../utils');
 
 exports.BaseDB = class BaseDB {
-    constructor(_collectionName, _model, _index = []) {
-        this.modelMap = {};
+    /**
+     * Creates an instance of BaseDb.
+     * @param {string} _collectionName mongodb的集合(表)名称，如果分租户，则不应该包含租户tenantId
+     * @param {object} _model mongodb的集合(表)结构
+     * @param {array} [_index=[]] mongodb的集合(表)索引
+     * @param {string} [_tenantId=''] mongodb的集合(表)如果分租户，则表示该集合(表)属于哪个tenantId(集合/表的前缀)
+     */
+    constructor(_collectionName, _model, _index = [], _tenantId = '') {
         this.collectionName = _collectionName;
         this.schemaModel = _model;
         this.indexList = _index;
+        this.tenantId = _tenantId;
     }
 
     get model() {
         const name = (httpContext.get('tenantId') ? httpContext.get('tenantId') + '-' : '') + this.collectionName;
+        const _schema = new schema(this.schemaModel, { _id: false, versionKey: false, timestamps: { createdAt: true, updatedAt: '_updatedAt' } });
+        const _index = this.indexList;
 
-        if (!this.modelMap[name]) {
-            const _schema = new schema(this.schemaModel, { _id: false, versionKey: false, timestamps: { createdAt: true, updatedAt: '_updatedAt' } });
-            const _index = this.indexList;
-
-            for (let i = 0; i < _index.length; i++) {
-                if (!_.isArray(_index[i])) {
-                    _schema.index(_index[i]);
-                } else {
-                    _schema.index(..._index[i]);
-                }
+        for (let i = 0; i < _index.length; i++) {
+            if (!_.isArray(_index[i])) {
+                _schema.index(_index[i]);
+            } else {
+                _schema.index(..._index[i]);
             }
-            this.modelMap[name] = db.model(name, _schema, name);
-
-            setTimeout(() => {
-                delete this.modelMap[name];
-            }, 30 * 60 * 1000);
         }
-        return this.modelMap[name];
+        return db.model(name, _schema, name);
     }
 
+    /**
+     * @param {array|object} _data
+     * @returns
+     */
     _id(_data) {
         _data = [].concat(_data);
         for (let i = 0; i < _data.length; i++) {
-            if (!_.isString(_data[i]._id) || _.isString(_data[i]._id) && _data[i]._id.trim() === '') {
+            if (!isString(_data[i]._id) || isString(_data[i]._id) && _data[i]._id.trim() === '') {
                 _data[i]._id = ObjectId().toString();
             }
         }
         return _data;
     }
 
+    /**
+     * @param {array|object} data
+     * @returns
+     */
     async create(data) {
-        if (!_.isArray(data)) {
+        if (!isArray(data)) {
             return (await new this.model(this._id(data)[0]).save())._id;
         } else {
             return (await this.model.insertMany(this._id(data))).map(_result => _result._id);
         }
     }
 
-    async remove(query = {}) {
+    async removeOne(query = {}) {
         return (await this.model.deleteOne(query)).deletedCount;
     }
 
@@ -64,12 +72,16 @@ exports.BaseDB = class BaseDB {
         return (await this.model.updateOne(query, set, option)).nModified;
     }
 
-    async upsertOne(query, update, options = {}) {
-        return await this.updateOne(query, update, _.extend(options, { upsert: true }));
+    async upsertOne(query = {}, update = {}, options = {}) {
+        return await this.updateOne(query, update, { ...options, upsert: true });
     }
 
     async updateMany(query = {}, set = {}, option = {}) {
         return (await this.model.updateMany(query, set, option)).nModified;
+    }
+
+    async upsertMany(query = {}, update = {}, option = {}) {
+        return (await this.model.updateMany(query, update, { ...option, upsert: true })).nModified;
     }
 
     async find(query = {}, option = {}) {
@@ -80,16 +92,16 @@ exports.BaseDB = class BaseDB {
         return await this.model.findOne(query, option);
     }
 
-    async findById(_id) {
+    async findById(_id = '') {
         return await this.model.findById(_id);
     }
 
-    async paging(query = {}, sort = {}, skip = 0, limit = 0) {
-        return await this.model.find(query).sort(sort).skip(skip).limit(limit);
+    async paging(query = {}, sort = {}, skip = 0, limit = 0, option = {}) {
+        return await this.model.find(query, option).sort(sort).skip(skip).limit(limit);
     }
 
     async count(query = {}) {
-        if (query && !_.isEmpty(query)) {
+        if (query && isObject(query) && !isEmptyObj(query)) {
             return await this.model.countDocuments(query);
         } else {
             return await this.model.estimatedDocumentCount();

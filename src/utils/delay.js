@@ -1,4 +1,4 @@
-module.exports = (_time = 0) => {
+module.exports = async (_time = 0) => {
     return new Promise(resolve => {
         setTimeout(() => {
             resolve();

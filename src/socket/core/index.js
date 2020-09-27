@@ -1,4 +1,4 @@
-const ping = require('./ping');
+// const ping = require('./ping');
 const onping = require('./onping');
 const sendAsBuffer = require('./sendAsBuffer');
 const err = require('./error');
@@ -9,7 +9,7 @@ module.exports = socket => {
     err(socket);
     sendAsBuffer(socket);
     onping(socket);
-    ping(socket);
+    // ping(socket);
     use(socket);
     close(socket);
 };
