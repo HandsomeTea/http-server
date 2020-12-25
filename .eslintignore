@@ -1,3 +1,7 @@
 node_modules
 dist
 public
+pm2
+build
+*.d.ts
+test

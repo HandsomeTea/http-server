@@ -9,7 +9,7 @@ DEV_LOG_LEVEL: 'trace'
 # end
 
 AUDIT_LOG_LEVEL: 'trace'
-JWT_APP_NAME: 'surpass'
+JWT_APP_NAME: 'my project'
 JWT_APP_ID: 'jwtAppId'
 JWT_APP_SECERT: 'jwtSecret'
 

@@ -1,24 +1,49 @@
+/* eslint-disable */
 module.exports = {
-    root: true, // 作用的目录是根目录
+    root: true,
     parserOptions: {
-        ecmaVersion: 7,
-        sourceType: 'module' // 按照模块的方式解析
+        ecmaVersion: 11,
+        sourceType: 'module',
     },
-    env: {//开发环境配置
-        browser: true, // 表示可以使用浏览器的方法
+    env: {
+        browser: false,
         es6: true,
-        node: true
+        node: true,
+        commonjs: true
     },
-    parser: 'babel-eslint',
-    extends: 'eslint:recommended',
+    parser: '@typescript-eslint/parser',
+    extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
+    plugins: ['@typescript-eslint'],
     globals: {
+        NodeJS: 'readonly',
         isServerRunning: 'readonly',
         Exception: 'readonly',
+        InstanceException: 'readonly',
         WebsocketServer: 'readonly',
-        WebsocketServerMap: 'readonly',
-        IntervalPing: 'readonly'
+        WebsocketUserIdMap: 'readonly',
+        SocketMethod: 'readonly',
+        progressConfigParams: 'readonly',
+        DBModel: 'readonly',
+        httpArgument: 'readonly',
+        DeviceType: 'readonly',
+        DeviceModel: 'readonly',
+        SocketAttempt: 'readonly',
+        UserModel: 'readonly',
+        InstanceModel: 'readonly',
+        SessionModel: 'readonly',
+        SocketSession: 'readonly',
+        Device: 'readonly'
     },
     rules: {
+        '@typescript-eslint/no-explicit-any': 2,
+        '@typescript-eslint/no-this-alias': [
+            'error',
+            {
+                allowDestructuring: true, // Allow `const { props, state } = this`; false by default
+                allowedNames: ['self'] // Allow `const self = this`; `[]` by default
+            }
+        ]
+        ,
         'indent': [2, 4, { SwitchCase: 1 }], //缩进风格
         'linebreak-style': [0, 'error', 'windows', 'unix'], //换行风格
         'quotes': [2, 'single'], // 引号
@@ -38,7 +63,7 @@ module.exports = {
         'no-multi-spaces': 1, //不能用多余的空格
         'no-multi-str': 2, //字符串不能用\换行
         'no-redeclare': 2, //禁止重复声明变量
-        'no-undef': 1, //不能有未定义的变量
+        'no-undef': 2, //不能有未定义的变量
         'no-sparse-arrays': 2, //禁止稀疏数组， [1,,2]
         'no-unreachable': 2, //不能有无法执行的代码
         'no-unused-expressions': 2, //禁止无用的表达式 如：err? a = 1 : a = 2;
@@ -66,6 +91,7 @@ module.exports = {
         'strict': 2, //使用严格模式
         'use-isnan': 2, //禁止比较时使用NaN，只能用isNaN()
         'valid-typeof': 2, //必须使用合法的typeof的值
-        'no-useless-escape': 2 //可以进行必要的转义，考虑正则表达式
-    }
-};
+        'no-useless-escape': 2, //可以进行必要的转义，考虑正则表达式
+        'require-atomic-updates': 'off'
+    },
+}

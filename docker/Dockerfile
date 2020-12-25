@@ -11,8 +11,8 @@ VOLUME /usr/local/dockerData
 WORKDIR /usr/local/develop
 
 #设置环境变量
-ENV ADDRESS_BOOK_ADDR=surpass_addressbook
-ENV SURPASS_CORE_ADDR=surpass_surpasscore
+ENV ADDRESS_BOOK_ADDR=my_addressbook
+ENV CORE_ADDR=my_core
 
 #将宿主机某目录的内容复制到镜像目录中
 COPY . /usr/local/develop
