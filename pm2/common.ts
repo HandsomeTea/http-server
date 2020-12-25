@@ -1,7 +1,7 @@
 /* eslint-disable */
-const path = require('path');
+import path from 'path';
 
-module.exports = {
+export default {
     name: 'http-server',
     script: 'server.js',
     watch: (() => {
