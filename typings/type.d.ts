@@ -52,3 +52,13 @@ declare interface SocketAttempt {
         when: Date
     }
 }
+
+declare namespace Express {
+    interface Response {
+        success: (result?: unknown) => Promise<void>
+    }
+
+    interface Request {
+
+    }
+}

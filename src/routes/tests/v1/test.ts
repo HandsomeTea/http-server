@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { MyResponse } from '../../../../http';
 import { _Users } from '../../../models';
 // import fs from 'fs';
 // import path from 'path';
@@ -59,7 +58,7 @@ router.get('/api', asyncHandler(async (_req, res) => {
         _id: '',
         name: 'test1'
     });
-    return (res as MyResponse).success();// eslint-disable-line no-extra-parens
+    return res.success();// eslint-disable-line no-extra-parens
     // throw new Exception(new Error('cuo wu'));
     // throw new Exception(new Exception('cuo wu'));
 }));
