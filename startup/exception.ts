@@ -47,12 +47,14 @@ global.Exception = class Exception extends Error {
         }
 
         // status
-        for (const code in errorCodeMap) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (errorCodeMap[code].includes(this.code)) {
-                this.status = parseInt(code);
-                break;
+        if (!this.status) {
+            for (const code in errorCodeMap) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                if (errorCodeMap[code].includes(this.code)) {
+                    this.status = parseInt(code);
+                    break;
+                }
             }
         }
 
