@@ -15,9 +15,13 @@ const _mongoconnect = async () => {
         useCreateIndex: true,
         useFindAndModify: false,
         autoReconnect: true,
+        /** Set to `true` to make Mongoose automatically call `createCollection()` on every model created on this connection. */
+        autoCreate: false,
         poolSize: 100,
         reconnectTries: Number.MAX_VALUE, // Never stop trying to reconnect
         reconnectInterval: RECONNET_TIME
+
+
     }).catch(error => {
         system('connect-error-mongodb').error(error);
         setTimeout(_mongoconnect, RECONNET_TIME);

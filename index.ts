@@ -1,10 +1,7 @@
-debugger; /* eslint-disable-line*/
 import crypto from 'crypto';
 
 process.env.INSTANCEID = crypto.randomBytes(24).toString('hex').substring(0, 17);
 global.IntervalUpdateInstance = 10; //instance保活间隔,单位为秒
-global.IntervalCheckEmptySession = 30; //清空空的session数据间隔,单位为秒
-global.IntervalCleanSessionOfInstance = 30; //清空已经不存在的instance下的所有session,单位为秒
 import './startup';
 
 import { audit, log } from './src/configs';
@@ -15,7 +12,7 @@ process.on('unhandledRejection', reason => {
     audit('SYSTEM').fatal(reason);
 });
 
-const _getPort = (val: string): number => {
+const port = ((val: string): number => {
     const port = parseInt(val, 10);
 
     if (port >= 0) {
@@ -23,8 +20,7 @@ const _getPort = (val: string): number => {
     }
 
     throw new Error('invalid port!');
-};
-const port = _getPort('3000');
+})('3000');
 
 import http from 'http';
 import app from './src/routes/app';
@@ -33,6 +29,9 @@ import app from './src/routes/app';
 app.set('port', port);
 const server = http.createServer(app);
 
+/**============================================socket 封装 ================================ start */
+global.IntervalCheckEmptySession = 30; //清空空的session数据间隔,单位为秒
+global.IntervalCleanSessionOfInstance = 30; //清空已经不存在的instance下的所有session,单位为秒
 global.WebsocketUserIdMap = {};
 
 import { WebSocketServer } from './websocket';
@@ -53,6 +52,8 @@ global.WebsocketServer.connection((socket, request) => {
     socketCore(socket);
     socketMethods(socket);
 });
+/**============================================socket 封装 ================================ end */
+
 
 import redis from './src/db/redis';
 import mongodb from './src/db/mongodb';
@@ -120,7 +121,6 @@ const onError = (error: { syscall: string, code: string }) => {
     }
 };
 
-/** Event listener for HTTP server "listening" event. */
 const onListening = () => {
     const addr = server.address();
 
@@ -131,8 +131,6 @@ const onListening = () => {
 
         log('SYSREM_STARTUP').info(`${process.env.SERVER_NAME} listening on ${bind}.`);
     }
-
-    debugger; /* eslint-disable-line*/
 };
 
 server.on('error', onError);
