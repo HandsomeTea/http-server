@@ -6,6 +6,8 @@ import check from './checkHttpParams';
 import isEmail from './isEmail';
 import isURL from './isURL';
 import isPhone from './isPhone';
+import randomString from './randomString';
+import SHA256 from './sha256';
 
 export {
     delay,
@@ -15,5 +17,7 @@ export {
     check,
     isEmail,
     isURL,
-    isPhone
+    isPhone,
+    randomString,
+    SHA256
 };
