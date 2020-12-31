@@ -1,7 +1,7 @@
 {
   "name": "http-server",
   "version": "1.0.0",
-  "description": "common web server",
+  "description": "common http server, include websocket.",
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/.bin/ts-node-dev --respawn --transpile-only ./index.ts",
