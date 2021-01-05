@@ -6,7 +6,7 @@ declare interface httpArgument {
 
 declare interface InstanceException {
     message: string;
-    source: Array<string> = [];
+    source: Array<string>;
     code: string;
     status: number;
     reason?: Array<string>;
