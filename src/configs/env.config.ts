@@ -26,7 +26,7 @@ export const setENV = (filePath: string): void => {
     let config: Record<progressConfigParams, string> | null = null;
 
     try {
-        config = yaml.safeLoad(fs.readFileSync(filePath, 'utf8')) as Record<progressConfigParams, string>;
+        config = yaml.load(fs.readFileSync(filePath, 'utf8')) as Record<progressConfigParams, string>;
     } catch (err) {
         system('set-env').error(`change env config failed : ${JSON.stringify({ response: err.response, message: err.message })}`);
     }

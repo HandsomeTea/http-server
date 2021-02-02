@@ -53,11 +53,9 @@ app.use(acceptRequestHandle);
 app.use(successResponseHandle);
 
 /**加载路由 */
-import tests from './tests';
-import users from './users';
+import v1 from './v1';
 
-app.use('/tests', tests);
-app.use('/users', users);
+app.use('/api/v1', v1);
 
 import { errorType } from '../configs';
 

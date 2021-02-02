@@ -1,13 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { _Users } from '../../../models';
-// import fs from 'fs';
-// import path from 'path';
 
 const router = express.Router();
 
 /**
- * @api {post} /tests/v1/test/api 测试接口
+ * @api {post} /api/v1/users/search 查询用户列表
  * @apiName 测试接口
  * @apiGroup TEST
  * @apiVersion 1.0.0
@@ -50,7 +48,7 @@ const router = express.Router();
  * @apiError {String} type 失败类型
  * @apiError {String} info 错误信息
  */
-router.get('/api', asyncHandler(async (_req, res) => {
+router.get('/search', asyncHandler(async (_req, res) => {
     // log('HTTP_REQUEST').error('test error log.');
     const User = new _Users('t1');
 
@@ -63,42 +61,10 @@ router.get('/api', asyncHandler(async (_req, res) => {
     // throw new Exception(new Exception('cuo wu'));
 }));
 
-// router.get('/api', asyncHandler(async (req, res) => {
-//     const file = path.resolve(__dirname, '../../../mojiedierbu.mp4');
+router.get('/:userId', asyncHandler(async (req, res) => {
+    const User = new _Users('t1');
 
-//     fs.stat(file, function (err, stats) {
-//         if (err) {
-//             if (err.code === 'ENOENT') {
-//                 // 404 Error if file not found
-//                 return res.sendStatus(404);
-//             }
-//             res.end(err);
-//         }
-//         const range = req.headers.range;
-
-//         if (!range) {
-//             // 416 Wrong range
-//             return res.sendStatus(416);
-//         }
-//         const positions = range.replace(/bytes=/, '').split('-');
-//         const start = parseInt(positions[0], 10);
-//         const total = stats.size;
-//         const end = positions[1] ? parseInt(positions[1], 10) : total - 1;
-//         const chunksize = end - start + 1;
-
-//         res.writeHead(206, {
-//             'Content-Range': `bytes ${start}-${end}/${total}`,
-//             'Accept-Ranges': 'bytes',
-//             'Content-Length': 3 * 1024 * 1024, //每次返回3M
-//             'Content-Type': 'video/mp4'
-//         });
-
-//         const stream = fs.createReadStream(file, { start: start, end: end }).on('open', () => {
-//             stream.pipe(res);
-//         }).on('error', err => {
-//             res.end(err);
-//         });
-//     });
-// }));
+    return res.success(await User.findById(req.params.userId));
+}));
 
 export default router;

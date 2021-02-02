@@ -1,9 +1,9 @@
 import express from 'express';
-import v1 from './v1';
+import users from './users';
 
 const router = express.Router();
 
-// /users/v1
-router.use('/v1', v1);
+/** /api/v1/users */
+router.use('/users', users);
 
 export default router;
