@@ -103,25 +103,25 @@ export default class BaseDb {
     }
 
     async removeOne(query: FilterQuery<DBModel>): Promise<{
-        n: number,
-        ok: 1 | 0,
-        deletedCount: number
+        n?: number
+        ok?: number
+        deletedCount?: number
     }> {
         return await this.model.deleteOne(query);
     }
 
     async removeMany(query: FilterQuery<DBModel>): Promise<{
-        n: number,
-        ok: 1 | 0
-        deletedCount: number
+        n?: number
+        ok?: number
+        deletedCount?: number
     }> {
         return await this.model.deleteMany(query);
     }
 
     async updateOne(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel>, options?: ModelUpdateOptions): Promise<{
-        n: number,
-        nModified: number,
-        ok: 1 | 0
+        n: number
+        nModified: number
+        ok: number
     }> {
         return await this.model.updateOne(query, update, options);
     }
@@ -142,18 +142,18 @@ export default class BaseDb {
     }
 
     async updateMany(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel>, options?: ModelUpdateOptions): Promise<{
-        n: number,
-        nModified: number,
-        ok: 1 | 0
+        n: number
+        nModified: number
+        ok: number
     }> {
         return await this.model.updateMany(query, update, options);
     }
 
     /**upsert尽量不要触发insert，否则会生成一个ObjectId构建的_id，除非指定_id，并且collection里面的default默认设置的字段也不会有 */
     async upsertMany(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel>, options?: ModelUpdateOptions): Promise<{
-        n: number,
-        nModified: number,
-        ok: 1 | 0
+        n: number
+        nModified: number
+        ok: number
     }> {
         return await this.model.updateMany(query, update, { ...options, upsert: true });
     }
