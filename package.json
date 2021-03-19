@@ -13,6 +13,7 @@
     "eslint": "./node_modules/.bin/eslint ./ --fix",
     "check": "npm run eslint",
     "test": "./node_modules/.bin/mocha",
+    "prepare-husky": "husky install",
     "testunit": "node -v"
   },
   "repository": {
