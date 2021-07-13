@@ -1,3 +1,4 @@
+import { SchemaDefinition } from 'mongoose';
 import BaseDb from './_mongodb';
 
 class Instance extends BaseDb {
@@ -6,7 +7,7 @@ class Instance extends BaseDb {
      * @memberof Instance
      */
     constructor() {
-        const _model = {
+        const _model: SchemaDefinition = {
             _id: { type: String, required: true, trim: true },
             instance: { type: String }
         };

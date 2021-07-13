@@ -11,18 +11,6 @@ const router = express.Router();
  * @apiVersion 1.0.0
  * @apiParam (Body) {String[]} userid userid列表.
  * @apiParam (Body) {Number[]} [externalUserId] externalUserId列表.
- * @apiParamExample {json} Request-Example:
- * {
- *	"userid": [
- *		"KQtgCNnERJhhPpJ6m",
- *		"nBdgdPWQ3xXNk7yez",
- *		"3J6udQPg8RhtsLQnM"
- *	],
- *  "externalUserId": [
- *       "gsEt2RhdMbjRzvAkt",
- *       90217
- *   ],
- * }
  * @apiSuccess {Number} status 状态码.
  * @apiSuccess {Object[]} data user列表.
  * @apiSuccess {String} _id userId.
@@ -30,23 +18,7 @@ const router = express.Router();
  * @apiSuccess {String} username 账号.
  * @apiSuccess {String} name 昵称.
  * @apiSuccess {String} externalUserId externalUserId.
- * @apiSuccessExample Success-Response:
- * {
- *   "result": true,
- *   "type": "SEARCH_SUCCESS",
- *   "data": {
- *       "user": ""
- *   }
- * }
- * @apiErrorExample Error-Response:
- * {
- *   "result": false,
- *   "type": "USER_NO_PERMISSION",
- *   "info": "error."
- * }
- * @apiError {Boolean} result 请求成功与否
- * @apiError {String} type 失败类型
- * @apiError {String} info 错误信息
+ * @apiUse ErrorApiResult
  */
 router.get('/search', asyncHandler(async (_req, res) => {
     // log('HTTP_REQUEST').error('test error log.');

@@ -1,3 +1,4 @@
+import { SchemaDefinition } from 'mongoose';
 import BaseDb from './_mongodb';
 
 class Session extends BaseDb {
@@ -6,7 +7,7 @@ class Session extends BaseDb {
      * @memberof Session
      */
     constructor() {
-        const _model = {
+        const _model: SchemaDefinition = {
             _id: { type: String, required: true, trim: true },
             connections: { type: Array }
         };

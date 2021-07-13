@@ -1,4 +1,4 @@
-import { Types, SchemaDefinition, Model, Document, Aggregate, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline } from 'mongoose';
+import { Types, SchemaDefinition, Model, Document, Aggregate, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaOptions } from 'mongoose';
 
 import mongodb from '../tools/mongodb';
 
@@ -51,13 +51,13 @@ export default class BaseDb {
         },
         _tenantId?: string) {
         this.tenantId = _tenantId;
-        this.collectionName = (this.tenantId ? `${this.tenantId}_` : '') + collectionName;
+        this.collectionName = collectionName + (this.tenantId ? `_${this.tenantId}` : '');
         this.schemaModel = model;
         this.index = _index;
     }
 
     get model(): Model<Document> {
-        const _schema = new mongodb.schema(this.schemaModel, { _id: false, versionKey: false, timestamps: { createdAt: true, updatedAt: '_updatedAt' } });
+        const _schema = new mongodb.schema(this.schemaModel, { _id: false, versionKey: false, timestamps: { createdAt: true, updatedAt: '_updatedAt' } } as SchemaOptions);
 
         if (this.index) {
             for (const key in this.index) {
@@ -168,8 +168,7 @@ export default class BaseDb {
         return await this.model.findById(_id, null, options).lean() as DBModel | null;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async paging(query: FilterQuery<DBModel>, limit: number, skip: number, sort?: Record<string, any>, options?: QueryOptions): Promise<Array<DBModel>> {
+    async paging(query: FilterQuery<DBModel>, limit: number, skip: number, sort?: Record<string, 'asc' | 'desc' | 'ascending' | 'descending' | '1' | '-1'>, options?: QueryOptions): Promise<Array<DBModel>> {
         return await this.model.find(query, null, options).sort(sort).skip(skip || 0).limit(limit).lean() as Array<DBModel>;
     }
 
