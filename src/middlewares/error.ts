@@ -18,6 +18,11 @@ export default (err: InstanceException, req: Request, res: Response, _next: Next
     };
 
     audit('SYSTEM_ERROR').fatal(err);
-    trace({ traceId: httpContext.get('traceId'), spanId: httpContext.get('spanId'), parentSpanId: httpContext.get('parentSpanId') }, 'http-error').warn(`[${req.ip}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] response error with : Error[${err.code}: ${err.message}] . result : ${JSON.stringify(result)} .`);
+    trace({
+        traceId: httpContext.get('traceId'),
+        spanId: httpContext.get('spanId'),
+        parentSpanId: httpContext.get('parentSpanId')
+    }, 'http-error').warn(`[${req.ip}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] response error with : Error[${err.code}: ${err.message}] . result : ${JSON.stringify(result)} .`);
+
     res.status(status || 500).send(result);
 };

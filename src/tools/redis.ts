@@ -1,5 +1,5 @@
 import ioredis from 'ioredis';
-import { system, audit } from '../../src/configs';
+import { system, audit } from '../configs';
 
 export default new class Redis {
     public server!: ioredis.Redis;

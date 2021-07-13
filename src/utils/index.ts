@@ -9,13 +9,6 @@ import randomString from './randomString';
 import SHA256 from './sha256';
 
 export {
-    getUTCTime,
-    getTimeLong,
-    getFormatDateObject,
-    getDayStartDate
-} from './date';
-
-export {
     delay,
     fixedNumString,
     base64Encode,
@@ -26,3 +19,15 @@ export {
     randomString,
     SHA256
 };
+
+export {
+    getUTCTime,
+    getTimeLong,
+    getFormatDateObject,
+    getDayStartDate
+} from './date';
+
+export {
+    escapeRegExp,
+    capitalize
+} from './stringHandler';

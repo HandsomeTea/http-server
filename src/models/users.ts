@@ -1,5 +1,5 @@
 import { ValidateOpts } from 'mongoose';
-import BaseDB from './_base';
+import BaseDB from './_mongodb';
 
 export default class User extends BaseDB {
     constructor(tenantId: string) {

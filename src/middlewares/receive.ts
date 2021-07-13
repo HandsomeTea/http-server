@@ -3,18 +3,15 @@ import httpContext from 'express-http-context';
 
 import { traceId, trace } from '../configs';
 
-const filteNotAllown = (str?: string): string | undefined => {
-    if (!str) {
-        return;
+const filteNotAllown = (str?: string): string | void => {
+    if (str) {
+        str = str.trim();
+        if (str && str !== 'undefined' && str !== 'null') {
+            return str;
+        }
     }
-
-    str = str.trim();
-    if (str !== 'undefined' && str !== 'null' && str !== '') {
-        return str;
-    }
-    return;
 };
-const getRequestIp = (request: Request): string => {
+const getRequestIp = (request: Request): string | undefined => {
     const ipStr = request.headers['x-forwarded-for'] ||
         request.ip ||
         request.connection.remoteAddress ||
@@ -25,9 +22,8 @@ const getRequestIp = (request: Request): string => {
     if (typeof ipStr === 'string' && ipStr.split(',').length > 0) {
         ip = ipStr.split(',')[0];
     }
-    const ipArr = /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.exec(ip);
 
-    return ipArr ? ip[0] : '';
+    return /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.exec(ip)?.toString();
 };
 
 /**
@@ -52,7 +48,11 @@ export default (req: Request, _res: Response, next: NextFunction): void => {
     httpContext.set('parentSpanId', filteNotAllown(req.get('x-b3-parentspanid')) || '');
     httpContext.set('spanId', filteNotAllown(req.get('x-b3-spanid')) || traceId());
 
-    trace({ traceId: httpContext.get('traceId'), spanId: httpContext.get('spanId'), parentSpanId: httpContext.get('parentSpanId') }, 'receive-request').debug(`[${httpContext.get('ip')}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] request parameter :${_datas || ' no parameter'} .`);
+    trace({
+        traceId: httpContext.get('traceId'),
+        spanId: httpContext.get('spanId'),
+        parentSpanId: httpContext.get('parentSpanId')
+    }, 'receive-request').debug(`[${httpContext.get('ip')}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] request parameter :${_datas || ' no parameter'} .`);
 
     next();
 };

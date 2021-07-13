@@ -55,8 +55,8 @@ global.WebsocketServer.connection((socket, request) => {
 /**============================================socket 封装 ================================ end */
 
 
-import redis from './src/db/redis';
-import mongodb from './src/db/mongodb';
+import redis from './src/tools/redis';
+import mongodb from './src/tools/mongodb';
 
 /**
  * 当服务将要停止时的钩子函数

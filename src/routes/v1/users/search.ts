@@ -56,7 +56,7 @@ router.get('/search', asyncHandler(async (_req, res) => {
         _id: '',
         name: 'test1'
     });
-    return res.success();// eslint-disable-line no-extra-parens
+    return res.success();
     // throw new Exception(new Error('cuo wu'));
     // throw new Exception(new Exception('cuo wu'));
 }));
@@ -64,7 +64,7 @@ router.get('/search', asyncHandler(async (_req, res) => {
 router.get('/:userId', asyncHandler(async (req, res) => {
     const User = new _Users('t1');
 
-    return res.success(await User.findById(req.params.userId));
+    return res.success(await User.findById(req.params.userId, { projection: ['name'] }));
 }));
 
 export default router;

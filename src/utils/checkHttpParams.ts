@@ -1,6 +1,6 @@
 import { errorType } from '../configs';
 
-type CheckType = StringConstructor | ArrayConstructor | ObjectConstructor
+type CheckType = StringConstructor | ArrayConstructor | ObjectConstructor | NumberConstructor
 
 interface CheckRuleType {
     type: CheckType,
@@ -19,7 +19,7 @@ export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRu
         throw new Exception(msg || `Invalid arguments: ${param}`, error);
     }
 
-    if (type === String || type === Array || type === Object) {
+    if (type === String || type === Array || type === Object || type === Number) {
         /**
          * example:
          * check(x, String, false);
@@ -41,6 +41,10 @@ export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRu
             if (type === Array && Array.isArray(param) && param.length === 0) {
                 throw new Exception(msg || 'Invalid arguments: not allowed empty array.', error);
             }
+
+            if (type === Number && param === 0) {
+                throw new Exception(msg || 'Invalid arguments: not allowed 0.', error);
+            }
         }
     } else {
         if (param.constructor !== Object) {
@@ -48,7 +52,7 @@ export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRu
         }
 
         for (const key in type) {
-            if (type[key] === String || type[key] === Array || type[key] === Object) {
+            if (type[key] === String || type[key] === Array || type[key] === Object || type[key] === Number) {
                 /**
                  * example:
                  *  check(x, {
@@ -68,7 +72,7 @@ export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRu
                  */
                 const rule = type[key] as CheckRuleType;
 
-                if (rule.type === String || rule.type === Array || rule.type === Object) {
+                if (rule.type === String || rule.type === Array || rule.type === Object || rule.type === Number) {
                     if (rule.required === true && (param[key] === null || param[key] === undefined)) {
                         throw new Exception(rule.msg || `Invalid arguments: object key "${key}" is required.`, rule.error || errorType.INVALID_ARGUMENTS);
                     }
@@ -89,6 +93,10 @@ export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRu
 
                             if (rule.type === Array && Array.isArray(param[key]) && param[key].length === 0) {
                                 throw new Exception(rule.msg || `Invalid arguments: object key "${key}" not allowed empty array.`, rule.error || errorType.INVALID_ARGUMENTS);
+                            }
+
+                            if (rule.type === Number && param[key] === 0) {
+                                throw new Exception(rule.msg || `Invalid arguments: object key "${key}" not allowed 0.`, rule.error || errorType.INVALID_ARGUMENTS);
                             }
                         }
                     }

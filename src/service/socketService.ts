@@ -2,44 +2,21 @@ import WS from 'ws';
 import _ from 'underscore';
 
 import { log, errorType } from '../configs';
-import { WebSocketServer, MyWebSocket } from '../../websocket';
+import { MyWebSocket } from '../../websocket';
 
 export default new class WebsocketService {
-    public server: WebSocketServer | null = null;
-    public userIdMap: Record<string, Set<MyWebSocket>> | null = null;
     constructor() {
-        this._init();
-    }
-
-    _init() {
-        if (process.env.NODE_ENV !== 'production') {
-            setInterval(() => {
-                if (global.isServerRunning) {
-                    log('socket-count-check').debug(`socket client size is ${this.connectionNum}, socket online client size is ${this.onlineConnectionNum}, online user count is ${this.onLineUserNum}`);
-                }
-            }, 60 * 1000);
-        }
-
-        let _t: NodeJS.Timeout | null = setInterval(() => {
-            if (global.isServerRunning) {
-                this.server = global.WebsocketServer;
-                this.userIdMap = global.WebsocketUserIdMap;
-                if (_t) {
-                    clearInterval(_t);
-                }
-                _t = null;
-            }
-        }, 500);
+        //
     }
 
     get connectionNum() {
-        return this.server?.clients.size || 0;
+        return global.WebsocketServer?.clients.size || 0;
     }
 
     get onlineConnectionNum() {
         let num = 0;
 
-        this.server?.wsClients.forEach(client => {
+        global.WebsocketServer?.wsClients.forEach(client => {
             if (client.readyState === WS.OPEN && client.attempt.userId) {
                 num++;
             }
@@ -51,7 +28,7 @@ export default new class WebsocketService {
     get onLineUserNum() {
         const _temp: Set<string> = new Set();
 
-        this.server?.wsClients.forEach(client => {
+        global.WebsocketServer?.wsClients.forEach(client => {
             if (client.readyState === WS.OPEN && client.attempt.userId) {
                 _temp.add(client.attempt.userId);
             }
@@ -66,7 +43,7 @@ export default new class WebsocketService {
     getLoginClientCountByUserId(userId: string) {
         let num = 0;
 
-        this.server?.wsClients.forEach(client => {
+        global.WebsocketServer?.wsClients.forEach(client => {
             if (client.readyState === WS.OPEN && client.attempt.userId === userId) {
                 num++;
             }
@@ -80,7 +57,7 @@ export default new class WebsocketService {
      */
     getSocketsByUserIds(userIds: Array<string>): Set<MyWebSocket> {
         const _userId = new Set(userIds);
-        const targetMap = _.pick(this.userIdMap, ..._userId);
+        const targetMap = _.pick(global.WebsocketUserIdMap, ..._userId);
         const userIdsAllClients: Set<MyWebSocket> = new Set();
 
         _.values(targetMap).map(oneUserClients => {
@@ -101,7 +78,7 @@ export default new class WebsocketService {
         const tenantIdList = new Set(tenantIds);
         const tenantIdsAllClients: Set<MyWebSocket> = new Set();
 
-        this.server?.wsClients.forEach(client => {
+        global.WebsocketServer?.wsClients.forEach(client => {
             if (client.readyState === WS.OPEN && client.attempt.userTenantId && tenantIdList.has(client.attempt.userTenantId)) {
                 tenantIdsAllClients.add(client);
             }
@@ -143,7 +120,7 @@ export default new class WebsocketService {
         const model: Set<DeviceModel> = typeof option?.model === 'string' ? new Set([option?.model]) : Array.isArray(option?.model) ? new Set(option?.model) : new Set();
         const serialNumber: Set<string> = typeof option?.serialNumber === 'string' ? new Set([option?.serialNumber]) : Array.isArray(option?.serialNumber) ? new Set(option?.serialNumber) : new Set();
         const tenantId: Set<string> = typeof target.tenantId === 'string' ? new Set([target.tenantId]) : Array.isArray(target.tenantId) ? new Set(target.tenantId) : new Set();
-        const _clients = target.userId ? this.userIdMap && this.userIdMap[target.userId] || new Set() : this.getSocketsByTenantIds(Array.from(tenantId));
+        const _clients = target.userId ? global.WebsocketUserIdMap[target.userId] || new Set() : this.getSocketsByTenantIds(Array.from(tenantId));
 
         for (const client of _clients) {
             if (client.readyState === WS.OPEN && client.attempt.connection.device) {

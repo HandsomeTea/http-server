@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { system } from '../../src/configs';
+import { system } from '../configs';
 
 const RECONNET_TIME = 5000;
 const _mongoconnect = async () => {

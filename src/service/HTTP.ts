@@ -134,7 +134,6 @@ class Request {
                     data: options?.data
                 });
             }
-
         }
     }
 

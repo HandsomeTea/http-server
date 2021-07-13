@@ -1,4 +1,4 @@
-import BaseDb from './_base';
+import BaseDb from './_mongodb';
 
 class Instance extends BaseDb {
     /**

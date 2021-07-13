@@ -55,7 +55,7 @@ declare interface SocketAttempt {
 
 declare namespace Express {
     interface Response {
-        success: (result?: unknown) => Promise<void>
+        success: (result?: unknown) => void
     }
 
     interface Request {

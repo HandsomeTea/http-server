@@ -2,7 +2,6 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import cookieParser from 'cookie-parser';
-import bodyParser from 'body-parser';
 import compression from 'compression';
 import httpContext from 'express-http-context';
 
@@ -16,11 +15,9 @@ const app = express();
  * 所以尽量将中间件放在路由外面，某些路由独有的中间件可以放在路由模块里面
  */
 /**常用中间件 */
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(cookieParser());
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(compression());
 app.use(httpContext.middleware);
 
@@ -41,14 +38,14 @@ app.get('/', (_req, res) => {
 });
 
 import {
-    // serverJWTcheck,
+    // JWTCheckHandle,
     acceptRequestHandle,
     successResponseHandle,
     errorHandle
 } from '../middlewares';
 
 /**自定义中间件 */
-// app.use(serverJWTcheck);
+// app.use(JWTCheckHandle);
 app.use(acceptRequestHandle);
 app.use(successResponseHandle);
 

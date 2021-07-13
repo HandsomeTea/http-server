@@ -1,6 +1,6 @@
-import { Types, SchemaDefinition, Model, Document, Aggregate, FilterQuery, ModelUpdateOptions, UpdateQuery, QueryOptions } from 'mongoose';
+import { Types, SchemaDefinition, Model, Document, Aggregate, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline } from 'mongoose';
 
-import mongodb from '../db/mongodb';
+import mongodb from '../tools/mongodb';
 
 /**
  * 关于collection的删除
@@ -24,7 +24,7 @@ export default class BaseDb {
     } | undefined;
 
     /**
-     *Creates an instance of BaseDb.
+     * Creates an instance of BaseDb.
      * @param {string} collectionName mongodb的集合(表)名称，如果分租户，则不应该包含租户tenantId
      * @param {SchemaDefinition} model mongodb的集合(表)结构
      * @param {({
@@ -94,10 +94,8 @@ export default class BaseDb {
 
     async create(data: DBModel | Array<DBModel>): Promise<DBModel | Array<DBModel>/*string | Array<string>*/> {
         if (Array.isArray(data)) {
-            // return (await this.model.insertMany(this._id(data))).map(_result => _result._id);
             return await this.model.insertMany(this._id(data)) as unknown as Array<DBModel>;
         } else {
-            // return (await new this.model(this._id(data)[0]).save())._id;
             return await new this.model(this._id(data)[0]).save() as unknown as DBModel;
         }
     }
@@ -118,7 +116,7 @@ export default class BaseDb {
         return await this.model.deleteMany(query);
     }
 
-    async updateOne(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel>, options?: ModelUpdateOptions): Promise<{
+    async updateOne(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
         n: number
         nModified: number
         ok: number
@@ -127,7 +125,7 @@ export default class BaseDb {
     }
 
     /**upsert尽量不要触发insert，否则会生成一个ObjectId构建的_id，除非指定一个_id，并且collection里面的default默认设置的字段也不会有 */
-    async upsertOne(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel>, options?: ModelUpdateOptions): Promise<{
+    async upsertOne(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
         n: number,
         nModified: number,
         upserted: Array<{ index: number, _id: string }>,
@@ -141,7 +139,7 @@ export default class BaseDb {
         };
     }
 
-    async updateMany(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel>, options?: ModelUpdateOptions): Promise<{
+    async updateMany(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
         n: number
         nModified: number
         ok: number
@@ -150,7 +148,7 @@ export default class BaseDb {
     }
 
     /**upsert尽量不要触发insert，否则会生成一个ObjectId构建的_id，除非指定_id，并且collection里面的default默认设置的字段也不会有 */
-    async upsertMany(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel>, options?: ModelUpdateOptions): Promise<{
+    async upsertMany(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
         n: number
         nModified: number
         ok: number
@@ -159,20 +157,20 @@ export default class BaseDb {
     }
 
     async find(query?: FilterQuery<DBModel>, options?: QueryOptions): Promise<Array<DBModel>> {
-        return await this.model.find(query || {}, options).lean() as Array<DBModel>;
+        return await this.model.find(query || {}, null, options).lean() as Array<DBModel>;
     }
 
     async findOne(query: FilterQuery<DBModel>, options?: QueryOptions): Promise<DBModel | null> {
-        return await this.model.findOne(query, options).lean() as DBModel | null;
+        return await this.model.findOne(query, null, options).lean() as DBModel | null;
     }
 
     async findById(_id: string, options?: QueryOptions): Promise<DBModel | null> {
-        return await this.model.findById(_id, options).lean() as DBModel | null;
+        return await this.model.findById(_id, null, options).lean() as DBModel | null;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async paging(query: FilterQuery<DBModel>, limit: number, skip: number, sort?: Record<string, any>, options?: QueryOptions): Promise<Array<DBModel>> {
-        return await this.model.find(query, options).sort(sort).skip(skip || 0).limit(limit).lean() as Array<DBModel>;
+        return await this.model.find(query, null, options).sort(sort).skip(skip || 0).limit(limit).lean() as Array<DBModel>;
     }
 
     async count(query?: FilterQuery<DBModel>): Promise<number> {
