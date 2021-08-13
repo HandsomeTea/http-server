@@ -54,7 +54,7 @@ import v1 from './v1';
 
 app.use('/api/v1', v1);
 
-import { errorType } from '../configs';
+import { errorType } from '@/configs';
 
 app.use('*', () => {
     throw new Exception('URL not found!', errorType.URL_NOT_FOUND);

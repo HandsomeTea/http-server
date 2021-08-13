@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { setENV } from '../src/configs';
+import { setENV } from '@/configs';
 const proConfigPath = '/opt/config/application.yaml';
 const localConfigPath = path.resolve(__dirname, '../application-dev-example.yaml');
 

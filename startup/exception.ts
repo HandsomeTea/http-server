@@ -1,4 +1,4 @@
-import { errorCodeMap } from '../src/configs';
+import { errorCodeMap } from '@/configs';
 
 global.Exception = class Exception extends Error {
     public message: string;

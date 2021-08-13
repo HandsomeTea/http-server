@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import httpContext from 'express-http-context';
 
-import { trace } from '../../src/configs';
+import { trace } from '@/configs';
 
 /**
  * 服务器成功处理完请求返回

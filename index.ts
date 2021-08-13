@@ -4,7 +4,7 @@ process.env.INSTANCEID = crypto.randomBytes(24).toString('hex').substring(0, 17)
 global.IntervalUpdateInstance = 10; //instance保活间隔,单位为秒
 import './startup';
 
-import { audit, log } from './src/configs';
+import { audit, log } from '@/configs';
 
 process.on('unhandledRejection', reason => {
     // 处理没有catch的promiss，第二个参数即为promiss
@@ -23,7 +23,7 @@ const port = ((val: string): number => {
 })('3000');
 
 import http from 'http';
-import app from './src/routes/app';
+import app from '@/routes/app';
 
 /**Get port from environment and store in Express. */
 app.set('port', port);
@@ -38,8 +38,8 @@ import { WebSocketServer } from './websocket';
 global.WebsocketServer = new WebSocketServer({ server });
 
 /** 封装socket */
-import socketCore from './src/socket/core';
-import socketMethods from './src/socket/methods';
+import socketCore from '@/socket/core';
+import socketMethods from '@/socket/methods';
 
 global.WebsocketServer.connection((socket, request) => {
     socket.attempt = {
@@ -55,8 +55,8 @@ global.WebsocketServer.connection((socket, request) => {
 /**============================================socket 封装 ================================ end */
 
 
-import redis from './src/tools/redis';
-import mongodb from './src/tools/mongodb';
+import redis from '@/tools/redis';
+import mongodb from '@/tools/mongodb';
 
 /**
  * 当服务将要停止时的钩子函数

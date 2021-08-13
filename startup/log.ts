@@ -1,3 +1,3 @@
-import { updateOrCreateLogInstance } from '../src/configs';
+import { updateOrCreateLogInstance } from '@/configs';
 
 updateOrCreateLogInstance();

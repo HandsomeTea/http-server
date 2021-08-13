@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import httpContext from 'express-http-context';
 
-import { audit, trace } from '../../src/configs';
+import { audit, trace } from '@/configs';
 
 /**
  * 捕捉路由中未处理的错误，即直接throw new Error的情况

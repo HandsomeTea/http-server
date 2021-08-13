@@ -34,9 +34,9 @@ router.get('/search', asyncHandler(async (_req, res) => {
 }));
 
 router.get('/:userId', asyncHandler(async (req, res) => {
-    const User = new _Users('t1');
+    const Users = new _Users('t1');
 
-    return res.success(await User.findById(req.params.userId, { projection: ['name'] }));
+    return res.success(await Users.findById(req.params.userId, { projection: { name: 1 } }));
 }));
 
 export default router;
