@@ -57,6 +57,7 @@ global.WebsocketServer.connection((socket, request) => {
 
 import redis from '@/tools/redis';
 import mongodb from '@/tools/mongodb';
+import mysql from '@/tools/mysql';
 
 /**
  * 当服务将要停止时的钩子函数
@@ -70,7 +71,7 @@ const willShutDown = async () => {
  * 健康检查的钩子函数
  */
 const healthCheck = async () => {
-    const result = mongodb.status === true && redis.status === true;
+    const result = mongodb.status === true && redis.status === true && mysql.status === true;
 
     if (!result) {
         log('SYSREM_STARTUP').fatal('system is shut down.');
@@ -96,6 +97,7 @@ process.on('SIGINT', () => {
 process.on('exit', async () => {
     await mongodb.close();
     await redis.close();
+    mysql.close();
     log('SYSREM_STOP_CLEAN').info('server connection will stop normally.');
 });
 
@@ -139,7 +141,7 @@ server.on('listening', onListening);
 /** 服务开始监听请求 */
 server.listen(port, '0.0.0.0', async () => {
     const _check = setInterval(() => {
-        const result = mongodb.status === true && redis.status === true;
+        const result = mongodb.status === true && redis.status === true && mysql.status === true;
 
         if (result) {
             global.isServerRunning = true;
@@ -149,7 +151,7 @@ server.listen(port, '0.0.0.0', async () => {
             clearInterval(_check);
             log('SYSREM_STARTUP').info(`api document running on http://127.0.0.1:${port} .`);
         } else {
-            log('SYSREM_STARTUP').error('mongodb or redis connection is unusual');
+            log('SYSREM_STARTUP').error('one of mongodb, mysql or redis connection is unusual');
         }
     }, 1000);
 });

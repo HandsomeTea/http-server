@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
-import { system } from '../configs';
+import { system } from '@/configs';
 
 const RECONNET_TIME = 5000;
 const _mongoconnect = async () => {
     const mongodbAddress = process.env.MONGO_URL;
 
     if (!mongodbAddress) {
-        return system('mongodb').info(`connect address is required but get ${mongodbAddress}`);
+        return system('mongodb').info(`mongodb connect address is required but get ${mongodbAddress}`);
     }
 
     return await mongoose.connect(mongodbAddress, {
