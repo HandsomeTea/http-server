@@ -30,7 +30,7 @@
     "@godaddy/terminus": "^4.9.0",
     "agentkeepalive": "^4.1.4",
     "ali-sms": "^1.0.3",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
