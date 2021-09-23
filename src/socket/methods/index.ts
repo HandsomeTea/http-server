@@ -45,12 +45,14 @@ export default (socket: MyWebSocket): void => {
                             ..._result
                         };
                     }
-                } catch (e) {
-                    log('socket-middleware').error(e);
+                } catch (error) {
+                    log('socket-middleware').error(error);
+                    const e = error as InstanceException;
+
                     if (method === 'login') {
-                        socket.send(JSON.stringify({ msg: 'result', id, type: e.type || errorType.INTERNAL_SERVER_ERROR, reason: e.reason || [], data: {} }));
+                        socket.send(JSON.stringify({ msg: 'result', id, type: e.code || errorType.INTERNAL_SERVER_ERROR, reason: e.reason || [], data: {} }));
                     } else {
-                        socket.send(JSON.stringify({ msg: 'result', id: id, error: { reason: e.message || e.msg, error: e.type || errorType.INTERNAL_SERVER_ERROR } }));
+                        socket.send(JSON.stringify({ msg: 'result', id: id, error: { reason: e.message, error: e.code || errorType.INTERNAL_SERVER_ERROR } }));
                     }
                     return;
                 }
@@ -65,9 +67,11 @@ export default (socket: MyWebSocket): void => {
                 const result = await methods[method]([...params], method === 'login' ? socket : socket.attempt);
 
                 socket.send(JSON.stringify({ msg: 'result', id, type: 'SUCCESS', reason: [], data: result || {} }));
-            } catch (e) {
+            } catch (error) {
+                const e = error as InstanceException;
+
                 log(`socket-method:${method}-result`).error(e);
-                socket.send(JSON.stringify({ msg: 'result', id, type: e.type || errorType.INTERNAL_SERVER_ERROR, reason: e.reason || [], data: {} }));
+                socket.send(JSON.stringify({ msg: 'result', id, type: e.code || errorType.INTERNAL_SERVER_ERROR, reason: e.reason || [], data: {} }));
             }
         } else {
             log('socket-recieve').error('unknown socket action:');

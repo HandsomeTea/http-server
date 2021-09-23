@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, Method as AxiosMethod } from 'axios';
-import got, { Method as GotMethod } from 'got';
+import got, { Method as GotMethod, ParseError } from 'got';
 import httpContext from 'express-http-context';
 import Agent from 'agentkeepalive';
 
@@ -188,13 +188,14 @@ class Request {
             log(`request-to-${baseURL ? baseURL : url}`).debug(data);
 
             return Promise.resolve(data);
-        } catch (error) {
+        } catch (e) {
+            const error = e as ParseError;
+
             if (error.response) {
-                const { statusCode, body } = error.response;
-                const { type, msg } = body;
+                const { /*statusCode, */body } = error.response;
 
                 log(`request-to-${baseURL ? baseURL : url}`).error(body);
-                throw new Exception(JSON.stringify(msg), type, statusCode);
+                throw new Exception(JSON.stringify(body));
             }
 
             log(`request-to-${baseURL ? baseURL : url}`).error(error);
