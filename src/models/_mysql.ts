@@ -39,9 +39,10 @@ export default class Base {
 
 
 // import { base64Encode } from '@/utils';
-// import Base from './_mysql';
+// import Base from './base';
 
 // class User extends Base {
+//     private tableName = 'admin_user';
 //     constructor() {
 //         super();
 //         this.init();
@@ -49,7 +50,7 @@ export default class Base {
 
 //     private async init() {
 //         await this.excute(
-//             `CREATE TABLE IF NOT EXISTS admin_user (
+//             `CREATE TABLE IF NOT EXISTS ${this.tableName} (
 //                 name VARCHAR(100) NOT NULL COMMENT '姓名',
 //                 account VARCHAR(100) NOT NULL COMMENT '管理员登录账号',
 //                 password VARCHAR(500) NOT NULL COMMENT '管理员登录密码',
@@ -70,7 +71,7 @@ export default class Base {
 //     async save(user: AdminUserModel) {
 //         const { name, account, password, phone } = user;
 
-//         return await this.excute(`insert into admin_user values ("${name}", "${account}", "${base64Encode(password)}", "${phone || ''}", "", "")`);
+//         return await this.excute(`insert into ${this.tableName} values ("${name}", "${account}", "${base64Encode(password)}", "${phone || ''}", "", "")`);
 //     }
 
 //     async delete(option: { name?: string, account?: string, phone?: string }) {
@@ -88,7 +89,7 @@ export default class Base {
 //         }
 
 //         if (sqlOption.length > 0) {
-//             return await this.excute(`delete from admin_user ${this.optionString(sqlOption)}`);
+//             return await this.excute(`delete from ${this.tableName} ${this.optionString(sqlOption)}`);
 //         }
 //     }
 
@@ -116,7 +117,7 @@ export default class Base {
 //         }
 
 //         if (sqlOption.length > 0) {
-//             return await this.excute(`update admin_user ${this.optionString(sqlOption, ', ', 'set')} where account="${account}"`);
+//             return await this.excute(`update ${this.tableName} ${this.optionString(sqlOption, ', ', 'set')} where account="${account}"`);
 //         }
 //     }
 
@@ -146,7 +147,7 @@ export default class Base {
 //         }
 
 //         if (option?.keyword) {
-//             return await this.excute(`select ${fieldStr} from admin_user where concat(name, account, phone) like "%${option.keyword}%" limit ${limit} offset ${skip}`);
+//             return await this.excute(`select ${fieldStr} from ${this.tableName} where concat(name, account, phone) like "%${option.keyword}%" limit ${limit} offset ${skip}`);
 //         }
 //         const sqlOption: Array<string> = [];
 
@@ -170,7 +171,7 @@ export default class Base {
 //             sqlOption.push(`token="${option.token}"`);
 //         }
 
-//         return await this.excute(`select ${fieldStr} from admin_user ${this.optionString(sqlOption)} limit ${limit} offset ${skip}`);
+//         return await this.excute(`select ${fieldStr} from ${this.tableName} ${this.optionString(sqlOption)} limit ${limit} offset ${skip}`);
 //     }
 
 //     async count(option?: { name?: string, phone?: string, keyword?: string }): Promise<number> {
@@ -187,7 +188,7 @@ export default class Base {
 //             }
 //         }
 
-//         return (await this.excute(`select count(admin_user.account) from admin_user ${this.optionString(sqlOption)}`))[0]['count(admin_user.account)'];
+//         return (await this.excute(`select count(${this.tableName}.account) from ${this.tableName} ${this.optionString(sqlOption)}`))[0][`count(${this.tableName}.account)`];
 //     }
 // }
 

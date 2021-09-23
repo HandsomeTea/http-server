@@ -32,7 +32,7 @@ export default new class Redis {
     }
 
     public get status(): boolean {
-        return this.server?.status === 'ready' || this.server?.status === 'connecting' || false;
+        return this.server?.status === 'ready' || this.server?.status === 'connecting';
     }
 
     public async close(): Promise<'OK'> {
