@@ -42,10 +42,13 @@ export default class Base {
 // import Base from './base';
 
 // class User extends Base {
-//     private tableName = 'admin_user';
 //     constructor() {
 //         super();
 //         this.init();
+//     }
+
+//     private get tableName() {
+//         return 'admin_user';
 //     }
 
 //     private async init() {
