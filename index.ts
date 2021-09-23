@@ -151,7 +151,15 @@ server.listen(port, '0.0.0.0', async () => {
             clearInterval(_check);
             log('SYSREM_STARTUP').info(`api document running on http://127.0.0.1:${port} .`);
         } else {
-            log('SYSREM_STARTUP').error('one of mongodb, mysql or redis connection is unusual');
+            if (!mongodb.status) {
+                log('SYSREM_STARTUP').error('mongodb connection is unusual');
+            }
+            if (!redis.status) {
+                log('SYSREM_STARTUP').error('redis connection is unusual');
+            }
+            if (!mysql.status) {
+                log('SYSREM_STARTUP').error('mysql connection is unusual');
+            }
         }
     }, 1000);
 });

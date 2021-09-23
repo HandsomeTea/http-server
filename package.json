@@ -42,7 +42,7 @@
     "jsonwebtoken": "^8.5.1",
     "log4js": "^6.3.0",
     "module-alias": "^2.2.2",
-    "mongoose": "^5.13.2",
+    "mongoose": "^6.0.7",
     "mysql": "^2.18.1",
     "nodemailer": "^6.6.3",
     "underscore": "^1.13.1",

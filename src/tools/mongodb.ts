@@ -2,27 +2,17 @@ import mongoose from 'mongoose';
 import { system } from '@/configs';
 
 const RECONNET_TIME = 5000;
-const _mongoconnect = async () => {
+const mongoconnect = () => {
     const mongodbAddress = process.env.MONGO_URL;
 
     if (!mongodbAddress) {
-        return system('mongodb').info(`mongodb connect address is required but get ${mongodbAddress}`);
+        return system('mongodb').error(`mongodb connect address is required but get ${mongodbAddress}`);
     }
-
-    return await mongoose.connect(mongodbAddress, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useCreateIndex: true,
-        useFindAndModify: false,
-        autoReconnect: true,
-        /** Set to `true` to make Mongoose automatically call `createCollection()` on every model created on this connection. */
-        autoCreate: false,
-        poolSize: 100,
-        reconnectTries: Number.MAX_VALUE, // Never stop trying to reconnect
-        reconnectInterval: RECONNET_TIME
-    }).catch(error => {
-        system('connect-error-mongodb').error(error);
-        setTimeout(_mongoconnect, RECONNET_TIME);
+    return mongoose.connect(mongodbAddress, {}, error => {
+        if (error) {
+            system('mongodb').error(error);
+            setTimeout(mongoconnect, RECONNET_TIME);
+        }
     });
 };
 
@@ -45,7 +35,7 @@ class MongoDB {
     }
 
     private async _init() {
-        return await _mongoconnect();
+        return await mongoconnect();
     }
 
     public get server() {

@@ -7,7 +7,7 @@ class Instance extends BaseDb {
      * @memberof Instance
      */
     constructor() {
-        const _model: SchemaDefinition = {
+        const _model: SchemaDefinition<InstanceModel> = {
             _id: { type: String, required: true, trim: true },
             instance: { type: String }
         };

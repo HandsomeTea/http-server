@@ -1,6 +1,6 @@
-import { Types, SchemaDefinition, Model, Document, Aggregate, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaOptions } from 'mongoose';
-
-import mongodb from '../tools/mongodb';
+import { Types, SchemaDefinition, Model, Aggregate, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaOptions } from 'mongoose';
+import { ObjectId } from 'bson';
+import mongodb from '@/tools/mongodb';
 
 /**
  * 关于collection的删除
@@ -12,7 +12,7 @@ import mongodb from '../tools/mongodb';
 export default class BaseDb {
     private tenantId: string | undefined;
     private collectionName: string;
-    private schemaModel: SchemaDefinition;
+    private schemaModel: SchemaDefinition<DBModel>;
     private index: {
         [key: string]: {
             background?: boolean
@@ -26,7 +26,7 @@ export default class BaseDb {
     /**
      * Creates an instance of BaseDb.
      * @param {string} collectionName mongodb的集合(表)名称，如果分租户，则不应该包含租户tenantId
-     * @param {SchemaDefinition} model mongodb的集合(表)结构
+     * @param {SchemaDefinition<DBModel>} model mongodb的集合(表)结构
      * @param {({
      *             [key: string]: {
      *                 background?: boolean
@@ -39,7 +39,7 @@ export default class BaseDb {
      * @param {string} [_tenantId] mongodb的集合(表)如果分租户，则表示该集合(表)属于哪个tenantId(集合/表的前缀)
      * @memberof BaseDb
      */
-    constructor(collectionName: string, model: SchemaDefinition,
+    constructor(collectionName: string, model: SchemaDefinition<DBModel>,
         _index?: {
             [key: string]: {
                 background?: boolean
@@ -56,8 +56,8 @@ export default class BaseDb {
         this.index = _index;
     }
 
-    get model(): Model<Document> {
-        const _schema = new mongodb.schema(this.schemaModel, { _id: false, versionKey: false, timestamps: { createdAt: true, updatedAt: '_updatedAt' } } as SchemaOptions);
+    get model(): Model<DBModel> {
+        const _schema = new mongodb.schema<DBModel>(this.schemaModel, { _id: false, versionKey: false, timestamps: { createdAt: true, updatedAt: '_updatedAt' } } as SchemaOptions);
 
         if (this.index) {
             for (const key in this.index) {
@@ -78,14 +78,14 @@ export default class BaseDb {
                 if (typeof data[i]._id !== 'string' || typeof data[i]._id === 'string' && data[i]._id?.trim() === '') {
                     result.push({
                         ...data[i],
-                        _id: Types.ObjectId().toString()
+                        _id: new Types.ObjectId().toString()
                     });
                 }
             }
         } else {
             result.push({
                 ...data,
-                _id: Types.ObjectId().toString()
+                _id: new Types.ObjectId().toString()
             });
         }
 
@@ -117,41 +117,43 @@ export default class BaseDb {
     }
 
     async updateOne(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
-        n: number
-        nModified: number
-        ok: number
+        acknowledged: boolean
+        modifiedCount: number
+        upsertedId: ObjectId
+        upsertedCount: number
+        matchedCount: number
     }> {
         return await this.model.updateOne(query, update, options);
     }
 
     /**upsert尽量不要触发insert，否则会生成一个ObjectId构建的_id，除非指定一个_id，并且collection里面的default默认设置的字段也不会有 */
     async upsertOne(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
-        n: number,
-        nModified: number,
-        upserted: Array<{ index: number, _id: string }>,
-        ok: 1 | 0
+        acknowledged: boolean
+        modifiedCount: number
+        upsertedId: ObjectId
+        upsertedCount: number
+        matchedCount: number
     }> {
-        return await this.updateOne(query, update, { ...options, upsert: true }) as {
-            n: number,
-            nModified: number,
-            upserted: Array<{ index: number, _id: string }>,
-            ok: 1 | 0
-        };
+        return await this.updateOne(query, update, { ...options, upsert: true });
     }
 
     async updateMany(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
-        n: number
-        nModified: number
-        ok: number
+        acknowledged: boolean
+        modifiedCount: number
+        upsertedId: ObjectId
+        upsertedCount: number
+        matchedCount: number
     }> {
         return await this.model.updateMany(query, update, options);
     }
 
     /**upsert尽量不要触发insert，否则会生成一个ObjectId构建的_id，除非指定_id，并且collection里面的default默认设置的字段也不会有 */
     async upsertMany(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
-        n: number
-        nModified: number
-        ok: number
+        acknowledged: boolean
+        modifiedCount: number
+        upsertedId: ObjectId
+        upsertedCount: number
+        matchedCount: number
     }> {
         return await this.model.updateMany(query, update, { ...options, upsert: true });
     }

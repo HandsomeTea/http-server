@@ -6,14 +6,20 @@ class SessionService {
     }
 
     _init() {
-        setInterval(() => Sessions.deleteEmptyData(), global.IntervalCheckEmptySession * 1000);
+        setInterval(() => {
+            if (global.isServerRunning) {
+                Sessions.deleteEmptyData();
+            }
+        }, global.IntervalCheckEmptySession * 1000);
 
         setInterval(async () => {
-            const unusedInstance = await Instances.getUnusedInstance();
+            if (global.isServerRunning) {
+                const unusedInstance = await Instances.getUnusedInstance();
 
-            if (unusedInstance.length > 0) {
-                await Sessions.deleteSessionBesidesAliveInstances(unusedInstance);
-                await Instances.deleteUnusedInstance(unusedInstance);
+                if (unusedInstance.length > 0) {
+                    await Sessions.deleteSessionBesidesAliveInstances(unusedInstance);
+                    await Instances.deleteUnusedInstance(unusedInstance);
+                }
             }
         }, global.IntervalCleanSessionOfInstance * 1000);
     }

@@ -8,9 +8,22 @@ class InstanceService {
     }
 
     async _init() {
+        let _timer: NodeJS.Timeout | null = setInterval(() => {
+            if (global.isServerRunning) {
+                Instances.insertSystemInstance();
+                if (_timer) {
+                    clearInterval(_timer);
+                    _timer = null;
+                }
+            }
+        }, 1000);
+
         /**instance保活维护 */
-        await Instances.insertSystemInstance();
-        setInterval(() => Instances.updateSystemInstance(), global.IntervalUpdateInstance * 1000);
+        setInterval(() => {
+            if (global.isServerRunning) {
+                Instances.updateSystemInstance();
+            }
+        }, global.IntervalUpdateInstance * 1000);
     }
 
     /**

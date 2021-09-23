@@ -36,9 +36,10 @@ export const updateOrCreateLogInstance = (): void => {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d{yyyy-MM-dd hh:mm:ss.SSS} SYSTEM:%X{Module}]%] %m'
+                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET} SYSTEM:%X{Module}]%] %m'
                 }
             }
+            // [2021-09-23 16:59:33.762] %d{yyyy-MM-dd hh:mm:ss.SSS}
             // [2021-08-05T18:17:00.549] %d
             // [2021-08-05T18:17:39.235+0800] %d{ISO8601_WITH_TZ_OFFSET}
             // [18:18:21.475] %d{ABSOLUTE}
