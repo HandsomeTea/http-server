@@ -1,5 +1,4 @@
-import { Types, SchemaDefinition, Model, Aggregate, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaOptions } from 'mongoose';
-import { ObjectId } from 'bson';
+import { Types, SchemaDefinition, Model, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaOptions } from 'mongoose';
 import mongodb from '@/tools/mongodb';
 
 /**
@@ -61,7 +60,7 @@ export default class BaseDb {
 
         if (this.index) {
             for (const key in this.index) {
-                _schema.path(key).index(this.index[key]);
+                _schema.index({ [key]: 1 }, this.index[key]);
             }
         }
 
@@ -92,37 +91,31 @@ export default class BaseDb {
         return result;
     }
 
-    async create(data: DBModel | Array<DBModel>): Promise<DBModel | Array<DBModel>/*string | Array<string>*/> {
+    async create(data: DBModel | Array<DBModel>): Promise<DBModel | Array<DBModel>> {
         if (Array.isArray(data)) {
-            return await this.model.insertMany(this._id(data)) as unknown as Array<DBModel>;
+            return await this.model.insertMany(this._id(data));
         } else {
-            return await new this.model(this._id(data)[0]).save() as unknown as DBModel;
+            return await new this.model(this._id(data)[0]).save();
         }
     }
 
-    async removeOne(query: FilterQuery<DBModel>): Promise<{
-        n?: number
-        ok?: number
-        deletedCount?: number
-    }> {
+    async removeOne(query: FilterQuery<DBModel>): Promise<{ deletedCount: number }> {
         return await this.model.deleteOne(query);
     }
 
-    async removeMany(query: FilterQuery<DBModel>): Promise<{
-        n?: number
-        ok?: number
-        deletedCount?: number
-    }> {
+    async removeMany(query: FilterQuery<DBModel>): Promise<{ deletedCount: number }> {
         return await this.model.deleteMany(query);
     }
 
     async updateOne(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
         acknowledged: boolean
         modifiedCount: number
-        upsertedId: ObjectId
+        upsertedId: null | string
         upsertedCount: number
         matchedCount: number
     }> {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return await this.model.updateOne(query, update, options);
     }
 
@@ -130,7 +123,7 @@ export default class BaseDb {
     async upsertOne(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
         acknowledged: boolean
         modifiedCount: number
-        upsertedId: ObjectId
+        upsertedId: null | string
         upsertedCount: number
         matchedCount: number
     }> {
@@ -140,10 +133,12 @@ export default class BaseDb {
     async updateMany(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
         acknowledged: boolean
         modifiedCount: number
-        upsertedId: ObjectId
+        upsertedId: null | string
         upsertedCount: number
         matchedCount: number
     }> {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return await this.model.updateMany(query, update, options);
     }
 
@@ -151,27 +146,27 @@ export default class BaseDb {
     async upsertMany(query: FilterQuery<DBModel>, update: UpdateQuery<DBModel> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
         acknowledged: boolean
         modifiedCount: number
-        upsertedId: ObjectId
+        upsertedId: null | string
         upsertedCount: number
         matchedCount: number
     }> {
-        return await this.model.updateMany(query, update, { ...options, upsert: true });
+        return await this.updateMany(query, update, { ...options, upsert: true });
     }
 
     async find(query?: FilterQuery<DBModel>, options?: QueryOptions): Promise<Array<DBModel>> {
-        return await this.model.find(query || {}, null, options).lean() as Array<DBModel>;
+        return await this.model.find(query || {}, null, options).lean();
     }
 
     async findOne(query: FilterQuery<DBModel>, options?: QueryOptions): Promise<DBModel | null> {
-        return await this.model.findOne(query, null, options).lean() as DBModel | null;
+        return await this.model.findOne(query, null, options).lean();
     }
 
     async findById(_id: string, options?: QueryOptions): Promise<DBModel | null> {
-        return await this.model.findById(_id, null, options).lean() as DBModel | null;
+        return await this.model.findById(_id, null, options).lean();
     }
 
     async paging(query: FilterQuery<DBModel>, limit: number, skip: number, sort?: Record<string, 'asc' | 'desc' | 'ascending' | 'descending' | '1' | '-1'>, options?: QueryOptions): Promise<Array<DBModel>> {
-        return await this.model.find(query, null, options).sort(sort).skip(skip || 0).limit(limit).lean() as Array<DBModel>;
+        return await this.model.find(query, null, options).sort(sort).skip(skip || 0).limit(limit).lean();
     }
 
     async count(query?: FilterQuery<DBModel>): Promise<number> {
@@ -183,7 +178,7 @@ export default class BaseDb {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async aggregate(aggregations: Array<any>): Promise<Aggregate<Array<any>>> {
+    async aggregate(aggregations: Array<any>): Promise<Array<any>> {
         return await this.model.aggregate(aggregations);
     }
 }
