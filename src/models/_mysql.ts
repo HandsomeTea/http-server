@@ -67,11 +67,11 @@ export default class Base {
 //         const admins = await this.find();
 
 //         if (admins.length === 0) {
-//             await this.save({ name: 'admin', account: 'admin', password: 'admin123', phone: '' });
+//             await this.insert({ name: 'admin', account: 'admin', password: 'admin123', phone: '' });
 //         }
 //     }
 
-//     async save(user: AdminUserModel) {
+//     async insert(user: AdminUserModel) {
 //         const { name, account, password, phone } = user;
 
 //         return await this.excute(`insert into ${this.tableName} values ("${name}", "${account}", "${base64Encode(password)}", "${phone || ''}", "", "")`);
@@ -124,7 +124,7 @@ export default class Base {
 //         }
 //     }
 
-//     async find(option?: {
+//     async select(option?: {
 //         account?: string
 //         name?: string,
 //         phone?: string
