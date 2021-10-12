@@ -149,7 +149,7 @@ server.listen(port, '0.0.0.0', async () => {
                 process.send('ready');
             }
             clearInterval(_check);
-            log('SYSREM_STARTUP').info(`api document running on http://127.0.0.1:${port} .`);
+            log('SYSREM_STARTUP').info(`api document running on http://127.0.0.1:${port}.`);
         } else {
             if (!mongodb.status) {
                 log('SYSREM_STARTUP').error('mongodb connection is unusual');

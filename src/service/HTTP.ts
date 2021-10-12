@@ -18,13 +18,13 @@ class Request {
         });
 
         // 请求拦截器
-        axios.interceptors.request.use(this._beforeSendToServer, this._beforeSendToServerButError);
+        axios.interceptors.request.use(this.beforeSendToServer, this.beforeSendToServerButError);
 
         // 响应拦截器
-        axios.interceptors.response.use(this._receiveSuccessResponse, this._receiveResponseNotSuccess);
+        axios.interceptors.response.use(this.receiveSuccessResponse, this.receiveResponseNotSuccess);
     }
 
-    _beforeSendToServer(config: AxiosRequestConfig) {
+    private beforeSendToServer(config: AxiosRequestConfig) {
         if (!config.headers) {
             config.headers = {};
         }
@@ -77,19 +77,19 @@ class Request {
         return config;
     }
 
-    _beforeSendToServerButError(error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    private beforeSendToServerButError(error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
         log('request-server').error(error);
         throw new Exception(error);
     }
 
-    async _receiveSuccessResponse(response: AxiosResponse) {
+    private async receiveSuccessResponse(response: AxiosResponse) {
         // 这里只处理 response.status >= 200 && response.status <= 207 的情况
         const { data/*, config, headers, request, status, statusText*/ } = response;
 
         return Promise.resolve(data);
     }
 
-    _receiveResponseNotSuccess(error: AxiosError) {
+    private receiveResponseNotSuccess(error: AxiosError) {
         const { response, config, request } = error;
 
         let target = null;
@@ -120,28 +120,7 @@ class Request {
         throw new Exception(`request to ${target} error : no response.`);
     }
 
-    async send(url: string, method: GotMethod | AxiosMethod, baseURL?: string, options?: httpArgument) {
-        const isHttps = (baseURL || url).includes('https');
-
-        if (isHttps) {
-            if (method !== 'purge' && method !== 'PURGE' && method !== 'link' && method !== 'LINK' && method !== 'unlink' && method !== 'UNLINK') {
-                return await this._sendAsHttps(url, method, baseURL, { params: options?.params || {}, data: options?.data || {}, headers: options?.headers || {} });
-            }
-        } else {
-            if (method !== 'TRACE' && method !== 'trace') {
-                return await axios.request(<AxiosRequestConfig>{
-                    url,
-                    method,
-                    baseURL,
-                    headers: options?.headers,
-                    params: options?.params,
-                    data: options?.data
-                });
-            }
-        }
-    }
-
-    async _sendAsHttps(url: string, method: GotMethod, baseURL?: string, options?: httpArgument) {
+    private async sendAsHttps(url: string, method: GotMethod, baseURL?: string, options?: httpArgument) {
         try {
             const response = await got(baseURL ? `${baseURL}${url}` : url, {
                 method,
@@ -204,6 +183,27 @@ class Request {
 
             log(`request-to-${baseURL ? baseURL : url}`).error(error);
             throw new Exception(`request to (${method}): ${baseURL ? baseURL + url : url} error : no response.`);
+        }
+    }
+
+    async send(url: string, method: GotMethod | AxiosMethod, baseURL?: string, options?: httpArgument) {
+        const isHttps = (baseURL || url).includes('https');
+
+        if (isHttps) {
+            if (method !== 'purge' && method !== 'PURGE' && method !== 'link' && method !== 'LINK' && method !== 'unlink' && method !== 'UNLINK') {
+                return await this.sendAsHttps(url, method, baseURL, { params: options?.params || {}, data: options?.data || {}, headers: options?.headers || {} });
+            }
+        } else {
+            if (method !== 'TRACE' && method !== 'trace') {
+                return await axios.request(<AxiosRequestConfig>{
+                    url,
+                    method,
+                    baseURL,
+                    headers: options?.headers,
+                    params: options?.params,
+                    data: options?.data
+                });
+            }
         }
     }
 }
