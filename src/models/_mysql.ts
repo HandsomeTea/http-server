@@ -9,12 +9,15 @@ export default class Base {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public async excute(sql: string): Promise<any> {
+        if (!sql) {
+            return;
+        }
         return new Promise((resolve, reject) => {
             this.model.query(sql, (error, result) => {
                 if (error) {
-                    reject(error);
+                    return reject(error);
                 }
-                resolve(result);
+                return resolve(result);
             });
         });
     }
@@ -60,6 +63,8 @@ export default class Base {
 //                 phone VARCHAR(100) COMMENT '管理员手机号',
 //                 token VARCHAR(500) COMMENT '登录的token',
 //                 tokenExpireAt VARCHAR(100) COMMENT '登录token的到期时间',
+//                 createTime timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+//                 updateTime timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后一次修改时间',
 //                 PRIMARY KEY (account)
 //             )
 //             ENGINE=InnoDB DEFAULT CHARSET=utf8`
@@ -67,14 +72,14 @@ export default class Base {
 //         const admins = await this.find();
 
 //         if (admins.length === 0) {
-//             await this.insert({ name: 'admin', account: 'admin', password: 'admin123', phone: '' });
+//             await this.save({ name: 'admin', account: 'admin', password: 'admin123', phone: '' });
 //         }
 //     }
 
-//     async insert(user: AdminUserModel) {
+//     async save(user: AdminUserModel) {
 //         const { name, account, password, phone } = user;
 
-//         return await this.excute(`insert into ${this.tableName} values ("${name}", "${account}", "${base64Encode(password)}", "${phone || ''}", "", "")`);
+//         return await this.excute(`insert into ${this.tableName}(name, account, password, phone) values ("${name}", "${account}", "${base64Encode(password)}", "${phone || ''}")`);
 //     }
 
 //     async delete(option: { name?: string, account?: string, phone?: string }) {
@@ -124,14 +129,14 @@ export default class Base {
 //         }
 //     }
 
-//     async select(option?: {
+//     async find(option?: {
 //         account?: string
 //         name?: string,
 //         phone?: string
 //         password?: string
 //         token?: string
 //         keyword?: string
-//     }, page?: { skip?: number, limit?: number }, fields?: Array<keyof AdminUserModel>): Promise<Array<AdminUserModel>> {
+//     }, page?: { skip?: number, limit?: number }, sort?: { field?: keyof AdminUserModel, by?: 1 | -1 }, fields?: Array<keyof AdminUserModel>): Promise<Array<AdminUserModel>> {
 //         let limit = 10;
 //         let skip = 0;
 
@@ -149,8 +154,18 @@ export default class Base {
 //             fieldStr = fields.join(',');
 //         }
 
+//         let sortField = 'createTime';
+//         let sortBy = -1;
+
+//         if (sort?.field) {
+//             sortField = sort.field;
+//         }
+//         if (sort?.by && sort?.by !== -1) {
+//             sortBy = 1;
+//         }
+
 //         if (option?.keyword) {
-//             return await this.excute(`select ${fieldStr} from ${this.tableName} where concat(name, account, phone) like "%${option.keyword}%" limit ${limit} offset ${skip}`);
+//             return await this.excute(`select ${fieldStr} from ${this.tableName} where concat(name, account, phone) like "%${option.keyword}%" order by ${sortField} ${sortBy === -1 ? 'desc' : 'asc'} limit ${limit} offset ${skip}`);
 //         }
 //         const sqlOption: Array<string> = [];
 
@@ -174,7 +189,7 @@ export default class Base {
 //             sqlOption.push(`token="${option.token}"`);
 //         }
 
-//         return await this.excute(`select ${fieldStr} from ${this.tableName} ${this.optionString(sqlOption)} limit ${limit} offset ${skip}`);
+//         return await this.excute(`select ${fieldStr} from ${this.tableName} ${this.optionString(sqlOption)} order by ${sortField} ${sortBy === -1 ? 'desc' : 'asc'} limit ${limit} offset ${skip}`);
 //     }
 
 //     async count(option?: { name?: string, phone?: string, keyword?: string }): Promise<number> {

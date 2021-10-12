@@ -25,6 +25,10 @@ class Request {
     }
 
     _beforeSendToServer(config: AxiosRequestConfig) {
+        if (!config.headers) {
+            config.headers = {};
+        }
+
         if (!config.headers.Authorization) {
             config.headers.Authorization = JWT.sign();
         }

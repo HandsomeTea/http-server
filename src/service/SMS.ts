@@ -6,7 +6,7 @@ import { log, errorType } from '../configs';
 // import vendorTempService from './vendorCredentialTokenService';
 
 export default new class SMS {
-    private supportType: Set<string>
+    private supportType: Set<string>;
 
     constructor() {
         this.supportType = new Set(['Aliyun']);
