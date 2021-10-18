@@ -1,29 +1,17 @@
-// import schedule from 'node-schedule';
-
-import { Instances } from '../models';
+import { Instances } from '@/models';
 
 class InstanceService {
     constructor() {
-        this._init();
+        this.init();
     }
 
-    async _init() {
-        let _timer: NodeJS.Timeout | null = setInterval(() => {
-            if (global.isServerRunning) {
-                Instances.insertSystemInstance();
-                if (_timer) {
-                    clearInterval(_timer);
-                    _timer = null;
-                }
-            }
-        }, 1000);
-
+    private async init() {
         /**instance保活维护 */
-        setInterval(() => {
-            if (global.isServerRunning) {
-                Instances.updateSystemInstance();
-            }
-        }, global.IntervalUpdateInstance * 1000);
+        await Instances.insertSystemInstance();
+        setInterval(() => Instances.upsertSystemInstance(), global.IntervalUpdateInstance * 1000);
+
+        /** 删除无效的instance */
+        setInterval(() => Instances.deleteUnusedInstance(), global.IntervalCleanUnusedInstance * 1000);
     }
 
     /**
@@ -40,7 +28,7 @@ class InstanceService {
      * @param {function} fn 定时任务执行的函数
      * @memberof InstanceService
      */
-    // setInstanceTaskTiming(time: { second?: number, minute?: number, hour?: number, day?: number, month?: number, year?: number, dayOfWeek?: number }, fn: (fireDate: Date) => void) {
+    // private setInstanceTaskTiming(time: { second?: number, minute?: number, hour?: number, day?: number, month?: number, year?: number, dayOfWeek?: number }, fn: (fireDate: Date) => void) {
     //     const { second, minute, hour, day, month, year, dayOfWeek } = time;
     //     const _fn = (d?: number) => d === 0 ? '0' : !d ? '*' : `${d}`;
 

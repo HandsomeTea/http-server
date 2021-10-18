@@ -1,6 +1,7 @@
 import { SchemaDefinition } from 'mongoose';
-import BaseDb from './_mongodb';
 
+import BaseDb from './_mongodb';
+import Instances from './instance';
 class Session extends BaseDb {
     /**
      * Creates an instance of Session.
@@ -55,9 +56,7 @@ class Session extends BaseDb {
     /**
      * 删除用户的一个session
      */
-    async deleteUserSession(user: { userId: string, type?: 'guest' | 'system-user', tenantId?: string }, connectionId: string) {
-        const { userId } = user;
-
+    async deleteUserSession(userId: string, connectionId: string) {
         await this.updateOne({ _id: userId }, {
             $pull: {
                 connections: { id: connectionId }
@@ -66,16 +65,16 @@ class Session extends BaseDb {
     }
 
     /**
-     * 删除已经宕机的instance下的session
+     * 删除已经宕机的instance下的session，留下现在依然工作的instance下的session
      */
-    async deleteSessionBesidesAliveInstances(unusedInstances: Array<string>) {
-        if (unusedInstances.length > 0) {
-            await this.updateMany({}, {
-                $pull: {
-                    'connections': { instanceId: { $in: unusedInstances } }
-                }
-            });
-        }
+    async deleteUnusedSession() {
+        const aliveInstances = await Instances.getAliveInstance();
+
+        await this.updateMany({}, {
+            $pull: {
+                'connections': { instanceId: { $nin: aliveInstances } }
+            }
+        });
     }
 
     /**
@@ -88,7 +87,7 @@ class Session extends BaseDb {
     /**
      * 查询用户的session
      */
-    async findUserSession(userId: string, connectionId?: string): Promise<Array<SocketSession> | undefined> {
+    async findUserSession(userId: string, connectionId?: string): Promise<Array<SocketSession> | void> {
         const result = await this.findOne({ _id: userId, ...connectionId ? { 'connections.id': connectionId } : {} }) as SessionModel;
 
         if (result) {
@@ -98,7 +97,6 @@ class Session extends BaseDb {
                 return result.connections;
             }
         }
-        return;
     }
 }
 

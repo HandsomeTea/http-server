@@ -6,10 +6,10 @@ const RECONNET_TIME = 5000;
 export default new class Redis {
     public server!: ioredis.Redis;
     constructor() {
-        this._init();
+        this.init();
     }
 
-    private _init(): void {
+    private init(): void {
         this.server = new ioredis(process.env.REDIS_URL, {
             enableReadyCheck: true,
             retryStrategy(times) {

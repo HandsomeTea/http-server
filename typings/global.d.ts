@@ -7,9 +7,14 @@ declare global {
             WebsocketUserIdMap: Record<string, Set<MyWebSocket>>;
             WebsocketServer?: WebSocketServer;
             isServerRunning: boolean;
+            /** instance保活间隔,单位为秒 */
             IntervalUpdateInstance: number;
-            IntervalCheckEmptySession: number;
-            IntervalCleanSessionOfInstance: number;
+            /** 清空无效的instance间隔,单位为秒 */
+            IntervalCleanUnusedInstance: number;
+            /** 清空空的session记录间隔,单位为秒 */
+            IntervalCleanEmptySession: number;
+            /** 清空无效的session间隔,单位为秒 */
+            IntervalCleanUnusedSession: number;
             Exception: ExceptionConstructor
         }
     }

@@ -4,7 +4,7 @@ import { Sessions } from '../../models';
 
 export default (socket: MyWebSocket): void => {
     socket.on('close', () => {
-        const { attempt: { userId, form, userTenantId, connection: { id, device } }/*, pingInterval, pingCheckInterval*/ } = socket;
+        const { attempt: { userId, connection: { id, device } }/*, pingInterval, pingCheckInterval*/ } = socket;
 
         if (userId) {
             if (global.WebsocketUserIdMap[userId]) {
@@ -14,7 +14,7 @@ export default (socket: MyWebSocket): void => {
                 }
             }
 
-            Sessions.deleteUserSession({ userId: userId, type: form === 'guest' ? 'guest' : 'system-user', tenantId: userTenantId }, id);
+            Sessions.deleteUserSession(userId, id);
         }
 
         if (device) {

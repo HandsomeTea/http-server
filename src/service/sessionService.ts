@@ -1,27 +1,15 @@
-import { Instances, Sessions } from '../models';
+import { Sessions } from '@/models';
 
 class SessionService {
     constructor() {
-        this._init();
+        this.init();
     }
 
-    _init() {
-        setInterval(() => {
-            if (global.isServerRunning) {
-                Sessions.deleteEmptyData();
-            }
-        }, global.IntervalCheckEmptySession * 1000);
-
-        setInterval(async () => {
-            if (global.isServerRunning) {
-                const unusedInstance = await Instances.getUnusedInstance();
-
-                if (unusedInstance.length > 0) {
-                    await Sessions.deleteSessionBesidesAliveInstances(unusedInstance);
-                    await Instances.deleteUnusedInstance(unusedInstance);
-                }
-            }
-        }, global.IntervalCleanSessionOfInstance * 1000);
+    private init() {
+        /** 清空空的session记录 */
+        setInterval(() => Sessions.deleteEmptyData(), global.IntervalCleanEmptySession * 1000);
+        /** 清空无效的session */
+        setInterval(() => Sessions.deleteUnusedSession(), global.IntervalCleanUnusedSession * 1000);
     }
 
     async getSessionsByUserId(userId: string) {

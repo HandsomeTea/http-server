@@ -31,10 +31,10 @@ class MongoDB {
             system('mongodb').info(`reconnect on ${process.env.MONGO_URL} success and ready to use.`);
         });
 
-        this._init();
+        this.init();
     }
 
-    private async _init() {
+    private async init() {
         return await mongoconnect();
     }
 

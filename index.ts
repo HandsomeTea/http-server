@@ -1,7 +1,8 @@
 import crypto from 'crypto';
 
 process.env.INSTANCEID = crypto.randomBytes(24).toString('hex').substring(0, 17);
-global.IntervalUpdateInstance = 10; //instance保活间隔,单位为秒
+global.IntervalUpdateInstance = 10;
+global.IntervalCleanUnusedInstance = 30;
 import './startup';
 
 import { audit, log } from '@/configs';
@@ -30,8 +31,8 @@ app.set('port', port);
 const server = http.createServer(app);
 
 /**============================================socket 封装 ================================ start */
-global.IntervalCheckEmptySession = 30; //清空空的session数据间隔,单位为秒
-global.IntervalCleanSessionOfInstance = 30; //清空已经不存在的instance下的所有session,单位为秒
+global.IntervalCleanEmptySession = 30;
+global.IntervalCleanUnusedSession = 30;
 global.WebsocketUserIdMap = {};
 
 import { WebSocketServer } from './websocket';
