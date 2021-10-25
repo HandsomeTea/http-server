@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, Method as AxiosMethod } from 'axios';
-import got, { Method as GotMethod, ParseError } from 'got';
+import { Method as GotMethod } from 'got';
 import httpContext from 'express-http-context';
 import Agent from 'agentkeepalive';
 
@@ -120,91 +120,91 @@ class Request {
         throw new Exception(`request to ${target} error : no response.`);
     }
 
-    private async sendAsHttps(url: string, method: GotMethod, baseURL?: string, options?: httpArgument) {
-        try {
-            const response = await got(baseURL ? `${baseURL}${url}` : url, {
-                method,
-                responseType: 'json',
-                https: {
-                    rejectUnauthorized: false
-                },
-                headers: {
-                    ...options?.headers
-                },
-                ...method.toLocaleLowerCase() === 'get' ? {} : {
-                    json: {
-                        ...options?.data
-                    }
-                },
-                searchParams: {
-                    ...options?.params
-                },
-                hooks: {
-                    beforeRequest: [
-                        option => {
-                            if (!option.headers.Authorization) {
-                                option.headers.Authorization = JWT.sign();
-                            }
+    // private async sendAsHttps(url: string, method: GotMethod, baseURL?: string, options?: httpArgument) {
+    //     try {
+    //         const response = await got(baseURL ? `${baseURL}${url}` : url, {
+    //             method,
+    //             responseType: 'json',
+    //             https: {
+    //                 rejectUnauthorized: false
+    //             },
+    //             headers: {
+    //                 ...options?.headers
+    //             },
+    //             ...method.toLocaleLowerCase() === 'get' ? {} : {
+    //                 json: {
+    //                     ...options?.data
+    //                 }
+    //             },
+    //             searchParams: {
+    //                 ...options?.params
+    //             },
+    //             hooks: {
+    //                 beforeRequest: [
+    //                     option => {
+    //                         if (!option.headers.Authorization) {
+    //                             option.headers.Authorization = JWT.sign();
+    //                         }
 
-                            if (!option.headers['x-b3-spanid']) {
-                                option.headers['x-b3-spanid'] = traceId();
-                            }
+    //                         if (!option.headers['x-b3-spanid']) {
+    //                             option.headers['x-b3-spanid'] = traceId();
+    //                         }
 
-                            if (!option.headers['x-b3-traceid']) {
-                                option.headers['x-b3-traceid'] = httpContext.get('traceId') || traceId();
-                            }
+    //                         if (!option.headers['x-b3-traceid']) {
+    //                             option.headers['x-b3-traceid'] = httpContext.get('traceId') || traceId();
+    //                         }
 
-                            if (!option.headers['x-b3-parentspanid']) {
-                                option.headers['x-b3-parentspanid'] = httpContext.get('spanId');
-                            }
+    //                         if (!option.headers['x-b3-parentspanid']) {
+    //                             option.headers['x-b3-parentspanid'] = httpContext.get('spanId');
+    //                         }
 
-                            if (!option.headers['x-tenantId'] && !option.headers['x-tenantid']) {
-                                option.headers['x-tenantId'] = httpContext.get('tenantId') || '';
-                            }
+    //                         if (!option.headers['x-tenantId'] && !option.headers['x-tenantid']) {
+    //                             option.headers['x-tenantId'] = httpContext.get('tenantId') || '';
+    //                         }
 
-                        }
-                    ]
-                }
-            });
-            const data = <any>(response.body); // eslint-disable-line @typescript-eslint/no-explicit-any
+    //                     }
+    //                 ]
+    //             }
+    //         });
+    //         const data = <any>(response.body); // eslint-disable-line @typescript-eslint/no-explicit-any
 
-            log(`request-to-${baseURL ? baseURL : url}`).debug(data);
+    //         log(`request-to-${baseURL ? baseURL : url}`).debug(data);
 
-            return Promise.resolve(data);
-        } catch (e) {
-            const error = e as ParseError;
+    //         return Promise.resolve(data);
+    //     } catch (e) {
+    //         const error = e as ParseError;
 
-            if (error.response) {
-                const { /*statusCode, */body } = error.response;
+    //         if (error.response) {
+    //             const { /*statusCode, */body } = error.response;
 
-                log(`request-to-${baseURL ? baseURL : url}`).error(body);
-                throw new Exception(JSON.stringify(body));
-            }
+    //             log(`request-to-${baseURL ? baseURL : url}`).error(body);
+    //             throw new Exception(JSON.stringify(body));
+    //         }
 
-            log(`request-to-${baseURL ? baseURL : url}`).error(error);
-            throw new Exception(`request to (${method}): ${baseURL ? baseURL + url : url} error : no response.`);
-        }
-    }
+    //         log(`request-to-${baseURL ? baseURL : url}`).error(error);
+    //         throw new Exception(`request to (${method}): ${baseURL ? baseURL + url : url} error : no response.`);
+    //     }
+    // }
 
     async send(url: string, method: GotMethod | AxiosMethod, baseURL?: string, options?: httpArgument) {
-        const isHttps = (baseURL || url).includes('https');
+        // const isHttps = (baseURL || url).includes('https');
 
-        if (isHttps) {
-            if (method !== 'purge' && method !== 'PURGE' && method !== 'link' && method !== 'LINK' && method !== 'unlink' && method !== 'UNLINK') {
-                return await this.sendAsHttps(url, method, baseURL, { params: options?.params || {}, data: options?.data || {}, headers: options?.headers || {} });
-            }
-        } else {
-            if (method !== 'TRACE' && method !== 'trace') {
-                return await axios.request(<AxiosRequestConfig>{
-                    url,
-                    method,
-                    baseURL,
-                    headers: options?.headers,
-                    params: options?.params,
-                    data: options?.data
-                });
-            }
-        }
+        // if (isHttps) {
+        //     if (method !== 'purge' && method !== 'PURGE' && method !== 'link' && method !== 'LINK' && method !== 'unlink' && method !== 'UNLINK') {
+        //         return await this.sendAsHttps(url, method, baseURL, { params: options?.params || {}, data: options?.data || {}, headers: options?.headers || {} });
+        //     }
+        // } else {
+        // if (method !== 'TRACE' && method !== 'trace') {
+        return await axios.request(<AxiosRequestConfig>{
+            url,
+            method,
+            baseURL,
+            headers: options?.headers,
+            params: options?.params,
+            data: options?.data
+        });
+        // }
+        // }
     }
 }
 
