@@ -7,14 +7,12 @@ import { errorType } from '../configs/http.error.type';
  */
 export default (req: Request, res: Response, next: NextFunction): void => {
     if (req.headers.authorization) {
-        const _array = req.headers.authorization.split(' ');
-        const authToken = _array[1];
-        const authType = _array[0];
-        const result = JWT.verify(authToken);
+        const [authType, authToken] = req.headers.authorization.split(' ');
 
-        if (authType !== 'JWT' || result.allowed === false) {
-            res.status(400).send(`Bad request(wrong Authorization)! Refused. ${result.info}`);
+        if (authType !== 'JWT') {
+            res.status(400).send('Bad request(wrong Authorization)! Refused.');
         } else {
+            JWT.verify(authToken);
             next();
         }
     } else {
