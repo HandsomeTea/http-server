@@ -20,7 +20,7 @@ class MongoDB {
     constructor() {
         // 初始化操作
         this.server.once('connected', () => {// 连接成功
-            system('mongodb').info(`connect on ${process.env.MONGO_URL} success and ready to use.`);
+            system('mongodb').info(`mongodb connected on ${process.env.MONGO_URL} success and ready to use.`);
         });
 
         this.server.on('disconnected', () => {// 连接失败或中断

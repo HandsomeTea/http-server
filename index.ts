@@ -8,7 +8,7 @@ import './startup';
 import { audit, log } from '@/configs';
 
 process.on('unhandledRejection', reason => {
-    // 处理没有catch的promiss，第二个参数即为promiss
+    // 处理没有catch的promise，第二个参数即为promise
     log('SYSTEM').fatal(reason);
     audit('SYSTEM').fatal(reason);
 });
@@ -26,7 +26,6 @@ const port = ((val: string): number => {
 import http from 'http';
 import app from '@/routes/app';
 
-/**Get port from environment and store in Express. */
 app.set('port', port);
 const server = http.createServer(app);
 
@@ -65,19 +64,31 @@ import mysql from '@/tools/mysql';
  * 比如向其他服务通知当前服务已经停止
  */
 const willShutDown = async () => {
-    //
+    // do something when shutdown, when process is killed, this function is unused.
 };
 
 /**
- * 健康检查的钩子函数
+ * 服务是否正常的健康检查
  */
-const healthCheck = async () => {
-    const result = mongodb.status === true && redis.status === true && mysql.status === true;
+const isHealth = async () => {
+    let result = true;
 
-    if (!result) {
-        log('SYSREM_STARTUP').fatal('system is shut down.');
+    if (!mongodb.status) {
+        result = false;
+        log('SYSREM_STARTUP').error('mongodb connection is unusual');
     }
-    log('SYSREM_STARTUP').debug('system is normal.');
+    if (!redis.status) {
+        result = false;
+        log('SYSREM_STARTUP').error('redis connection is unusual');
+    }
+    if (!mysql.status) {
+        result = false;
+        log('SYSREM_STARTUP').error('mysql connection is unusual');
+    }
+    if (result) {
+        log('SYSREM_STARTUP').debug('system is normal.');
+    }
+    return result;
 };
 
 /** 健康检查机制 */
@@ -86,7 +97,14 @@ import { createTerminus } from '@godaddy/terminus';
 createTerminus(server, {
     signal: 'SIGINT',
     healthChecks: {
-        '/healthcheck': healthCheck
+        '/healthcheck': async () => {
+            if (!await isHealth()) {
+                throw new Error();
+            }
+            // do something to improve server is normal
+            // if normal, no need to do anything like return, we will send a 200 code with  { status: "ok" }
+            // if not normal, you can throw a Error, we will send a 503 code with  { status: "error" }
+        }
     },
     onSignal: willShutDown
 });
@@ -140,27 +158,16 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 /** 服务开始监听请求 */
-server.listen(port, '0.0.0.0', async () => {
-    const _check = setInterval(() => {
-        const result = mongodb.status === true && redis.status === true && mysql.status === true;
-
-        if (result) {
-            global.isServerRunning = true;
-            if (process.send) {
-                process.send('ready');
-            }
-            clearInterval(_check);
-            log('SYSREM_STARTUP').info(`api document running on http://127.0.0.1:${port}.`);
-        } else {
-            if (!mongodb.status) {
-                log('SYSREM_STARTUP').error('mongodb connection is unusual');
-            }
-            if (!redis.status) {
-                log('SYSREM_STARTUP').error('redis connection is unusual');
-            }
-            if (!mysql.status) {
-                log('SYSREM_STARTUP').error('mysql connection is unusual');
-            }
+server.listen(port, '0.0.0.0', () => {
+    const _check = setInterval(async () => {
+        if (!await isHealth()) {
+            return;
         }
+        global.isServerRunning = true;
+        if (process.send) {
+            process.send('ready');
+        }
+        clearInterval(_check);
+        log('SYSREM_STARTUP').info(`api document running on http://127.0.0.1:${port}.`);
     }, 1000);
 });

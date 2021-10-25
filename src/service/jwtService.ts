@@ -1,3 +1,4 @@
+import { errorType } from '@/configs';
 import jwt from 'jsonwebtoken';
 
 export default new class JWT {
@@ -12,7 +13,7 @@ export default new class JWT {
 
     /**
      * 生成JWT
-     * 一般携带在heep请求headers的Authorization字段中
+     * 一般携带在http请求headers的Authorization字段中
      * @returns
      * @memberof JWT
      */
@@ -31,34 +32,18 @@ export default new class JWT {
      * 验证JWT
      */
     verify(jsonWebToken: string) {
-        let data = null;
-
         try {
-            data = jwt.verify(jsonWebToken, this.appSecert, {
+            const result = jwt.verify(jsonWebToken, this.appSecert, {
                 issuer: this.app,
                 subject: this.appId,
                 algorithms: ['HS256']
-            }) as { exp: number };
+            });
+
+            if (typeof result !== 'string' && result.exp && result.exp >= Date.now() / 1000 + 60) {
+                throw new Exception('Server Check Failed by JWT, Expired!', errorType.UNAUTHORIZED);
+            }
         } catch (err) {
-            return {
-                allowed: false,
-                // info: `${err.name}: ${JSON.stringify(err.message)}`
-                info: ''
-            };
+            throw new Exception('invalid JWT string!', errorType.UNAUTHORIZED);
         }
-
-        if (data.exp >= Date.now() / 1000 + 60) {
-            return {
-                allowed: false,
-                // info: 'Server Check Failed by Authorization. Timeout!'
-                info: ''
-            };
-        }
-
-        return {
-            allowed: true,
-            // info: 'Server Check Sucess by Authorization.'
-            info: ''
-        };
     }
 };

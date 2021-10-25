@@ -3,9 +3,7 @@ import { system } from '@/configs';
 
 export default new class MySQL {
     public server: Connection;
-    private isConnected: boolean;
     constructor() {
-        this.isConnected = false;
         const mysqlAddress = process.env.MYSQL_URL;
 
         if (!mysqlAddress) {
@@ -17,23 +15,21 @@ export default new class MySQL {
     }
 
     private init() {
-        this.server.connect((error, result) => {
+        this.server.connect(error => {
             if (error) {
                 return system('mysql').error(error);
             }
 
-            this.isConnected = true;
-            system('mysql').info(`mysql connected on ${process.env.MYSQL_URL} success and ready to use: ${JSON.stringify(result)}`);
+            system('mysql').info(`mysql connected on ${process.env.MYSQL_URL} success and ready to use.`);
         });
     }
 
     public get status() {
-        return this.isConnected;
+        return this.server.state === 'authenticated';
     }
 
     public close() {
         return this.server.end(() => {
-            this.isConnected = false;
             system('mysql').error('all connections in the pool have ended');
         });
     }

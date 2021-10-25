@@ -15,6 +15,6 @@ JWT_APP_SECERT: 'jwtSecret'
 
 
 # service 以下项项目启动后修改无效
-REDIS_URL: 'redis://192.168.1.167:6379'
+REDIS_URL: 'redis://127.0.0.1:6379'
 MONGO_URL: 'mongodb://localhost:27017/test'
 MYSQL_URL: 'mysql://root:root@localhost:3306/test'

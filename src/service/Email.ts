@@ -1,5 +1,5 @@
-import nodemailer from 'nodemailer';
-import Mail from 'nodemailer/lib/mailer/index';
+import nodemailer, { Transporter } from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 // import fs from 'fs';
 // import ejs from 'ejs';
 // import path from 'path';
@@ -10,7 +10,7 @@ import { randomString, isURL } from '../utils';
 // import redisService from './redisService';
 
 class Email {
-    private service: null | Mail;
+    private service: null | Transporter<SMTPTransport.SentMessageInfo>;
     private host: null | string;
     private port: null | number;
     private authUser: null | string;
@@ -83,7 +83,7 @@ class Email {
      * @returns
      * @memberof Email
      */
-    private async send(to: string, subject: string, html: string) {
+    private async send(to: string, subject: string, html: string): Promise<SMTPTransport.SentMessageInfo | undefined> {
         await this.updateServer();
 
         if (await this.testEmailService()) {
@@ -94,6 +94,7 @@ class Email {
                 throw new Exception(`email send field to ${to}. maybe the email service is not configured correctly.`, errorType.INVALID_EMAIL_SERVER_CONFIG);
             }
         }
+        return;
     }
 
     /**
@@ -111,6 +112,9 @@ class Email {
         // const sendResult = await this.send(address, '超视云-邮箱验证码', ejs.render(templete, { code, type: detailType, title: '超视云-邮箱验证码' }));
         const sendResult = await this.send(address, '超视云-邮箱验证码', 'html字符串');
 
+        if (!sendResult) {
+            return;
+        }
         log('send-forget-password-email').debug(sendResult);
         // await vendorTempService.storeSendEmailCodeCredential(code.toLowerCase(), detailType, { username, email: address, tenantId });
 

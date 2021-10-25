@@ -23,7 +23,7 @@ export default new class Redis {
         });
 
         this.server.on('connect', () => {
-            system('redis').info(`connect on ${process.env.REDIS_URL} success and ready to use.`);
+            system('redis').info(`redis connected on ${process.env.REDIS_URL} success and ready to use.`);
         });
 
         this.server.on('error', error => {
@@ -32,7 +32,7 @@ export default new class Redis {
     }
 
     public get status(): boolean {
-        return this.server?.status === 'ready' || this.server?.status === 'connecting';
+        return this.server?.status === 'ready';
     }
 
     public async close(): Promise<'OK'> {
