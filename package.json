@@ -12,7 +12,7 @@
     "pkg": "./node_modules/.bin/pkg --out-path ./build .",
     "eslint": "./node_modules/.bin/eslint ./ --fix",
     "test": "./node_modules/.bin/mocha",
-    "prepare-husky": "husky install",
+    "husky-init": "husky install",
     "testunit": "node -v"
   },
   "repository": {

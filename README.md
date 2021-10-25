@@ -2,83 +2,40 @@
 
 
 
-# http(s)-server
+# http-server
 
-## 概述
-- 个人瞎搞
-
-
-
-## res
-
-- 封装了http的返回格式
-  - `success`
-  - `failure`
-  - `notFound`
-  - `serverError`
-  - `noPermission`
-
-## 数据库
-
-- 封装了mongodb
-- 预留了多租户的支持
+​			工作中遇到了很多常用的封装和工具，将这些代码积累起来，帮助自己更好的编程，并持续升级和更新。
 
 
 
-## redis
+## 数据存储
 
-- 封装了redis
+- 封装了mongodb的连接和使用
+- 封装了mysql的的连接和使用
+- 封装了redis的的连接和使用
 
 
 
 ## socket
 
 - 封装了socket长连接服务
+
 - 封装了socket的中间件
-- 可向一个或多个客户端发送消息
+
+- 封装了jsonrpc请求
+
+  
+
+## 日志
+
+- 封装了log4js，支持nodejs cluster
 
 
 
-## Dockerfile
+## http相关
 
-
-
-
-
-## log
-
-### 日志类型
-- `log`：日常开发打日志使用
-- `trace`：服务器间的跟踪日志
-- `audit`：操作日志，存储在项目根目录的`.log`文件中
-- `system`：系统日志使用
-
-
-
-### 日志级别控制
-
-- 从process.env中获取
-
-
-
-
-
-## jwt鉴权
-
-
-
-
-
-## pm2
-
-- 单例模式：`npm run pm2`
-- 集群模式：`npm run cluster`
-
-
-
-## api文档
-
-- `npm run doc`，访问3000端口
+- 封装了JWT鉴权
+- 集成了api文档的自动生成
 
 
 
@@ -88,26 +45,16 @@
 
 
 
-## debug
+## 开发和部署
 
-- vscode调试文件
-
-
-
-## 依赖包升级
-
-- `npm run upgrade`
+- typescript
+- eslint
+- husky
+- pm2
+- docker
 
 
 
-## eslint语法检查
+## 测试
 
-- `npm run fix`
-
-
-
-## 性能测试
-
-- 压力测试
-- 异常测试
-- 测试覆盖率
+- 待集成
