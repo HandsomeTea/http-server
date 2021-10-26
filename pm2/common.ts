@@ -5,7 +5,7 @@ export default {
     name: 'http-server',
     script: 'server.js',
     watch: (() => {
-        const _list = ['../conf', '../middlewares', '../routes', '../service', '../startup', '../utils', '../app.js', '../server.js'];
+        const _list = ['../src', '../startup', '../websocket.ts', '../index.ts'];
 
         return _list.map(_path => {
             return path.resolve(__dirname, _path);
