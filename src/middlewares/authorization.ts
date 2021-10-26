@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { JWT } from '../service';
-import { errorType } from '../configs/http.error.type';
+import { JWT } from '@/service';
+import { errorType } from '@/configs';
 
 /**
  * 验证json web token

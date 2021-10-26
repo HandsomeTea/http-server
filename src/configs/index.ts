@@ -1,6 +1,6 @@
-import { trace, traceId, log, audit, system, updateOrCreateLogInstance } from './logger.config';
-import { setENV } from './env.config';
-import { errorType, errorCodeMap } from './http.error.type';
+import { trace, traceId, log, audit, system, updateOrCreateLogInstance } from './logger';
+import { setENV } from './env';
+import { errorType, errorCodeMap } from './error';
 
 
 export {

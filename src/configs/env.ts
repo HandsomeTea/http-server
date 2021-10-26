@@ -1,6 +1,6 @@
 import yaml from 'js-yaml';
 import fs from 'fs';
-import { system, updateOrCreateLogInstance } from './logger.config';
+import { system, updateOrCreateLogInstance } from './logger';
 
 /**
  * 检查环境变量设置的值

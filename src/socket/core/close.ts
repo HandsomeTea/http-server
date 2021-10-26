@@ -1,6 +1,6 @@
 import { MyWebSocket } from '../../../websocket';
-import { log } from '../../configs';
-import { Sessions } from '../../models';
+import { log } from '@/configs';
+import { Sessions } from '@/models';
 
 export default (socket: MyWebSocket): void => {
     socket.on('close', () => {

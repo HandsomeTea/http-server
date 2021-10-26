@@ -133,7 +133,7 @@ export const traceId = (): string => {
     let _trace = '';
 
     for (let i = 0; i < 16; i += 1) {
-        const rand = Math.floor(Math.random() * 16);
+        const rand = Math.floor(Math.random() * digits.length);
 
         _trace += digits[rand];
     }

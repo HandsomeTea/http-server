@@ -1,7 +1,7 @@
 import WS from 'ws';
 import _ from 'underscore';
 
-import { log, errorType } from '../configs';
+import { log, errorType } from '@/configs';
 import { MyWebSocket } from '../../websocket';
 
 export default new class WebsocketService {

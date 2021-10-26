@@ -3,7 +3,7 @@ import { Method as GotMethod } from 'got';
 import httpContext from 'express-http-context';
 import Agent from 'agentkeepalive';
 
-import { traceId, log } from '../configs';
+import { traceId, log } from '@/configs';
 import JWT from './jwtService';
 
 class Request {

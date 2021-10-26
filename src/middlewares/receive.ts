@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import httpContext from 'express-http-context';
 
-import { traceId, trace } from '../configs';
+import { traceId, trace } from '@/configs';
 
 const filteNotAllown = (str?: string): string | void => {
     if (str) {

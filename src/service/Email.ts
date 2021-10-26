@@ -4,8 +4,8 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 // import ejs from 'ejs';
 // import path from 'path';
 
-import { log, errorType } from '../configs';
-import { randomString, isURL } from '../utils';
+import { log, errorType } from '@/configs';
+import { randomString, isURL } from '@/utils';
 // import vendorTempService from './vendorCredentialTokenService';
 // import redisService from './redisService';
 

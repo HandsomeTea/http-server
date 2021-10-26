@@ -1,7 +1,7 @@
 import aliSMS from 'ali-sms';
 
-import { randomString, isPhone } from '../utils';
-import { log, errorType } from '../configs';
+import { randomString, isPhone } from '@/utils';
+import { log, errorType } from '@/configs';
 // import redisService from './redisService';
 // import vendorTempService from './vendorCredentialTokenService';
 

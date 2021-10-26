@@ -1,4 +1,4 @@
-import { log, errorType } from '../../configs';
+import { log, errorType } from '@/configs';
 import middleware from '../middleware';
 import * as methods from './method-map';
 import { MyWebSocket } from '../../../websocket';

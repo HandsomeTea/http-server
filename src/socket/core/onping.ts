@@ -1,4 +1,4 @@
-import { log } from '../../configs';
+import { log } from '@/configs';
 import { MyWebSocket } from '../../../websocket';
 
 export default (socket: MyWebSocket): void => {

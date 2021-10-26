@@ -1,6 +1,6 @@
-import { errorType } from '../configs';
+import { errorType } from '@/configs';
 
-type CheckType = StringConstructor | ArrayConstructor | ObjectConstructor | NumberConstructor
+type CheckType = StringConstructor | ArrayConstructor | ObjectConstructor | NumberConstructor | BooleanConstructor
 
 interface CheckRuleType {
     type: CheckType,
@@ -9,6 +9,10 @@ interface CheckRuleType {
     msg?: string
     error?: string
 }
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const dealCheckType = (param: CheckType) => typeof param() !== 'object' ? typeof param() : Array.isArray(param()) ? 'array' : typeof param();
+const dealParamType = (param: unknown) => typeof param !== 'object' ? typeof param : Array.isArray(param) ? 'array' : typeof param;
 
 /**
  * 检查数据的合法性
@@ -19,14 +23,14 @@ export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRu
         throw new Exception(msg || `Invalid arguments: ${param}`, error);
     }
 
-    if (type === String || type === Array || type === Object || type === Number) {
+    if (type === String || type === Array || type === Object || type === Number || type === Boolean) {
         /**
          * example:
          * check(x, String, false);
          */
 
         if (param.constructor !== type) {
-            throw new Exception(msg || `Invalid arguments: require ${typeof new type()}, but get ${param} is type of ${typeof param}`, error);
+            throw new Exception(msg || `Invalid arguments: require ${dealCheckType(type)}, but get ${JSON.stringify(param)} is ${dealParamType(param)}`, error);
         }
 
         if (!allowedEmpty) {
@@ -48,11 +52,11 @@ export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRu
         }
     } else {
         if (param.constructor !== Object) {
-            throw new Exception(msg || `Invalid arguments: require object, but get ${typeof param}`, error);
+            throw new Exception(msg || `Invalid arguments: require object, but get ${dealParamType(param)}`, error);
         }
 
         for (const key in type) {
-            if (type[key] === String || type[key] === Array || type[key] === Object || type[key] === Number) {
+            if (type[key] === String || type[key] === Array || type[key] === Object || type[key] === Number || type[key] === Boolean) {
                 /**
                  * example:
                  *  check(x, {
@@ -60,8 +64,8 @@ export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRu
                     });
                  */
 
-                if (param[key] && param[key].constructor !== type[key]) {
-                    throw new Exception(`Invalid arguments: require object key "${key}" is ${typeof new type[key]()}, but get ${param[key]} is type of ${typeof param[key]}`, errorType.INVALID_ARGUMENTS);
+                if (typeof param[key] !== 'undefined' && param[key].constructor !== type[key]) {
+                    throw new Exception(`Invalid arguments: require object key "${key}" is ${dealCheckType(type[key])}, but get ${JSON.stringify(param[key])} is ${dealParamType(param[key])}`, errorType.INVALID_ARGUMENTS);
                 }
             } else {
                 /**
@@ -72,14 +76,14 @@ export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRu
                  */
                 const rule = type[key] as CheckRuleType;
 
-                if (rule.type === String || rule.type === Array || rule.type === Object || rule.type === Number) {
+                if (rule.type === String || rule.type === Array || rule.type === Object || rule.type === Number || rule.type === Boolean) {
                     if (rule.required === true && (param[key] === null || param[key] === undefined)) {
                         throw new Exception(rule.msg || `Invalid arguments: object key "${key}" is required.`, rule.error || errorType.INVALID_ARGUMENTS);
                     }
 
                     if (param[key] !== null && param[key] !== undefined) {
                         if (param[key].constructor !== rule.type) {
-                            throw new Exception(rule.msg || `Invalid arguments: require object key "${key}" is ${typeof new rule.type()}, but get ${typeof param[key]}`, rule.error || errorType.INVALID_ARGUMENTS);
+                            throw new Exception(rule.msg || `Invalid arguments: require object key "${key}" is ${dealCheckType(rule.type)}, but get ${JSON.stringify(param[key])} is ${dealParamType(param[key])}`, rule.error || errorType.INVALID_ARGUMENTS);
                         }
 
                         if (rule.notEmpty === true) {

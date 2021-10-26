@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { _Users } from '../../../models';
+import { _Users } from '@/models';
 
 const router = express.Router();
 

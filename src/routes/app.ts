@@ -42,7 +42,7 @@ import {
     acceptRequestHandle,
     successResponseHandle,
     errorHandle
-} from '../middlewares';
+} from '@/middlewares';
 
 /**自定义中间件 */
 // app.use(JWTCheckHandle);
