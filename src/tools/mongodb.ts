@@ -46,7 +46,7 @@ class MongoDB {
         return mongoose.Schema;
     }
 
-    public get status() {
+    public get isUseful() {
         return this.server.readyState === 1;
     }
 

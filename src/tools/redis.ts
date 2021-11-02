@@ -31,7 +31,7 @@ export default new class Redis {
         });
     }
 
-    public get status(): boolean {
+    public get isUseful() {
         return this.server?.status === 'ready';
     }
 

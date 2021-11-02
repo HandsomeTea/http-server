@@ -73,15 +73,15 @@ const willShutDown = async () => {
 const isHealth = async () => {
     let result = true;
 
-    if (!mongodb.status) {
+    if (!mongodb.isUseful) {
         result = false;
         log('SYSREM_STARTUP').error('mongodb connection is unusual');
     }
-    if (!redis.status) {
+    if (!redis.isUseful) {
         result = false;
         log('SYSREM_STARTUP').error('redis connection is unusual');
     }
-    if (!mysql.status) {
+    if (!mysql.isUseful) {
         result = false;
         log('SYSREM_STARTUP').error('mysql connection is unusual');
     }

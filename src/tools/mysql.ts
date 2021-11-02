@@ -24,7 +24,7 @@ export default new class MySQL {
         });
     }
 
-    public get status() {
+    public get isUseful() {
         return this.server.state === 'authenticated';
     }
 
