@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { _Users } from '@/models';
+import User from '../../../models/_mysql';
 
 const router = express.Router();
 
@@ -22,13 +23,15 @@ const router = express.Router();
  */
 router.get('/search', asyncHandler(async (_req, res) => {
     // log('HTTP_REQUEST').error('test error log.');
-    const User = new _Users('t1');
+    // const User = new _Users('t1');
 
-    await User.create({
-        _id: '',
-        name: 'test1'
-    });
-    return res.success();
+    // await User.create({
+    //     _id: '',
+    //     name: 'test1'
+    // });
+
+    // console.log(await User.update<TestUser>({ where: { _id: 132 } }, { account: 'newaccount' }));
+    return res.success(await User.find());
     // throw new Exception(new Error('cuo wu'));
     // throw new Exception(new Exception('cuo wu'));
 }));

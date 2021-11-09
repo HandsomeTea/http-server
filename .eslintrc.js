@@ -32,7 +32,8 @@ module.exports = {
         InstanceModel: 'readonly',
         SessionModel: 'readonly',
         SocketSession: 'readonly',
-        Device: 'readonly'
+        Device: 'readonly',
+        TestUser: true
     },
     rules: {
         '@typescript-eslint/no-explicit-any': 2,

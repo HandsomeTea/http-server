@@ -54,7 +54,13 @@ interface SessionModel {
     connections: Array<SocketSession>
 }
 
-type DBModel = UserModel | SessionModel | InstanceModel
+interface TestUser {
+    _id: number
+    account: string
+}
+
+
+type DBModel = UserModel | SessionModel | InstanceModel | TestUser
 
 type progressConfigParams = 'NODE_ENV' | 'SERVER_NAME' | 'TRACE_LOG_LEVEL' | 'DEV_LOG_LEVEL' | 'AUDIT_LOG_LEVEL' | 'JWT_APP_NAME' | 'JWT_APP_ID' | 'JWT_APP_SECERT' | 'REDIS_URL' |
     'MONGO_URL'

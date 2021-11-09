@@ -1,36 +1,50 @@
-import mysql, { Connection } from 'mysql';
+import { Sequelize } from 'sequelize';
+import { parse } from 'url';
 import { system } from '@/configs';
 
 export default new class MySQL {
-    public server: Connection;
+    public server: Sequelize;
+    private isReady = false;
     constructor() {
         const mysqlAddress = process.env.MYSQL_URL;
 
         if (!mysqlAddress) {
             throw new Exception(`mysql connect address is required but get ${mysqlAddress}`);
         }
-        this.server = mysql.createConnection(mysqlAddress);
+        const mysqlConfig = parse(mysqlAddress) as { auth: string, hostname: string, port: string, pathname: string };
+        const [username, password] = mysqlConfig.auth.split(':');
+
+        this.server = new Sequelize({
+            username,
+            password,
+            host: mysqlConfig.hostname,
+            port: parseInt(mysqlConfig.port),
+            database: mysqlConfig.pathname.replace('/', ''),
+            dialect: 'mysql',
+            omitNull: true,
+            timezone: '+08:00',
+            logging: sql => system('mysql-command').debug(sql)
+        });
 
         this.init();
     }
 
     private init() {
-        this.server.connect(error => {
-            if (error) {
-                return system('mysql').error(error);
-            }
-
+        this.server.authenticate().then(() => {
+            this.isReady = true;
             system('mysql').info(`mysql connected on ${process.env.MYSQL_URL} success and ready to use.`);
+        }).catch(error => {
+            system('mysql').error(error);
         });
     }
 
     public get isUseful() {
-        return this.server.state === 'authenticated';
+        return this.isReady;
     }
 
     public close() {
-        return this.server.end(() => {
-            system('mysql').error('all connections in the pool have ended');
-        });
+        this.isReady = false;
+        this.server.close();
+        system('mysql').error('all connections in the pool have ended');
     }
 };
