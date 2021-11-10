@@ -2,11 +2,11 @@ import { ModelAttributes, ModelCtor, DataTypes, Model, ModelOptions, CreateOptio
 import MySQL from '@/tools/mysql';
 
 // export default
-class Base {
+class Base<TM>{
     public tableName: string;
-    private model: ModelCtor<Model<DBModel>>;
+    private model: ModelCtor<Model<TM>>;
     private modelIsSync: boolean;
-    constructor(tableName: string, tableStruct: ModelAttributes<Model<DBModel>>, option?: ModelOptions) {
+    constructor(tableName: string, tableStruct: ModelAttributes<Model<TM>>, option?: ModelOptions) {
         this.tableName = tableName;
         this.model = MySQL.server.define(this.tableName, tableStruct, {
             ...option,
@@ -24,43 +24,43 @@ class Base {
         return this.model;
     }
 
-    public async insert(data: DBModel, option?: CreateOptions): Promise<DBModel> {
-        return await (await this.getModelInstance()).create(data, option) as unknown as DBModel;
+    public async insert(data: TM, option?: CreateOptions): Promise<TM> {
+        return await (await this.getModelInstance()).create(data, option) as unknown as TM;
     }
 
-    public async delete(option: DestroyOptions<DBModel>) {
+    public async delete(option: DestroyOptions<TM>) {
         return await (await this.getModelInstance()).destroy(option);
     }
 
-    public async update<TableModel>(query: UpdateOptions<DBModel>, set: { [key in keyof TableModel]?: TableModel[key] }): Promise<[number]> {
+    public async update(query: UpdateOptions<TM>, set: { [key in keyof TM]?: TM[key] }): Promise<[number]> {
         return await (await this.getModelInstance()).update(set, query) as unknown as [number];
     }
 
-    // public async upsert(query: UpsertOptions<DBModel>, set: DBModel): Promise<[number]> {
+    // public async upsert(query: UpsertOptions<TM>, set: TM): Promise<[number]> {
     //     return await (await this.getModelInstance()).upsert(set, query) as unknown as [number];
     // }
 
-    public async find(query?: FindOptions<DBModel>) {
+    public async find(query?: FindOptions<TM>) {
         return await (await this.getModelInstance()).findAll(query);
     }
 
-    public async findOne(query: FindOptions<DBModel>) {
+    public async findOne(query: FindOptions<TM>) {
         return await (await this.getModelInstance()).findOne(query);
     }
 
-    public async findById(id: Identifier, option?: Omit<FindOptions<DBModel>, 'where'>) {
+    public async findById(id: Identifier, option?: Omit<FindOptions<TM>, 'where'>) {
         if (id) {
             return await (await this.getModelInstance()).findByPk(id, option);
         }
         return null;
     }
 
-    public async paging(query: FindAndCountOptions<DBModel>) {
+    public async paging(query: FindAndCountOptions<TM>) {
         return await (await this.getModelInstance()).findAndCountAll(query);
     }
 }
 
-export default new class User extends Base {
+export default new class User extends Base<TestUser> {
     constructor() {
         const model: ModelAttributes<Model<TestUser>> = {
             _id: {

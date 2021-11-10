@@ -13,7 +13,7 @@ class SessionService {
     }
 
     async getSessionsByUserId(userId: string) {
-        const userSession = await Sessions.findById(userId) as SessionModel;
+        const userSession = await Sessions.findById(userId);
 
         if (userSession) {
             return userSession.connections;

@@ -1,9 +1,9 @@
 import { SchemaDefinition, ValidateOpts } from 'mongoose';
 import BaseDB from './_mongodb';
 
-export default class User extends BaseDB {
+export default class User extends BaseDB<UserModel> {
     constructor(tenantId: string) {
-        const model: SchemaDefinition<UserModel> = {
+        const model: SchemaDefinition = {
             _id: { type: String, required: true, trim: true },
             name: { type: String, required: true, trim: true },
             test: {

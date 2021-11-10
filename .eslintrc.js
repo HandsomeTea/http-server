@@ -23,7 +23,6 @@ module.exports = {
         WebsocketUserIdMap: 'readonly',
         SocketMethod: 'readonly',
         progressConfigParams: 'readonly',
-        DBModel: 'readonly',
         httpArgument: 'readonly',
         DeviceType: 'readonly',
         DeviceModel: 'readonly',

@@ -25,10 +25,10 @@ router.get('/search', asyncHandler(async (_req, res) => {
     // log('HTTP_REQUEST').error('test error log.');
     // const User = new _Users('t1');
 
-    // await User.create({
-    //     _id: '',
-    //     name: 'test1'
-    // });
+    await User.insert({
+        id: 123,
+        account: 'test1'
+    });
 
     // console.log(await User.update<TestUser>({ where: { _id: 132 } }, { account: 'newaccount' }));
     return res.success(await User.find());

@@ -2,13 +2,13 @@ import { SchemaDefinition } from 'mongoose';
 
 import BaseDb from './_mongodb';
 
-class Instance extends BaseDb {
+class Instance extends BaseDb<InstanceModel> {
     /**
      * Creates an instance of Instance.
      * @memberof Instance
      */
     constructor() {
-        const _model: SchemaDefinition<InstanceModel> = {
+        const _model: SchemaDefinition = {
             _id: { type: String, required: true, trim: true },
             instance: { type: String }
         };
@@ -25,13 +25,13 @@ class Instance extends BaseDb {
     }
 
     async getUnusedInstance() {
-        const list = await this.find({ _updatedAt: { $lt: new Date(new Date().getTime() - global.IntervalCleanUnusedInstance * 1000 - 2 * 1000) } }) as Array<InstanceModel>;
+        const list = await this.find({ _updatedAt: { $lt: new Date(new Date().getTime() - global.IntervalCleanUnusedInstance * 1000 - 2 * 1000) } });
 
         return list.map(a => a.instance);
     }
 
     async getAliveInstance() {
-        const list = await this.find({ _updatedAt: { $gte: new Date(new Date().getTime() - global.IntervalCleanUnusedInstance * 1000 - 2 * 1000) } }) as Array<InstanceModel>;
+        const list = await this.find({ _updatedAt: { $gte: new Date(new Date().getTime() - global.IntervalCleanUnusedInstance * 1000 - 2 * 1000) } });
 
         return list.map(a => a.instance);
     }

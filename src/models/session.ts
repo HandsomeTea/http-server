@@ -2,7 +2,7 @@ import { SchemaDefinition } from 'mongoose';
 
 import BaseDb from './_mongodb';
 import Instances from './instance';
-class Session extends BaseDb {
+class Session extends BaseDb<SessionModel> {
     /**
      * Creates an instance of Session.
      * @memberof Session
@@ -88,7 +88,7 @@ class Session extends BaseDb {
      * 查询用户的session
      */
     async findUserSession(userId: string, connectionId?: string): Promise<Array<SocketSession> | void> {
-        const result = await this.findOne({ _id: userId, ...connectionId ? { 'connections.id': connectionId } : {} }) as SessionModel;
+        const result = await this.findOne({ _id: userId, ...connectionId ? { 'connections.id': connectionId } : {} });
 
         if (result) {
             if (connectionId) {
