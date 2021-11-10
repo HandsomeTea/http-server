@@ -9,7 +9,6 @@ import mongodb from '@/tools/mongodb';
  *      await db.deleteModel(`${tenantId}_users`);
  */
 export default class BaseDb<CM>{
-    private tenantId: string | undefined;
     private collectionName: string;
     private schemaModel: SchemaDefinition<SchemaDefinitionType<CM>>;
     private index: {
@@ -35,7 +34,6 @@ export default class BaseDb<CM>{
      *                 unique?: boolean
      *             }
      *         })} [_index] mongodb的集合(表)索引
-     * @param {string} [_tenantId] mongodb的集合(表)如果分租户，则表示该集合(表)属于哪个tenantId(集合/表的前缀)
      * @memberof BaseDb
      */
     constructor(collectionName: string, model: SchemaDefinition<SchemaDefinitionType<CM>>,
@@ -47,10 +45,8 @@ export default class BaseDb<CM>{
                 type?: string
                 unique?: boolean
             }
-        },
-        _tenantId?: string) {
-        this.tenantId = _tenantId;
-        this.collectionName = collectionName + (this.tenantId ? `_${this.tenantId}` : '');
+        }) {
+        this.collectionName = collectionName;
         this.schemaModel = model;
         this.index = _index;
     }
@@ -67,7 +63,7 @@ export default class BaseDb<CM>{
         return mongodb.server.model(this.collectionName, _schema, this.collectionName);
     }
 
-    _id(data: AnyKeys<CM> | Array<AnyKeys<CM>>): Array<AnyKeys<CM & { _id: string }>> {
+    private id(data: AnyKeys<CM> | Array<AnyKeys<CM>>): Array<AnyKeys<CM & { _id: string }>> {
         const result: Array<AnyKeys<CM & { _id: string }>> = [];
 
         if (Array.isArray(data)) {
@@ -93,11 +89,11 @@ export default class BaseDb<CM>{
 
     async create(data: CM | Array<CM>): Promise<CM | Array<CM>> {
         if (Array.isArray(data)) {
-            return await this.model.insertMany(this._id(data));
+            return await this.model.insertMany(this.id(data));
         } else {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            return await new this.model(this._id(data)[0]).save();
+            return await new this.model(this.id(data)[0]).save();
         }
     }
 

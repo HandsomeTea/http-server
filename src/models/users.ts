@@ -2,6 +2,11 @@ import { SchemaDefinition, ValidateOpts } from 'mongoose';
 import BaseDB from './_mongodb';
 
 export default class User extends BaseDB<UserModel> {
+    /**
+    * Creates an instance of User.
+    * @param {string} tenantId 该mongodb的集合(表)数据分租户存储
+    * @memberof User
+    */
     constructor(tenantId: string) {
         const model: SchemaDefinition = {
             _id: { type: String, required: true, trim: true },
@@ -22,6 +27,6 @@ export default class User extends BaseDB<UserModel> {
             }
         };
 
-        super('users', model, undefined, tenantId);
+        super(`users_${tenantId}`, model);
     }
 }

@@ -1,4 +1,4 @@
-import { ModelAttributes, ModelCtor, DataTypes, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions } from 'sequelize';
+import { ModelAttributes, ModelCtor, DataTypes, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions } from 'sequelize';
 import MySQL from '@/tools/mysql';
 
 // export default
@@ -32,13 +32,13 @@ class Base<TM>{
         return await (await this.getModelInstance()).destroy(option);
     }
 
-    public async update(query: UpdateOptions<TM>, set: { [key in keyof TM]?: TM[key] }): Promise<[number]> {
-        return await (await this.getModelInstance()).update(set, query) as unknown as [number];
+    public async update(query: UpdateOptions<TM>, set: { [key in keyof TM]?: TM[key] }) {
+        return await (await this.getModelInstance()).update(set, query);
     }
 
-    // public async upsert(query: UpsertOptions<TM>, set: TM): Promise<[number]> {
-    //     return await (await this.getModelInstance()).upsert(set, query) as unknown as [number];
-    // }
+    public async upsert(set: TM, option?: UpsertOptions<TM>): Promise<[TM, boolean | null]> {
+        return await (await this.getModelInstance()).upsert(set, option) as unknown as [TM, boolean | null];
+    }
 
     public async find(query?: FindOptions<TM>) {
         return await (await this.getModelInstance()).findAll(query);
@@ -56,14 +56,16 @@ class Base<TM>{
     }
 
     public async paging(query: FindAndCountOptions<TM>) {
-        return await (await this.getModelInstance()).findAndCountAll(query);
+        const { count, rows } = await (await this.getModelInstance()).findAndCountAll(query);
+
+        return { count, data: rows };
     }
 }
 
 export default new class User extends Base<TestUser> {
     constructor() {
         const model: ModelAttributes<Model<TestUser>> = {
-            _id: {
+            id: {
                 type: DataTypes.INTEGER,
                 primaryKey: true,
                 unique: true,
@@ -74,11 +76,11 @@ export default new class User extends Base<TestUser> {
             }
         };
 
-        super('user', model, {
+        super('users', model, {
             omitNull: true,
             indexes: [{
                 unique: true,
-                fields: ['_id']
+                fields: ['id']
             }]
         });
     }
