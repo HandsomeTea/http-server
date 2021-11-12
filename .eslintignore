@@ -4,4 +4,3 @@ public
 pm2
 build
 *.d.ts
-test
