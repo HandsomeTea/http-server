@@ -1,8 +1,8 @@
 import { SchemaDefinition } from 'mongoose';
 
-import BaseDb from './_mongodb';
+import Base from './_mongodb';
 
-class Instance extends BaseDb<InstanceModel> {
+class Instance extends Base<InstanceModel> {
     /**
      * Creates an instance of Instance.
      * @memberof Instance

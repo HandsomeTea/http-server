@@ -8,7 +8,7 @@ import mongodb from '@/tools/mongodb';
  *      await db.dropCollection(`${tenantId}_users`);
  *      await db.deleteModel(`${tenantId}_users`);
  */
-export default class BaseDb<CM>{
+export default class MongoBase<CM>{
     private collectionName: string;
     private schemaModel: SchemaDefinition<SchemaDefinitionType<CM>>;
     private index: {
@@ -51,7 +51,7 @@ export default class BaseDb<CM>{
         this.index = _index;
     }
 
-    get model(): Model<CM> {
+    private get model(): Model<CM> {
         const _schema = new mongodb.schema(this.schemaModel, { _id: false, versionKey: false, timestamps: { createdAt: true, updatedAt: '_updatedAt' } });
 
         if (this.index) {
@@ -175,8 +175,7 @@ export default class BaseDb<CM>{
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async aggregate(aggregations: Array<any>): Promise<Array<any>> {
-        return await this.model.aggregate(aggregations);
+    get aggregate() {
+        return this.model.aggregate;
     }
 }

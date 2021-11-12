@@ -1,7 +1,7 @@
 import { SchemaDefinition, ValidateOpts } from 'mongoose';
-import BaseDB from './_mongodb';
+import Base from './_mongodb';
 
-export default class User extends BaseDB<UserModel> {
+export default class User extends Base<UserModel> {
     /**
     * Creates an instance of User.
     * @param {string} tenantId 该mongodb的集合(表)数据分租户存储

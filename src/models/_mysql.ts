@@ -2,7 +2,7 @@ import { ModelAttributes, ModelCtor, DataTypes, Model, ModelOptions, CreateOptio
 import MySQL from '@/tools/mysql';
 
 // export default
-class Base<TM>{
+class SqlBase<TM>{
     public tableName: string;
     private model: ModelCtor<Model<TM>>;
     private modelIsSync: boolean;
@@ -62,7 +62,7 @@ class Base<TM>{
     }
 }
 
-export default new class User extends Base<TestUser> {
+export default new class User extends SqlBase<TestUser> {
     constructor() {
         const model: ModelAttributes<Model<TestUser>> = {
             id: {
