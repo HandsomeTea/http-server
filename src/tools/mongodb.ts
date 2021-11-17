@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import { system } from '@/configs';
+import { getENV, system } from '@/configs';
 
 const RECONNET_TIME = 5000;
 const mongoconnect = () => {
-    const mongodbAddress = process.env.MONGO_URL;
+    const mongodbAddress = getENV('MONGO_URL');
 
     if (!mongodbAddress) {
         return system('mongodb').error(`mongodb connect address is required but get ${mongodbAddress}`);
@@ -20,7 +20,7 @@ class MongoDB {
     constructor() {
         // 初始化操作
         this.server.once('connected', () => {// 连接成功
-            system('mongodb').info(`mongodb connected on ${process.env.MONGO_URL} success and ready to use.`);
+            system('mongodb').info(`mongodb connected on ${getENV('MONGO_URL')} success and ready to use.`);
         });
 
         this.server.on('disconnected', () => {// 连接失败或中断
@@ -28,7 +28,7 @@ class MongoDB {
         });
 
         this.server.on('reconnected', () => {// 重新连接成功
-            system('mongodb').info(`reconnect on ${process.env.MONGO_URL} success and ready to use.`);
+            system('mongodb').info(`reconnect on ${getENV('MONGO_URL')} success and ready to use.`);
         });
 
         this.init();

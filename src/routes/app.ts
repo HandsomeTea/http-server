@@ -4,6 +4,7 @@ import fs from 'fs';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import httpContext from 'express-http-context';
+import { errorType, getENV } from '@/configs';
 
 const app = express();
 
@@ -24,7 +25,7 @@ app.use(httpContext.middleware);
 app.use(express.static(path.resolve(__dirname, '../../public/doc')));
 
 app.get('/', (_req, res) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (getENV('NODE_ENV') === 'development') {
         const apidoc = path.resolve(__dirname, '../../public/doc/index.html');
 
         if (fs.existsSync(apidoc)) {
@@ -53,9 +54,6 @@ app.use(successResponseHandle);
 import v1 from './v1';
 
 app.use('/api/v1', v1);
-
-import { errorType } from '@/configs';
-
 app.use('*', () => {
     throw new Exception('URL not found!', errorType.URL_NOT_FOUND);
 });

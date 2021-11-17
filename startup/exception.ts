@@ -1,4 +1,4 @@
-import { errorCodeMap } from '@/configs';
+import { errorCodeMap, getENV } from '@/configs';
 
 global.Exception = class Exception extends Error {
     public message: string;
@@ -31,7 +31,7 @@ global.Exception = class Exception extends Error {
         }
 
         // source
-        const serverName = process.env.SERVER_NAME;
+        const serverName = getENV('SERVER_NAME');
 
         if (serverName && !this.source.includes(serverName)) {
             this.source.push(serverName);

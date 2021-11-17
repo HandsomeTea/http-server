@@ -1,11 +1,8 @@
-import crypto from 'crypto';
-
-process.env.INSTANCEID = crypto.randomBytes(24).toString('hex').substring(0, 17);
 global.IntervalUpdateInstance = 10;
 global.IntervalCleanUnusedInstance = 30;
 import './startup';
 
-import { audit, log } from '@/configs';
+import { audit, getENV, log } from '@/configs';
 
 process.on('unhandledRejection', reason => {
     // 处理没有catch的promise，第二个参数即为promise
@@ -40,6 +37,7 @@ global.WebsocketServer = new WebSocketServer({ server });
 /** 封装socket */
 import socketCore from '@/socket/core';
 import socketMethods from '@/socket/methods';
+import crypto from 'crypto';
 
 global.WebsocketServer.connection((socket, request) => {
     socket.attempt = {
@@ -116,7 +114,7 @@ process.on('SIGINT', () => {
 process.on('exit', async () => {
     await mongodb.close();
     await redis.close();
-    mysql.close();
+    await mysql.close();
     log('SYSREM_STOP_CLEAN').info('server connection will stop normally.');
 });
 
@@ -150,7 +148,7 @@ const onListening = () => {
             ? `pipe ${addr}`
             : `port ${addr.port}`;
 
-        log('SYSREM_STARTUP').info(`${process.env.SERVER_NAME} listening on ${bind}.`);
+        log('SYSREM_STARTUP').info(`${getENV('SERVER_NAME')} listening on ${bind}.`);
     }
 };
 

@@ -1,5 +1,5 @@
 import ioredis from 'ioredis';
-import { system } from '@/configs';
+import { getENV, system } from '@/configs';
 
 const RECONNET_TIME = 5000;
 
@@ -10,7 +10,7 @@ export default new class Redis {
     }
 
     private init(): void {
-        this.server = new ioredis(process.env.REDIS_URL, {
+        this.server = new ioredis(getENV('REDIS_URL'), {
             enableReadyCheck: true,
             retryStrategy(times) {
                 if (times <= 5) {
@@ -23,7 +23,7 @@ export default new class Redis {
         });
 
         this.server.on('connect', () => {
-            system('redis').info(`redis connected on ${process.env.REDIS_URL} success and ready to use.`);
+            system('redis').info(`redis connected on ${getENV('REDIS_URL')} success and ready to use.`);
         });
 
         this.server.on('error', error => {

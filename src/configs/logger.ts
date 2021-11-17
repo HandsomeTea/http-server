@@ -1,4 +1,5 @@
 import log4js from 'log4js';
+import getENV from './envConfig';
 
 /**
  * 定义日志配置
@@ -11,7 +12,7 @@ export const updateOrCreateLogInstance = (): void => {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%h] [%X{Module}] [%X{TraceId}|%X{SpanId}|%X{ParentSpanId}]%] %m%n'
+                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%X{Module}] [%X{TraceId}|%X{SpanId}|%X{ParentSpanId}] [%h]%] %m%n'
                 }
             },
             _audit: {
@@ -29,14 +30,14 @@ export const updateOrCreateLogInstance = (): void => {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%X{Module} %f:%l:%o]%] %m%n'
+                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%X{Module}] [%f:%l:%o]%] %m%n'
                 }
             },
             _system: {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET} SYSTEM:%X{Module}]%] %m'
+                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [SYSTEM:%X{Module}]%] %m%n'
                 }
             }
             // [2021-09-23 16:59:33.762] %d{yyyy-MM-dd hh:mm:ss.SSS}
@@ -54,17 +55,17 @@ export const updateOrCreateLogInstance = (): void => {
             },
             developLog: {
                 appenders: ['_develop'],
-                level: process.env.NODE_ENV === 'production' ? 'OFF' : process.env.DEV_LOG_LEVEL || 'ALL',
+                level: getENV('DEV_LOG_LEVEL') || 'OFF',
                 enableCallStack: true
             },
             traceLog: {
                 appenders: ['_trace'],
-                level: process.env.NODE_ENV === 'production' ? 'OFF' : process.env.TRACE_LOG_LEVEL || 'ALL',
+                level: getENV('TRACE_LOG_LEVEL') || 'ALL',
                 enableCallStack: true
             },
             auditLog: {
                 appenders: ['_audit'],
-                level: process.env.AUDIT_LOG_LEVEL || 'ALL',
+                level: getENV('AUDIT_LOG_LEVEL') || 'ALL',
                 enableCallStack: true
             },
             systemLog: {
@@ -92,7 +93,7 @@ export const log = (module?: string): log4js.Logger => {
 export const trace = (data: { traceId: string, spanId: string, parentSpanId?: string }, module?: string): log4js.Logger => {
     const _traceLogger = log4js.getLogger('traceLog');
 
-    _traceLogger.addContext('Module', (module || process.env.SERVER_NAME || 'default-module').toUpperCase());
+    _traceLogger.addContext('Module', (module || getENV('SERVER_NAME') || 'default-module').toUpperCase());
     _traceLogger.addContext('TraceId', data.traceId);
     _traceLogger.addContext('SpanId', data.spanId);
     _traceLogger.addContext('ParentSpanId', data.parentSpanId || '');

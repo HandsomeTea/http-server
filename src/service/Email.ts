@@ -4,7 +4,7 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 // import ejs from 'ejs';
 // import path from 'path';
 
-import { log, errorType } from '@/configs';
+import { log, errorType, getENV } from '@/configs';
 import { randomString, isURL } from '@/utils';
 // import vendorTempService from './vendorCredentialTokenService';
 // import redisService from './redisService';
@@ -28,7 +28,7 @@ class Email {
     }
 
     private async updateServer() {
-        if (process.env.NODE_ENV === 'development') {
+        if (getENV('NODE_ENV') === 'development') {
             log('email-service').debug('email service use a test account.');
             const testAccount = await nodemailer.createTestAccount();
 

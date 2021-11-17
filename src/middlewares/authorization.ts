@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { JWT } from '@/service';
-import { errorType } from '@/configs';
+import { errorType, getENV } from '@/configs';
 
 /**
  * 验证json web token
@@ -22,7 +22,7 @@ export default (req: Request, res: Response, next: NextFunction): void => {
             error: {
                 info: 'Bad request(no Authorization)! Refused.',
                 reason: [],
-                source: [process.env.SERVER_NAME]
+                source: [getENV('SERVER_NAME')]
             }
         });
     }

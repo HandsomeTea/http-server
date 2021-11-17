@@ -1,4 +1,4 @@
-import { errorType } from '@/configs';
+import { errorType, getENV } from '@/configs';
 import jwt from 'jsonwebtoken';
 
 export default new class JWT {
@@ -6,9 +6,9 @@ export default new class JWT {
     private appId: string;
     private appSecert: string;
     constructor() {
-        this.app = process.env.JWT_APP_NAME || '';
-        this.appId = process.env.JWT_APP_ID || '';
-        this.appSecert = process.env.JWT_APP_SECERT || '';
+        this.app = getENV('JWT_APP_NAME') || '';
+        this.appId = getENV('JWT_APP_ID') || '';
+        this.appSecert = getENV('JWT_APP_SECERT') || '';
     }
 
     /**

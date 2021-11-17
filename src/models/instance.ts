@@ -1,3 +1,4 @@
+import { getENV } from '@/configs';
 import { SchemaDefinition } from 'mongoose';
 
 import Base from './_mongodb';
@@ -17,11 +18,11 @@ class Instance extends Base<InstanceModel> {
     }
 
     async insertSystemInstance() {
-        return await this.create({ instance: process.env.INSTANCEID } as InstanceModel);
+        return await this.create({ instance: getENV('INSTANCEID') } as InstanceModel);
     }
 
     async upsertSystemInstance() {
-        return await this.upsertOne({ instance: process.env.INSTANCEID }, { $set: { instance: process.env.INSTANCEID } });
+        return await this.upsertOne({ instance: getENV('INSTANCEID') }, { $set: { instance: getENV('INSTANCEID') } });
     }
 
     async getUnusedInstance() {

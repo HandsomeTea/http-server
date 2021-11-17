@@ -1,7 +1,6 @@
 import { trace, traceId, log, audit, system, updateOrCreateLogInstance } from './logger';
-import { setENV } from './env';
-import { errorType, errorCodeMap } from './error';
-
+import getENV from './envConfig';
+import { errorType, errorCodeMap } from './errorCode';
 
 export {
     trace,
@@ -10,7 +9,7 @@ export {
     audit,
     system,
     updateOrCreateLogInstance,
-    setENV,
+    getENV,
     errorType,
     errorCodeMap
 };

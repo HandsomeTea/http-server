@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import httpContext from 'express-http-context';
 
-import { audit, trace } from '@/configs';
+import { audit, getENV, trace } from '@/configs';
 
 /**
  * 捕捉路由中未处理的错误，即直接throw new Error的情况
@@ -13,7 +13,7 @@ export default (err: InstanceException, req: Request, res: Response, _next: Next
         error: {
             info: message,
             reason: reason,
-            ...process.env.NODE_ENV === 'production' ? {} : { source: source && Array.isArray(source) && !source.includes(process.env.SERVER_NAME || '') ? source.concat(process.env.SERVER_NAME || '') : source }
+            ...getENV('NODE_ENV') === 'production' ? {} : { source: source && Array.isArray(source) && !source.includes(getENV('SERVER_NAME') || '') ? source.concat(getENV('SERVER_NAME') || '') : source }
         }
     };
 

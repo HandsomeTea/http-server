@@ -2,6 +2,7 @@ import { SchemaDefinition } from 'mongoose';
 
 import Base from './_mongodb';
 import Instances from './instance';
+import { getENV } from '@/configs';
 class Session extends Base<SessionModel> {
     /**
      * Creates an instance of Session.
@@ -29,7 +30,7 @@ class Session extends Base<SessionModel> {
                 connections: {
                     id: connectionId,
                     hashedToken,
-                    instanceId: process.env.INSTANCEID,
+                    instanceId: getENV('INSTANCEID'),
                     status: 'online',
                     type,
                     tenantId,

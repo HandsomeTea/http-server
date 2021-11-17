@@ -1,12 +1,12 @@
 import { Sequelize } from 'sequelize';
 import { parse } from 'url';
-import { system } from '@/configs';
+import { getENV, system } from '@/configs';
 
 export default new class MySQL {
     public server: Sequelize;
     private isReady = false;
     constructor() {
-        const mysqlAddress = process.env.MYSQL_URL;
+        const mysqlAddress = getENV('MYSQL_URL');
 
         if (!mysqlAddress) {
             throw new Exception(`mysql connect address is required but get ${mysqlAddress}`);
@@ -32,7 +32,7 @@ export default new class MySQL {
     private init() {
         this.server.authenticate().then(() => {
             this.isReady = true;
-            system('mysql').info(`mysql connected on ${process.env.MYSQL_URL} success and ready to use.`);
+            system('mysql').info(`mysql connected on ${getENV('MYSQL_URL')} success and ready to use.`);
         }).catch(error => {
             system('mysql').error(error);
         });
@@ -42,9 +42,9 @@ export default new class MySQL {
         return this.isReady;
     }
 
-    public close() {
+    public async close() {
         this.isReady = false;
-        this.server.close();
+        await this.server.close();
         system('mysql').error('all connections in the pool have ended');
     }
 };
