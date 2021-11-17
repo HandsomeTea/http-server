@@ -73,18 +73,18 @@ const isHealth = async () => {
 
     if (!mongodb.isUseful) {
         result = false;
-        log('SYSREM_STARTUP').error('mongodb connection is unusual');
+        log('STARTUP').error('mongodb connection is unusual');
     }
     if (!redis.isUseful) {
         result = false;
-        log('SYSREM_STARTUP').error('redis connection is unusual');
+        log('STARTUP').error('redis connection is unusual');
     }
     if (!mysql.isUseful) {
         result = false;
-        log('SYSREM_STARTUP').error('mysql connection is unusual');
+        log('STARTUP').error('mysql connection is unusual');
     }
     if (result) {
-        log('SYSREM_STARTUP').debug('system is normal.');
+        log('STARTUP').debug('system is normal.');
     }
     return result;
 };
@@ -128,11 +128,11 @@ const onError = (error: { syscall: string, code: string }) => {
 
     switch (error.code) {
         case 'EACCES':
-            log('SYSREM_STARTUP').error(`${bind} requires elevated privileges`);
+            log('STARTUP').error(`${bind} requires elevated privileges`);
             process.exit(1);
             break;
         case 'EADDRINUSE':
-            log('SYSREM_STARTUP').error(`${bind} is already in use`);
+            log('STARTUP').error(`${bind} is already in use`);
             process.exit(1);
             break;
         default:
@@ -148,7 +148,7 @@ const onListening = () => {
             ? `pipe ${addr}`
             : `port ${addr.port}`;
 
-        log('SYSREM_STARTUP').info(`${getENV('SERVER_NAME')} listening on ${bind}.`);
+        log('STARTUP').info(`${getENV('SERVER_NAME')} listening on ${bind}.`);
     }
 };
 
@@ -166,6 +166,6 @@ server.listen(port, '0.0.0.0', () => {
             process.send('ready');
         }
         clearInterval(_check);
-        log('SYSREM_STARTUP').info(`api document running on http://127.0.0.1:${port}.`);
+        log('STARTUP').info(`api document running on http://127.0.0.1:${port}.`);
     }, 1000);
 });
