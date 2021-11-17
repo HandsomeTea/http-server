@@ -1,1 +1,1 @@
-import './test.test';
+import './search.test';

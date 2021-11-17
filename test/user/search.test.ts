@@ -20,11 +20,12 @@ import { describe, it } from 'mocha';
 import server from 'supertest';
 
 describe('GET /api/v1/users/search', () => {
-    it('responds with json', done => {
+    it('response with json', done => {
         server('http://localhost:3000')
             .get('/api/v1/users/search')
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
+            .timeout(10 * 1000)
             .expect(200, done);
     });
 });
