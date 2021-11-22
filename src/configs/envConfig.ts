@@ -53,10 +53,8 @@ interface EnvConfigType {
     INSTANCEID: string
     NODE_ENV: 'development' | 'production' | 'test'
     SERVER_NAME: string
-    // # start 以下两项 的设置在 NODE_ENV 为 production 时将失效，该设计意在为生产模式下服务器提升性能，生产环境下跟踪日志和开发日志是没必要的
     TRACE_LOG_LEVEL: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
     DEV_LOG_LEVEL: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
-    // # end
     AUDIT_LOG_LEVEL: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
     JWT_APP_NAME: string
     JWT_APP_ID: string

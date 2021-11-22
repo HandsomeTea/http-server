@@ -58,15 +58,7 @@ import mongodb from '@/tools/mongodb';
 import mysql from '@/tools/mysql';
 
 /**
- * 当服务将要停止时的钩子函数
- * 比如向其他服务通知当前服务已经停止
- */
-const willShutDown = async () => {
-    // do something when shutdown, when process is killed, this function is unused.
-};
-
-/**
- * 服务是否正常的健康检查
+ * 健康检查
  */
 const isHealth = async () => {
     let result = true;
@@ -103,8 +95,7 @@ createTerminus(server, {
             // if normal, no need to do anything like return, we will send a 200 code with  { status: "ok" }
             // if not normal, you can throw a Error, we will send a 503 code with  { status: "error" }
         }
-    },
-    onSignal: willShutDown
+    }
 });
 
 process.on('SIGINT', () => {
