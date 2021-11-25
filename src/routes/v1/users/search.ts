@@ -10,8 +10,8 @@ const router = express.Router();
  * @apiName 测试接口
  * @apiGroup TEST
  * @apiVersion 1.0.0
- * @apiParam (Body) {String[]} userid userid列表.
- * @apiParam (Body) {Number[]} [externalUserId] externalUserId列表.
+ * @apiParam (body) {String[]} userid userid列表.
+ * @apiParam (body) {Number[]} [externalUserId] externalUserId列表.
  * @apiSuccess {Number} status 状态码.
  * @apiSuccess {Object[]} data user列表.
  * @apiSuccess {String} _id userId.

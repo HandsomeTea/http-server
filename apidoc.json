@@ -1,9 +1,13 @@
 {
     "name": "common server",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "description": "common server api document",
-    "apidoc": {
-        "title": "server api",
-        "url": "http://localhost:3001/index.html"
-    }
+    "title": "浏览器标签：server api",
+    "url": "",
+    "sampleUrl": false,
+    "order": [
+        "管理员账户",
+        "TEST",
+        "ERROR CODE"
+    ]
 }
