@@ -1,5 +1,7 @@
 global.IntervalUpdateInstance = 10;
 global.IntervalCleanUnusedInstance = 30;
+global.IntervalCleanEmptySession = 30;
+global.IntervalCleanUnusedSession = 30;
 import './startup';
 
 import { audit, getENV, log } from '@/configs';
@@ -27,8 +29,6 @@ app.set('port', port);
 const server = http.createServer(app);
 
 /**============================================socket 封装 ================================ start */
-global.IntervalCleanEmptySession = 30;
-global.IntervalCleanUnusedSession = 30;
 global.WebsocketUserIdMap = {};
 
 import { WebSocketServer } from './websocket';

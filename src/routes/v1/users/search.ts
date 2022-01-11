@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { _Users } from '@/models';
-import User from '../../../models/_mysql';
+// import User from '../../../models/_mysql';
 
 const router = express.Router();
 
@@ -23,15 +23,16 @@ const router = express.Router();
  */
 router.get('/search', asyncHandler(async (_req, res) => {
     // log('HTTP_REQUEST').error('test error log.');
-    // const User = new _Users('t1');
+    const User = new _Users('t3');
 
-    // await User.insert({
-    //     id: 123,
-    //     account: 'test1'
+    // await User.create({
+    //     _id: '123',
+    //     name: 'test1'
     // });
 
-    // console.log(await User.update<TestUser>({ where: { _id: 132 } }, { account: 'newaccount' }));
     return res.success(await User.find());
+    // console.log(await User.update<TestUser>({ where: { _id: 132 } }, { account: 'newaccount' }));
+    // return res.success(await User.find());
     // throw new Exception(new Error('cuo wu'));
     // throw new Exception(new Exception('cuo wu'));
 }));

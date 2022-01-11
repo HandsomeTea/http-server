@@ -87,6 +87,17 @@ export default class MongoBase<CM>{
         return result;
     }
 
+    async collectionExist(collectionName?: string) {
+        const allCollections = (await mongodb.server.db?.collections())?.map(a => a.collectionName);
+
+        return Boolean(allCollections?.find(colName => colName === (collectionName || this.collectionName)));
+        // if (await Users.collectionExist(`${tenantId}_users`)) {
+        //     await mongodb.server.dropCollection(`${tenantId}_users`);
+        //     await mongodb.server.deleteModel(`${tenantId}_users`);
+        //     devLogger(`tenant:${tenantId}-deleted-user-collection`).info(`collection ${tenantId}_users droped for tenant deletion.`);
+        // }
+    }
+
     async create(data: CM | Array<CM>): Promise<CM | Array<CM>> {
         if (Array.isArray(data)) {
             return await this.model.insertMany(this.id(data));
@@ -98,11 +109,17 @@ export default class MongoBase<CM>{
     }
 
     async removeOne(query: FilterQuery<CM>): Promise<{ deletedCount: number }> {
-        return await this.model.deleteOne(query);
+        if (await this.collectionExist()) {
+            return await this.model.deleteOne(query);
+        }
+        return { deletedCount: 0 };
     }
 
     async removeMany(query: FilterQuery<CM>): Promise<{ deletedCount: number }> {
-        return await this.model.deleteMany(query);
+        if (await this.collectionExist()) {
+            return await this.model.deleteMany(query);
+        }
+        return { deletedCount: 0 };
     }
 
     async updateOne(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
@@ -112,19 +129,22 @@ export default class MongoBase<CM>{
         upsertedCount: number
         matchedCount: number
     }> {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return await this.model.updateOne(query, update, options);
+        if (await this.collectionExist()) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            return await this.model.updateOne(query, update, options);
+        }
+        return {
+            acknowledged: false,
+            modifiedCount: 0,
+            upsertedId: null,
+            upsertedCount: 0,
+            matchedCount: 0
+        };
     }
 
     /**upsert尽量不要触发insert，否则会生成一个ObjectId构建的_id，除非指定一个_id，并且collection里面的default默认设置的字段也不会有 */
-    async upsertOne(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
-        acknowledged: boolean
-        modifiedCount: number
-        upsertedId: null | string
-        upsertedCount: number
-        matchedCount: number
-    }> {
+    async upsertOne(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions) {
         return await this.updateOne(query, update, { ...options, upsert: true });
     }
 
@@ -135,39 +155,57 @@ export default class MongoBase<CM>{
         upsertedCount: number
         matchedCount: number
     }> {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return await this.model.updateMany(query, update, options);
+        if (await this.collectionExist()) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            return await this.model.updateMany(query, update, options);
+        }
+        return {
+            acknowledged: false,
+            modifiedCount: 0,
+            upsertedId: null,
+            upsertedCount: 0,
+            matchedCount: 0
+        };
     }
 
     /**upsert尽量不要触发insert，否则会生成一个ObjectId构建的_id，除非指定_id，并且collection里面的default默认设置的字段也不会有 */
-    async upsertMany(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
-        acknowledged: boolean
-        modifiedCount: number
-        upsertedId: null | string
-        upsertedCount: number
-        matchedCount: number
-    }> {
+    async upsertMany(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions) {
         return await this.updateMany(query, update, { ...options, upsert: true });
     }
 
-    async find(query?: FilterQuery<CM>, options?: QueryOptions): Promise<Array<CM>> {
-        return await this.model.find(query || {}, null, options).lean();
+    async find(query?: FilterQuery<CM>, options?: QueryOptions) {
+        if (await this.collectionExist()) {
+            return await this.model.find(query || {}, null, options).lean();
+        }
+        return [];
     }
 
-    async findOne(query: FilterQuery<CM>, options?: QueryOptions): Promise<CM | null> {
-        return await this.model.findOne(query, null, options).lean();
+    async findOne(query: FilterQuery<CM>, options?: QueryOptions) {
+        if (await this.collectionExist()) {
+            return await this.model.findOne(query, null, options).lean();
+        }
+        return null;
     }
 
-    async findById(_id: string, options?: QueryOptions): Promise<CM | null> {
-        return await this.model.findById(_id, null, options).lean();
+    async findById(_id: string, options?: QueryOptions) {
+        if (await this.collectionExist()) {
+            return await this.model.findById(_id, null, options).lean();
+        }
+        return null;
     }
 
-    async paging(query: FilterQuery<CM>, limit: number, skip: number, sort?: Record<string, 'asc' | 'desc' | 'ascending' | 'descending' | '1' | '-1'>, options?: QueryOptions): Promise<Array<CM>> {
-        return await this.model.find(query, null, options).sort(sort).skip(skip || 0).limit(limit).lean();
+    async paging(query: FilterQuery<CM>, limit: number, skip: number, sort?: Record<string, 'asc' | 'desc' | 'ascending' | 'descending' | '1' | '-1'>, options?: QueryOptions) {
+        if (await this.collectionExist()) {
+            return await this.model.find(query, null, options).sort(sort).skip(skip || 0).limit(limit).lean();
+        }
+        return [];
     }
 
     async count(query?: FilterQuery<CM>): Promise<number> {
+        if (!await this.collectionExist()) {
+            return 0;
+        }
         if (query) {
             return await this.model.countDocuments(query);
         } else {
