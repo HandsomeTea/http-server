@@ -1,4 +1,4 @@
-import { Instances } from '@/models';
+import { Instances } from '@/dal';
 
 class InstanceService {
     constructor() {

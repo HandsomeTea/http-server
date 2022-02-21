@@ -1,4 +1,4 @@
-import { Sessions } from '@/models';
+import { Sessions } from '@/dal';
 
 class SessionService {
     constructor() {

@@ -1,7 +1,7 @@
 import { SchemaDefinition } from 'mongoose';
 
-import Base from './_mongodb';
-import Instances from './instance';
+import Base from './base';
+import { Instances } from '@/dal';
 import { getENV } from '@/configs';
 class Session extends Base<SessionModel> {
     /**

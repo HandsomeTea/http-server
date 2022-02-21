@@ -24,6 +24,8 @@ type SocketMethod = 'login'
 type DeviceType = 'BCD' | 'BCM' | 'H323_SIP'
 type DeviceModel = 'WINDOWS' | 'MAC' | 'UOS' | 'H323_SIP' | 'ANDROID' | 'IOS'
 
+type DBServerType = 'mongodb' | 'mysql';
+
 declare interface Device {
     serialNumber: string
     deviceType: DeviceType

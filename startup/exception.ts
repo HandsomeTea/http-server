@@ -7,26 +7,19 @@ global.Exception = class Exception extends Error {
     public status!: number;
     public reason?: Array<string>;
 
-    constructor(messageOrErrorOrException: string | InstanceException | Error, code?: string, reason?: Array<string>) {
+    constructor(error?: string | InstanceException | Error, code?: string, reason?: Array<string>) {
         super();
+
         // message
-        if (typeof messageOrErrorOrException === 'string') {
-            this.message = messageOrErrorOrException;
+        if (typeof error === 'string') {
+            this.message = error;
         } else {
-            this.message = messageOrErrorOrException.message;
-            if (messageOrErrorOrException.constructor === Exception) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                this.source = Array.from(messageOrErrorOrException.source);
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                this.code = messageOrErrorOrException.code;
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                this.status = messageOrErrorOrException.status;
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                this.reason = messageOrErrorOrException.reason;
+            this.message = error?.message || 'inner server error!';
+            if (error instanceof Exception) {
+                this.source = Array.from(error.source);
+                this.code = error.code;
+                this.status = error.status;
+                this.reason = error.reason;
             }
         }
 
@@ -49,12 +42,14 @@ global.Exception = class Exception extends Error {
         // status
         if (!this.status) {
             for (const code in errorCodeMap) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
                 if (errorCodeMap[code].includes(this.code)) {
                     this.status = parseInt(code);
                     break;
                 }
+            }
+
+            if (!this.status) {
+                this.status = 500;
             }
         }
 

@@ -1,4 +1,4 @@
-import { Types, SchemaDefinition, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaDefinitionType, Model, AnyKeys } from 'mongoose';
+import { Types, SchemaDefinition, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaDefinitionType, Model, AnyKeys, Aggregate } from 'mongoose';
 import mongodb from '@/tools/mongodb';
 
 /**
@@ -92,20 +92,31 @@ export default class MongoBase<CM>{
 
         return Boolean(allCollections?.find(colName => colName === (collectionName || this.collectionName)));
         // if (await Users.collectionExist(`${tenantId}_users`)) {
+        //     await mongodb.server.collection(`${tenantId}_users`).dropIndexes();
         //     await mongodb.server.dropCollection(`${tenantId}_users`);
         //     await mongodb.server.deleteModel(`${tenantId}_users`);
         //     devLogger(`tenant:${tenantId}-deleted-user-collection`).info(`collection ${tenantId}_users droped for tenant deletion.`);
         // }
     }
 
-    async create(data: CM | Array<CM>): Promise<CM | Array<CM>> {
-        if (Array.isArray(data)) {
-            return await this.model.insertMany(this.id(data));
-        } else {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            return await new this.model(this.id(data)[0]).save();
-        }
+    // async create(data: CM | Array<CM>): Promise<CM | Array<CM>> {
+    //     if (Array.isArray(data)) {
+    //         return await this.model.insertMany(this.id(data));
+    //     } else {
+    //         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //         // @ts-ignore
+    //         return await new this.model(this.id(data)[0]).save();
+    //     }
+    // }
+
+    async insertOne(data: CM): Promise<CM> {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return await new this.model(this.id(data)[0]).save();
+    }
+
+    async insertMany(data: Array<CM>): Promise<Array<CM>> {
+        return await this.model.insertMany(data.map(a => this.id(a)));
     }
 
     async removeOne(query: FilterQuery<CM>): Promise<{ deletedCount: number }> {
@@ -213,7 +224,15 @@ export default class MongoBase<CM>{
         }
     }
 
-    get aggregate() {
-        return this.model.aggregate;
+    // get aggregate() {
+    //     return this.model.aggregate;
+    // }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async aggregate(aggregations: Array<any>): Promise<Aggregate<Array<any>>> {
+        if (!await this.collectionExist()) {
+            return [];
+        }
+        return await this.model.aggregate(aggregations);
     }
 }

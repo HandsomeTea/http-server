@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { _Users } from '@/models';
+import { _Users } from '@/dal';
 // import User from '../../../models/_mysql';
 
 const router = express.Router();
@@ -23,15 +23,15 @@ const router = express.Router();
  */
 router.get('/search', asyncHandler(async (_req, res) => {
     // log('HTTP_REQUEST').error('test error log.');
-    const User = new _Users('t3');
+    // const User = new _Users('t3');
 
     // await User.create({
     //     _id: '123',
     //     name: 'test1'
     // });
-
-    return res.success(await User.find());
-    // console.log(await User.update<TestUser>({ where: { _id: 132 } }, { account: 'newaccount' }));
+    // await User.find();
+    return res.success();
+    // console.log(await User.update<UserModel>({ where: { _id: 132 } }, { account: 'newaccount' }));
     // return res.success(await User.find());
     // throw new Exception(new Error('cuo wu'));
     // throw new Exception(new Exception('cuo wu'));
@@ -40,7 +40,12 @@ router.get('/search', asyncHandler(async (_req, res) => {
 router.get('/:userId', asyncHandler(async (req, res) => {
     const Users = new _Users('t1');
 
-    return res.success(await Users.findById(req.params.userId, { projection: { name: 1 } }));
+    // return res.success(await Users.findById(req.params.userId, { projection: { name: 1 } }));
+    return res.success(await Users.updateOne({ _id: req.params.userId }, {
+        $set: {
+            name: '123123123123'
+        }
+    }));
 }));
 
 export default router;

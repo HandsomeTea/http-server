@@ -1,8 +1,7 @@
-import { ModelAttributes, ModelCtor, DataTypes, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions } from 'sequelize';
+import { ModelAttributes, ModelCtor, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions } from 'sequelize';
 import MySQL from '@/tools/mysql';
 
-// export default
-class SqlBase<TM>{
+export default class SqlBase<TM>{
     public tableName: string;
     private model: ModelCtor<Model<TM>>;
     private modelIsSync: boolean;
@@ -61,27 +60,3 @@ class SqlBase<TM>{
         return { count, data: rows };
     }
 }
-
-export default new class User extends SqlBase<TestUser> {
-    constructor() {
-        const model: ModelAttributes<Model<TestUser>> = {
-            id: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                unique: true,
-                comment: '唯一性标志'
-            },
-            account: {
-                type: DataTypes.STRING
-            }
-        };
-
-        super('users', model, {
-            omitNull: true,
-            indexes: [{
-                unique: true,
-                fields: ['id']
-            }]
-        });
-    }
-};

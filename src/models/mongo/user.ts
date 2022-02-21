@@ -1,5 +1,5 @@
 import { SchemaDefinition, ValidateOpts } from 'mongoose';
-import Base from './_mongodb';
+import Base from './base';
 
 export default class User extends Base<UserModel> {
     /**
@@ -15,6 +15,7 @@ export default class User extends Base<UserModel> {
                 type: String,
                 default: 'default test filed',
                 validate: {
+                    // example , test
                     validator: (value: string) => {
                         if (value) {
                             return true;
@@ -27,6 +28,8 @@ export default class User extends Base<UserModel> {
             }
         };
 
-        super(`users_${tenantId}`, model);
+        super(`users_${tenantId}`, model, {
+            name: { unique: true }
+        });
     }
 }
