@@ -9,6 +9,8 @@ export default class SqlBase<TM>{
         this.tableName = tableName;
         this.model = MySQL.server.define(this.tableName, tableStruct, {
             ...option,
+            createdAt: true,
+            updatedAt: '_updatedAt',
             freezeTableName: true //默认会给表名加s
         });
         this.modelIsSync = false;
@@ -40,16 +42,16 @@ export default class SqlBase<TM>{
     }
 
     public async find(query?: FindOptions<TM>) {
-        return await (await this.getModelInstance()).findAll(query);
+        return await (await this.getModelInstance()).findAll(query) as unknown as Array<TM>;
     }
 
     public async findOne(query: FindOptions<TM>) {
-        return await (await this.getModelInstance()).findOne(query);
+        return await (await this.getModelInstance()).findOne(query) as TM | null;
     }
 
-    public async findById(id: Identifier, option?: Omit<FindOptions<TM>, 'where'>) {
+    public async findById(id: Identifier, option?: FindOptions<TM>) {
         if (id) {
-            return await (await this.getModelInstance()).findByPk(id, option);
+            return await (await this.getModelInstance()).findByPk(id, option) as TM | null;
         }
         return null;
     }
@@ -57,6 +59,6 @@ export default class SqlBase<TM>{
     public async paging(query: FindAndCountOptions<TM>) {
         const { count, rows } = await (await this.getModelInstance()).findAndCountAll(query);
 
-        return { count, data: rows };
+        return { count, data: rows as unknown as Array<TM> };
     }
 }

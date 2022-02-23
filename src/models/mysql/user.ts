@@ -6,7 +6,7 @@ export default class User extends Base<UserModel> {
     constructor(tenantId: string) {
         const model: ModelAttributes<Model<UserModel>> = {
             _id: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.STRING,
                 primaryKey: true,
                 unique: true,
                 comment: '唯一性标志'
@@ -19,7 +19,7 @@ export default class User extends Base<UserModel> {
             }
         };
 
-        super(`users_${tenantId}`, model, {
+        super(`${tenantId}_users`, model, {
             omitNull: true,
             indexes: [{
                 unique: true,

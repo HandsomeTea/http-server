@@ -28,7 +28,7 @@ export default class User extends Base<UserModel> {
             }
         };
 
-        super(`users_${tenantId}`, model, {
+        super(`${tenantId}_users`, model, {
             name: { unique: true }
         });
     }

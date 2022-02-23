@@ -1,6 +1,17 @@
+interface HashedTokenData {
+    when: Date
+    hashedToken: string
+    token?: string
+}
+
 interface UserModel {
     _id: string
     name: string
+    // service: {
+    //     password: string,
+    //     resume?: Array<HashedTokenData>
+    // }
+    // arr: Array<string>
     test?: string
     createdAt?: Date
     _updatedAt?: Date

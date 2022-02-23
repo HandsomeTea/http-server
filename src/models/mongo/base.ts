@@ -80,7 +80,9 @@ export default class MongoBase<CM>{
         } else {
             result.push({
                 ...data,
-                _id: new Types.ObjectId().toString()
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                _id: data._id || new Types.ObjectId().toString()
             });
         }
 
