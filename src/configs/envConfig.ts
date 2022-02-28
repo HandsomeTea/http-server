@@ -53,9 +53,11 @@ interface EnvConfigType {
     INSTANCEID: string
     NODE_ENV: 'development' | 'production' | 'test'
     SERVER_NAME: string
-    TRACE_LOG_LEVEL: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
-    DEV_LOG_LEVEL: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
-    AUDIT_LOG_LEVEL: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
+    PORT: string
+    LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
+    TRACE_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
+    DEV_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
+    AUDIT_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
     JWT_APP_NAME: string
     JWT_APP_ID: string
     JWT_APP_SECERT: string
@@ -67,6 +69,8 @@ const developConfig: EnvConfigType = {
     INSTANCEID: crypto.randomBytes(24).toString('hex').substring(0, 17),
     NODE_ENV: 'development',
     SERVER_NAME: 'personal server',
+    PORT: '3000',
+    LOG_LEVEL: 'all',
     TRACE_LOG_LEVEL: 'all',
     DEV_LOG_LEVEL: 'all',
     AUDIT_LOG_LEVEL: 'all',

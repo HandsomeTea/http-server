@@ -1,15 +1,20 @@
-global.IntervalUpdateInstance = 10;
-global.IntervalCleanUnusedInstance = 30;
-global.IntervalCleanEmptySession = 30;
-global.IntervalCleanUnusedSession = 30;
 import './startup';
 
 import { audit, getENV, log } from '@/configs';
 
-process.on('unhandledRejection', reason => {
-    // 处理没有catch的promise，第二个参数即为promise
+process.on('unhandledRejection', (reason, promise) => {
     log('SYSTEM').fatal(reason);
     audit('SYSTEM').fatal(reason);
+
+    if (promise) {
+        promise.catch(error => {
+            log('SYSTEM').error(error);
+            audit('SYSTEM').error(error);
+        }).then(data => {
+            log('SYSTEM').info(data);
+            audit('SYSTEM').info(data);
+        });
+    }
 });
 
 const port = ((val: string): number => {
@@ -20,38 +25,13 @@ const port = ((val: string): number => {
     }
 
     throw new Error('invalid port!');
-})('3000');
+})(getENV('PORT') || '3000');
 
 import http from 'http';
 import app from '@/routes/app';
 
 app.set('port', port);
 const server = http.createServer(app);
-
-/**============================================socket 封装 ================================ start */
-global.WebsocketUserIdMap = {};
-
-import { WebSocketServer } from './websocket';
-global.WebsocketServer = new WebSocketServer({ server });
-
-/** 封装socket */
-import socketCore from '@/socket/core';
-import socketMethods from '@/socket/methods';
-import crypto from 'crypto';
-
-global.WebsocketServer.connection((socket, request) => {
-    socket.attempt = {
-        connection: {
-            id: crypto.randomBytes(24).toString('hex').substring(0, 16),
-            ip: request.connection.remoteAddress || ''
-        }
-    };
-    socket.middlewareMap = new Set();
-    socketCore(socket);
-    socketMethods(socket);
-});
-/**============================================socket 封装 ================================ end */
-
 
 import redis from '@/tools/redis';
 import mongodb from '@/tools/mongodb';

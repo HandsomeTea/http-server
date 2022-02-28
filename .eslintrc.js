@@ -17,22 +17,13 @@ module.exports = {
     globals: {
         NodeJS: 'readonly',
         isServerRunning: 'readonly',
+        DBServerType: true,
         Exception: 'readonly',
         InstanceException: 'readonly',
-        WebsocketServer: 'readonly',
-        WebsocketUserIdMap: 'readonly',
-        SocketMethod: 'readonly',
         progressConfigParams: 'readonly',
         httpArgument: 'readonly',
-        DeviceType: 'readonly',
-        DeviceModel: 'readonly',
-        SocketAttempt: 'readonly',
         UserModel: 'readonly',
-        InstanceModel: 'readonly',
-        SessionModel: 'readonly',
-        SocketSession: 'readonly',
-        Device: 'readonly',
-        DBServerType: true
+        InstanceModel: 'readonly'
     },
     rules: {
         '@typescript-eslint/no-explicit-any': 2,

@@ -4,7 +4,7 @@ import httpContext from 'express-http-context';
 import Agent from 'agentkeepalive';
 
 import { traceId, log } from '@/configs';
-import JWT from './jwtService';
+import JWT from './JWT';
 
 class Request {
     constructor() {

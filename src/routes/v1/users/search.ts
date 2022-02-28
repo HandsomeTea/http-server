@@ -6,7 +6,7 @@ import { _Users } from '@/dal';
 const router = express.Router();
 
 /**
- * @api {post} /api/v1/users/search 查询用户列表
+ * @api {post} /api/v1/users/user 查询用户列表
  * @apiName 测试接口
  * @apiGroup TEST
  * @apiVersion 1.0.0
@@ -21,16 +21,15 @@ const router = express.Router();
  * @apiSuccess {String} externalUserId externalUserId.
  * @apiUse ErrorApiResult
  */
-router.get('/search', asyncHandler(async (_req, res) => {
-    // log('HTTP_REQUEST').error('test error log.');
-    // const User = new _Users('t3');
+router.post('/user', asyncHandler(async (_req, res) => {
+    const Users = new _Users('11685');
 
-    // await User.create({
-    //     _id: '123',
-    //     name: 'test1'
-    // });
     // await User.find();
-    return res.success();
+    return res.success(await Users.insert({
+        _id: 't3id1mongo',
+        name: 't3user1',
+        test: 'test field'
+    }));
     // console.log(await User.update<UserModel>({ where: { _id: 132 } }, { account: 'newaccount' }));
     // return res.success(await User.find());
     // throw new Exception(new Error('cuo wu'));
@@ -38,14 +37,11 @@ router.get('/search', asyncHandler(async (_req, res) => {
 }));
 
 router.get('/:userId', asyncHandler(async (req, res) => {
-    const Users = new _Users('t1');
+    const Users = new _Users('11685');
 
+    // 6215a94749e853ee5e2df2b9 test123sss
     // return res.success(await Users.findById(req.params.userId, { projection: { name: 1 } }));
-    return res.success(await Users.updateOne({ _id: req.params.userId }, {
-        $set: {
-            name: '123123123123'
-        }
-    }));
+    return res.success(await Users.findById(req.params.userId));
 }));
 
 export default router;
