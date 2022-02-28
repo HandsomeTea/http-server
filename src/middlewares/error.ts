@@ -8,13 +8,12 @@ import { audit, getENV, trace } from '@/configs';
  */
 export default (err: InstanceException, req: Request, res: Response, _next: NextFunction) => { /* eslint-disable-line*/
     const { status, code, message, reason, source } = err;
-    const result = {
+    const result: InstanceException = {
+        message,
+        source: source && Array.isArray(source) && !source.includes(getENV('SERVER_NAME') || '') ? source.concat(getENV('SERVER_NAME') || '') : source,
         code: code || 'INTERNAL_SERVER_ERROR',
-        error: {
-            info: message,
-            reason: reason,
-            ...getENV('NODE_ENV') === 'production' ? {} : { source: source && Array.isArray(source) && !source.includes(getENV('SERVER_NAME') || '') ? source.concat(getENV('SERVER_NAME') || '') : source }
-        }
+        status: 400,
+        reason: reason || []
     };
 
     audit('SYSTEM_ERROR').fatal(err);

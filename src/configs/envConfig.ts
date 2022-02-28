@@ -1,7 +1,6 @@
 // import yaml from 'js-yaml';
 // import fs from 'fs';
 // import { system, updateOrCreateLogInstance } from './logger';
-import crypto from 'crypto';
 
 // /**
 //  * 检查环境变量设置的值
@@ -50,7 +49,6 @@ import crypto from 'crypto';
 // };
 
 interface EnvConfigType {
-    INSTANCEID: string
     NODE_ENV: 'development' | 'production' | 'test'
     SERVER_NAME: string
     PORT: string
@@ -66,7 +64,6 @@ interface EnvConfigType {
     MYSQL_URL: string
 }
 const developConfig: EnvConfigType = {
-    INSTANCEID: crypto.randomBytes(24).toString('hex').substring(0, 17),
     NODE_ENV: 'development',
     SERVER_NAME: 'personal server',
     PORT: '3000',
@@ -85,11 +82,6 @@ const developConfig: EnvConfigType = {
 export default (env: keyof EnvConfigType) => {
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
         return developConfig[`${env}`];
-    }
-
-    if (env === 'INSTANCEID' && !process.env.INSTANCEID) {
-        process.env.INSTANCEID = crypto.randomBytes(24).toString('hex').substring(0, 17);
-        return process.env.INSTANCEID;
     }
 
     return process.env[`${env}`];

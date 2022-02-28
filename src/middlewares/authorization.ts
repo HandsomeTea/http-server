@@ -17,13 +17,10 @@ export default (req: Request, res: Response, next: NextFunction): void => {
         }
     } else {
         res.status(400).send({
-            code: 400,
-            type: errorType.BAD_REQUEST,
-            error: {
-                info: 'Bad request(no Authorization)! Refused.',
-                reason: [],
-                source: [getENV('SERVER_NAME')]
-            }
-        });
+            message: 'Bad request(no Authorization)! Refused.',
+            source: [getENV('SERVER_NAME')],
+            code: errorType.BAD_REQUEST,
+            status: 400
+        } as InstanceException);
     }
 };
