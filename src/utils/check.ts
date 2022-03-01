@@ -14,11 +14,18 @@ interface CheckRuleType {
 const dealCheckType = (param: CheckType) => typeof param() !== 'object' ? typeof param() : Array.isArray(param()) ? 'array' : typeof param();
 const dealParamType = (param: unknown) => typeof param !== 'object' ? typeof param : Array.isArray(param) ? 'array' : typeof param;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function check(param: any, type: CheckType, allowedEmpty?: boolean, error?: string, msg?: string): void;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function check(param: any, type: { [x: string]: CheckType }): void;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function check(param: any, type: { [x: string]: CheckRuleType }): void;
+
 /**
  * 检查数据的合法性
  */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRuleType }, allowedEmpty = true, error = errorType.INVALID_ARGUMENTS, msg?: string): void => {// eslint-disable-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function check(param: any, type: CheckType | { [x: string]: CheckType | CheckRuleType }, allowedEmpty = true, error = errorType.INVALID_ARGUMENTS, msg?: string): void {
     if (param === null || param === undefined) {
         throw new Exception(msg || `Invalid arguments: ${param}`, error);
     }
@@ -52,7 +59,7 @@ export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRu
         }
     } else {
         if (param.constructor !== Object) {
-            throw new Exception(msg || `Invalid arguments: require object, but get ${dealParamType(param)}`, error);
+            throw new Exception(`Invalid arguments: require object, but get ${dealParamType(param)}`, errorType.INVALID_ARGUMENTS);
         }
 
         for (const key in type) {
@@ -71,7 +78,7 @@ export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRu
                 /**
                  * example:
                  *  check(x, {
-                        key1: { type: String, required: true, notEmpty: true }
+                        key1: { type: String, required: true, notEmpty: true, msg: '', error: 'INVALID_ARGUMENTS' }
                     });
                  */
                 const rule = type[key] as CheckRuleType;
@@ -108,4 +115,4 @@ export default (param: any, type: CheckType | { [x: string]: CheckType | CheckRu
             }
         }
     }
-};
+}

@@ -51,6 +51,7 @@
 interface EnvConfigType {
     NODE_ENV: 'development' | 'production' | 'test'
     SERVER_NAME: string
+    ROOT_URL: string
     PORT: string
     LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
     TRACE_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
@@ -66,6 +67,7 @@ interface EnvConfigType {
 const developConfig: EnvConfigType = {
     NODE_ENV: 'development',
     SERVER_NAME: 'personal server',
+    ROOT_URL: 'http://localhost:3000',
     PORT: '3000',
     LOG_LEVEL: 'all',
     TRACE_LOG_LEVEL: 'all',

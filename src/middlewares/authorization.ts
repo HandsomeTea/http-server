@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { JWT } from '@/service';
+import { JWT } from '@/services';
 import { errorType, getENV } from '@/configs';
 
 /**

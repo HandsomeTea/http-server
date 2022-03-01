@@ -6,7 +6,7 @@ import { _Users } from '@/dal';
 const router = express.Router();
 
 /**
- * @api {post} /api/v1/users/user 查询用户列表
+ * @api {post} /api/v1/user/user 查询用户列表
  * @apiName 测试接口
  * @apiGroup TEST
  * @apiVersion 1.0.0

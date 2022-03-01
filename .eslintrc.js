@@ -34,6 +34,7 @@ module.exports = {
                 allowedNames: ['self'] // Allow `const self = this`; `[]` by default
             }
         ],
+        '@typescript-eslint/no-unused-vars': [2, { 'vars': 'all', 'args': 'after-used' }],
         '@typescript-eslint/no-redeclare': 2, //禁止重复声明变量
         'indent': [2, 4, { SwitchCase: 1 }], //缩进风格
         'linebreak-style': [0, 'error', 'windows', 'unix'], //换行风格

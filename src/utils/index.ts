@@ -1,12 +1,13 @@
 import delay from './delay';
 import fixedNumString from './fixedNumStr';
 import base64Encode from './base64Encode';
-import check from './check';
+import { check } from './check';
 import isEmail from './isEmail';
 import isURL from './isURL';
 import isPhone from './isPhone';
 import randomString from './randomString';
 import SHA256 from './sha256';
+
 
 export {
     delay,

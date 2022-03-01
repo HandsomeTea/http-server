@@ -39,10 +39,13 @@ const choice = (arrayOrString: string | Array<string>): string => {
 /**
  * 从alphabet中随机挑选charsCount个字符组成随机字符串
  */
-export default (charsCount: number, alphabet: string): string => {
+export default (charsCount?: number, alphabet?: string): string => {
     const digits = [];
 
-    for (let i = 0; i < charsCount; i++) {
+    if (!alphabet) {
+        alphabet = '23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz';
+    }
+    for (let i = 0; i < (charsCount || 17); i++) {
         digits[i] = choice(alphabet);
     }
     return digits.join('');
