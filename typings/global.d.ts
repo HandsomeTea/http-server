@@ -4,8 +4,9 @@ import { MyWebSocket, WebSocketServer } from '../websocket';
 declare global {
     namespace NodeJS {
         interface Global {
-            isServerRunning: boolean;
+            isServerRunning: boolean
             Exception: ExceptionConstructor
+            tenantDBModel: Record<string, any>
         }
     }
 }

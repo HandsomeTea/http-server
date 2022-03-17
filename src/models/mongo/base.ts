@@ -9,6 +9,7 @@ import mongodb from '@/tools/mongodb';
  *      await db.deleteModel(`${tenantId}_users`);
  */
 export default class MongoBase<CM>{
+    public tenantId: string | undefined;
     private collectionName: string;
     private schemaModel: SchemaDefinition<SchemaDefinitionType<CM>>;
     private index: {
@@ -34,6 +35,7 @@ export default class MongoBase<CM>{
      *                 unique?: boolean
      *             }
      *         })} [_index] mongodb的集合(表)索引
+     * @param {string} [_tenantId] mongodb的集合(表)如果分租户，则表示该集合(表)属于哪个tenantId(集合/表的前缀)
      * @memberof BaseDb
      */
     constructor(collectionName: string, model: SchemaDefinition<SchemaDefinitionType<CM>>,
@@ -45,13 +47,17 @@ export default class MongoBase<CM>{
                 type?: string
                 unique?: boolean
             }
-        }) {
-        this.collectionName = collectionName;
+        }, _tenantId?: string) {
+        this.tenantId = _tenantId;
+        this.collectionName = (this.tenantId ? `${this.tenantId}_` : '') + collectionName;
         this.schemaModel = model;
         this.index = _index;
     }
 
     private get model(): Model<CM> {
+        if (global.tenantDBModel[this.collectionName]) {
+            return global.tenantDBModel[this.collectionName].data;
+        }
         const _schema = new mongodb.schema(this.schemaModel, { _id: false, versionKey: false, timestamps: { createdAt: true, updatedAt: '_updatedAt' } });
 
         if (this.index) {
@@ -60,7 +66,19 @@ export default class MongoBase<CM>{
             }
         }
 
-        return mongodb.server.model(this.collectionName, _schema, this.collectionName);
+        const model = mongodb.server.model(this.collectionName, _schema, this.collectionName);
+
+        if (!this.tenantId) {
+            return model;
+        }
+        global.tenantDBModel[this.collectionName] = {
+            data: model,
+            timer: setTimeout(() => {
+                clearTimeout(global.tenantDBModel[this.collectionName].timer);
+                delete global.tenantDBModel[this.collectionName];
+            }, 30 * 60 * 1000)
+        };
+        return global.tenantDBModel[this.collectionName].data;
     }
 
     private id(data: AnyKeys<CM> | Array<AnyKeys<CM>>): Array<AnyKeys<CM & { _id: string }>> {

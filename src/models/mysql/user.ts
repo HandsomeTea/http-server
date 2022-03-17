@@ -19,12 +19,12 @@ export default class User extends Base<UserModel> {
             }
         };
 
-        super(`${tenantId}_users`, model, {
+        super('users', model, {
             omitNull: true,
             indexes: [{
                 unique: true,
                 fields: ['name']
             }]
-        });
+        }, tenantId);
     }
 }

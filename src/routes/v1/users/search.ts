@@ -25,11 +25,7 @@ router.post('/user', asyncHandler(async (_req, res) => {
     const Users = new _Users('11685');
 
     // await User.find();
-    return res.success(await Users.insert({
-        _id: 't3id1mongo',
-        name: 't3user1',
-        test: 'test field'
-    }));
+    return res.success(await Users.findById('t3id1mongo'));
     // console.log(await User.update<UserModel>({ where: { _id: 132 } }, { account: 'newaccount' }));
     // return res.success(await User.find());
     // throw new Exception(new Error('cuo wu'));

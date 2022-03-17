@@ -20,6 +20,9 @@ COPY . /usr/local/develop
 #安装nodejs应用的依赖(WORKDIR那一步已经将进入/usr/local/develop目录)
 RUN npm install
 
+# RUN cnpm install -g clinic
+# RUN apt-get update && apt-get install net-tools
+
 #对外开放容器的8010端口(因为项目中的服务启动端口为8010)
 EXPOSE 8010
 
@@ -27,7 +30,10 @@ EXPOSE 8010
 # ENTRYPOINT []
 
 #拼接在上一项(ENTRYPOINT)后面
-CMD ['npm','run','start']
+# CMD ["clinic", "flame", "--open=false", "--", "node", "--max-old-space-size=2560", "--max_semi_space_size=512", "index.js"]
+# CMD ["clinic", "heapprofiler", "--open=false", "--", "node", "--max-old-space-size=2560", "--max_semi_space_size=512", "index.js"]
+# CMD ["clinic", "doctor", "--open=false", "--", "node", "--max-old-space-size=2560", "--max_semi_space_size=512", "index.js"]
+CMD ["node", "--max-old-space-size=900", "--max_semi_space_size=64", "index.js"]
 
 #开始创建docker应用的镜像，-t参数，将镜像命名为test
 #docker build -t test ./

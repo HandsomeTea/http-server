@@ -28,8 +28,8 @@ export default class User extends Base<UserModel> {
             }
         };
 
-        super(`${tenantId}_users`, model, {
+        super('users', model, {
             name: { unique: true }
-        });
+        }, tenantId);
     }
 }

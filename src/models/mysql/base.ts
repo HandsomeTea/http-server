@@ -1,12 +1,14 @@
-import { ModelAttributes, ModelCtor, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions } from 'sequelize';
+import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions, CreationAttributes } from 'sequelize';
 import MySQL from '@/tools/mysql';
 
 export default class SqlBase<TM>{
     public tableName: string;
-    private model: ModelCtor<Model<TM>>;
+    private model: ModelStatic<Model<TM>>;
     private modelIsSync: boolean;
-    constructor(tableName: string, tableStruct: ModelAttributes<Model<TM>>, option?: ModelOptions) {
-        this.tableName = tableName;
+    private tenantId!: string | undefined;
+    constructor(tableName: string, tableStruct: ModelAttributes<Model<TM>>, option?: ModelOptions, tenantId?: string) {
+        this.tenantId = tenantId;
+        this.tableName = this.tenantId ? `${this.tenantId}_${tableName}` : tableName;
         this.model = MySQL.server.define(this.tableName, tableStruct, {
             ...option,
             createdAt: true,
@@ -16,16 +18,28 @@ export default class SqlBase<TM>{
         this.modelIsSync = false;
     }
 
-    private async getModelInstance() {
+    private async getModelInstance(): Promise<ModelStatic<Model<TM>>> {
+        if (global.tenantDBModel[this.tableName]) {
+            return global.tenantDBModel[this.tableName].data;
+        }
         if (!this.modelIsSync) {
             await this.model.sync(); //相当于 CREATE TABLE IF NOT EXISTS ...
             this.modelIsSync = true;
         }
-
-        return this.model;
+        if (!this.tenantId) {
+            return this.model;
+        }
+        global.tenantDBModel[this.tableName] = {
+            data: this.model,
+            timer: setTimeout(() => {
+                clearTimeout(global.tenantDBModel[this.tableName].timer);
+                delete global.tenantDBModel[this.tableName];
+            }, 30 * 60 * 1000)
+        };
+        return global.tenantDBModel[this.tableName].data;
     }
 
-    public async insert(data: TM, option?: CreateOptions): Promise<TM> {
+    public async insert(data: CreationAttributes<Model<TM>>, option?: CreateOptions): Promise<TM> {
         return await (await this.getModelInstance()).create(data, option) as unknown as TM;
     }
 
@@ -37,7 +51,7 @@ export default class SqlBase<TM>{
         return await (await this.getModelInstance()).update(set, query);
     }
 
-    public async upsert(set: TM, option?: UpsertOptions<TM>): Promise<[TM, boolean | null]> {
+    public async upsert(set: CreationAttributes<Model<TM>>, option?: UpsertOptions<TM>): Promise<[TM, boolean | null]> {
         return await (await this.getModelInstance()).upsert(set, option) as unknown as [TM, boolean | null];
     }
 

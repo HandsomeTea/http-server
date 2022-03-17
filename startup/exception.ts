@@ -15,12 +15,18 @@ global.Exception = class Exception extends Error {
             this.message = error;
         } else {
             this.message = error?.message || 'inner server error!';
-            if (error instanceof Exception) {
-                this.source = Array.from(error.source);
-                this.code = error.code;
-                this.status = error.status;
-                this.reason = error.reason;
-            }
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            this.source = Array.from(error.source || '');
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            this.code = error.code;
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            this.status = error.status;
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            this.reason = error.reason;
         }
 
         // source

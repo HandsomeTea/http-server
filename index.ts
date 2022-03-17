@@ -17,6 +17,10 @@ process.on('unhandledRejection', (reason, promise) => {
     }
 });
 
+process.on('uncaughtException', (reason) => {
+    log('SYSTEM').fatal(reason);
+});
+
 const port = ((val: string): number => {
     const port = parseInt(val, 10);
 
