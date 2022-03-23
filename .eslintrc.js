@@ -44,7 +44,7 @@ module.exports = {
         'no-multiple-empty-lines': [2, { 'max': 2 }], // 最大空行2
         'no-console': 2, //不能使用console
         'no-constant-condition': 2, // 禁止在条件中使用常量表达式 if(true) if(1)
-        'no-extra-parens': 2, //禁止非必要的括号
+        '@typescript-eslint/no-extra-parens': 2, //禁止非必要的括号
         'no-extra-semi': 2, //禁止多余的冒号
         'no-func-assign': 2, //禁止重复的函数声明
         'no-mixed-spaces-and-tabs': [2, false], //禁止混用tab和空格

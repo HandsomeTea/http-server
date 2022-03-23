@@ -2,10 +2,10 @@ import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindO
 import MySQL from '@/tools/mysql';
 
 export default class SqlBase<TM>{
-    public tableName: string;
+    protected tableName: string;
     private model: ModelStatic<Model<TM>>;
     private modelIsSync: boolean;
-    private tenantId!: string | undefined;
+    protected tenantId!: string | undefined;
     constructor(tableName: string, tableStruct: ModelAttributes<Model<TM>>, option?: ModelOptions, tenantId?: string) {
         this.tenantId = tenantId;
         this.tableName = this.tenantId ? `${this.tenantId}_${tableName}` : tableName;

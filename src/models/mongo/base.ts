@@ -9,8 +9,8 @@ import mongodb from '@/tools/mongodb';
  *      await db.deleteModel(`${tenantId}_users`);
  */
 export default class MongoBase<CM>{
-    public tenantId: string | undefined;
-    private collectionName: string;
+    protected tenantId: string | undefined;
+    protected collectionName: string;
     private schemaModel: SchemaDefinition<SchemaDefinitionType<CM>>;
     private index: {
         [key: string]: {
