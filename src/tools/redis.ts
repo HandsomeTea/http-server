@@ -4,13 +4,13 @@ import { getENV, system } from '@/configs';
 const RECONNET_TIME = 5000;
 
 export default new class Redis {
-    public server!: ioredis.Redis;
+    public server!: ioredis;
     constructor() {
         this.init();
     }
 
     private init(): void {
-        this.server = new ioredis(getENV('REDIS_URL'), {
+        this.server = new ioredis(getENV('REDIS_URL') as string, {
             enableReadyCheck: true,
             retryStrategy(times) {
                 if (times <= 5) {

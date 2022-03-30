@@ -1,4 +1,4 @@
-import { Types, SchemaDefinition, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaDefinitionType, Model, AnyKeys, Aggregate } from 'mongoose';
+import { Types, SchemaDefinition, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaDefinitionType, Model, AnyKeys, Aggregate, IndexOptions } from 'mongoose';
 import mongodb from '@/tools/mongodb';
 
 /**
@@ -12,42 +12,18 @@ export default class MongoBase<CM>{
     protected tenantId: string | undefined;
     protected collectionName: string;
     private schemaModel: SchemaDefinition<SchemaDefinitionType<CM>>;
-    private index: {
-        [key: string]: {
-            background?: boolean
-            expires?: number | string
-            sparse?: boolean
-            type?: string
-            unique?: boolean
-        }
-    } | undefined;
+    private index: { [key: string]: IndexOptions } | undefined;
 
     /**
-     * Creates an instance of BaseDb.
+     * Creates an instance of MongoBase.
      * @param {string} collectionName mongodb的集合(表)名称，如果分租户，则不应该包含租户tenantId
      * @param {SchemaDefinition<SchemaDefinitionType<CM>>} model mongodb的集合(表)结构
-     * @param {({
-     *             [key: string]: {
-     *                 background?: boolean
-     *                 expires?: number | string
-     *                 sparse?: boolean
-     *                 type?: string
-     *                 unique?: boolean
-     *             }
-     *         })} [_index] mongodb的集合(表)索引
+     * @param {{ [key: string]: IndexOptions }} [_index] mongodb的集合(表)索引
      * @param {string} [_tenantId] mongodb的集合(表)如果分租户，则表示该集合(表)属于哪个tenantId(集合/表的前缀)
-     * @memberof BaseDb
+     * @memberof MongoBase
      */
-    constructor(collectionName: string, model: SchemaDefinition<SchemaDefinitionType<CM>>,
-        _index?: {
-            [key: string]: {
-                background?: boolean
-                expires?: number | string
-                sparse?: boolean
-                type?: string
-                unique?: boolean
-            }
-        }, _tenantId?: string) {
+    constructor(collectionName: string, model: SchemaDefinition<SchemaDefinitionType<CM>>, _index?: { [key: string]: IndexOptions }, _tenantId?: string) {
+
         this.tenantId = _tenantId;
         this.collectionName = (this.tenantId ? `${this.tenantId}_` : '') + collectionName;
         this.schemaModel = model;
