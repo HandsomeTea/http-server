@@ -1,10 +1,10 @@
-import { ModelAttributes, Model, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 
 import Base from './base';
 
 export default class User extends Base<UserModel> {
     constructor(tenantId: string) {
-        const model: ModelAttributes<Model<UserModel>> = {
+        super('users', {
             _id: {
                 type: DataTypes.STRING,
                 primaryKey: true,
@@ -17,9 +17,7 @@ export default class User extends Base<UserModel> {
             test: {
                 type: DataTypes.STRING
             }
-        };
-
-        super('users', model, {
+        }, {
             omitNull: true,
             indexes: [{
                 unique: true,

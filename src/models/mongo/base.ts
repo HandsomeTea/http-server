@@ -23,7 +23,6 @@ export default class MongoBase<CM>{
      * @memberof MongoBase
      */
     constructor(collectionName: string, model: SchemaDefinition<SchemaDefinitionType<CM>>, _index?: { [key: string]: IndexOptions }, _tenantId?: string) {
-
         this.tenantId = _tenantId;
         this.collectionName = (this.tenantId ? `${this.tenantId}_` : '') + collectionName;
         this.schemaModel = model;

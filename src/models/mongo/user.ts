@@ -1,4 +1,3 @@
-import { SchemaDefinition, ValidateOpts } from 'mongoose';
 import Base from './base';
 
 export default class User extends Base<UserModel> {
@@ -8,7 +7,7 @@ export default class User extends Base<UserModel> {
     * @memberof User
     */
     constructor(tenantId: string) {
-        const model: SchemaDefinition = {
+        super('users', {
             _id: { type: String, required: true, trim: true },
             name: { type: String, required: true, trim: true },
             test: {
@@ -24,11 +23,9 @@ export default class User extends Base<UserModel> {
                         return false;
                     },
                     message: props => `${props.value} is not a valid phone number!`
-                } as ValidateOpts<string>
+                }
             }
-        };
-
-        super('users', model, {
+        }, {
             name: { unique: true }
         }, tenantId);
     }
