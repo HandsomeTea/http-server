@@ -12,7 +12,8 @@ export default class SqlBase<TM>{
         this.model = MySQL.server.define(this.tableName, tableStruct, {
             ...option,
             createdAt: true,
-            updatedAt: '_updatedAt',
+            updatedAt: true,
+            omitNull: true,
             freezeTableName: true //默认会给表名加s
         });
         this.modelIsSync = false;

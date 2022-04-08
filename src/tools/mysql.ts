@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { parse } from 'url';
 import { getENV, system } from '@/configs';
 
 export default new class MySQL {
@@ -11,12 +10,11 @@ export default new class MySQL {
         if (!mysqlAddress) {
             throw new Exception(`mysql connect address is required but get ${mysqlAddress}`);
         }
-        const mysqlConfig = parse(mysqlAddress) as { auth: string, hostname: string, port: string, pathname: string };
-        const [username, password] = mysqlConfig.auth.split(':');
+        const mysqlConfig = new URL(mysqlAddress);
 
         this.server = new Sequelize({
-            username,
-            password,
+            username: mysqlConfig.username,
+            password: mysqlConfig.password,
             host: mysqlConfig.hostname,
             port: parseInt(mysqlConfig.port),
             database: mysqlConfig.pathname.replace('/', ''),
