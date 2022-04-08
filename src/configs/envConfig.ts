@@ -61,8 +61,10 @@ interface EnvConfigType {
     JWT_APP_ID: string
     JWT_APP_SECERT: string
     REDIS_URL: string
+    DB_TYPE: DBServerType
     MONGO_URL: string
     MYSQL_URL: string
+    MQ_URL: string
 }
 const developConfig: EnvConfigType = {
     NODE_ENV: 'development',
@@ -77,14 +79,18 @@ const developConfig: EnvConfigType = {
     JWT_APP_ID: 'jwtAppId',
     JWT_APP_SECERT: 'jwtSecret',
     REDIS_URL: 'redis://127.0.0.1:6379',
+    DB_TYPE: 'mongodb',
     MONGO_URL: 'mongodb://localhost:27017/test',
-    MYSQL_URL: 'mysql://root:root@localhost:3306/test'
+    MYSQL_URL: 'mysql://root:root@localhost:3306/test',
+    MQ_URL: ''
 };
 
-export default (env: keyof EnvConfigType) => {
+export default <K extends keyof EnvConfigType>(env: K): EnvConfigType[K] => {
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-        return developConfig[`${env}`];
+        return developConfig[env];
     }
 
-    return process.env[`${env}`];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return process.env[env];
 };

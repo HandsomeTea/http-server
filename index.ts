@@ -40,6 +40,7 @@ const server = http.createServer(app);
 import redis from '@/tools/redis';
 import mongodb from '@/tools/mongodb';
 import mysql from '@/tools/mysql';
+import mq from '@/tools/mq';
 
 /**
  * 健康检查
@@ -58,6 +59,10 @@ const isHealth = async () => {
     if (!mysql.isUseful) {
         result = false;
         log('STARTUP').error('mysql connection is unusual');
+    }
+    if (!mq.isUseful) {
+        result = false;
+        log('STARTUP').error('mq connection is unusual');
     }
     if (result) {
         log('STARTUP').debug('system is normal.');
@@ -90,6 +95,7 @@ process.on('exit', async () => {
     await mongodb.close();
     await redis.close();
     await mysql.close();
+    await mq.close();
     log('SYSREM_STOP_CLEAN').info('server connection will stop normally.');
 });
 

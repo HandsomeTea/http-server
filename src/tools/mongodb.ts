@@ -16,8 +16,11 @@ const mongoconnect = () => {
     });
 };
 
-class MongoDB {
+export default new class MongoDB {
     constructor() {
+        if (getENV('DB_TYPE') !== 'mongodb') {
+            return;
+        }
         // 初始化操作
         this.server.once('connected', () => {// 连接成功
             system('mongodb').info(`mongodb connected on ${getENV('MONGO_URL')} success and ready to use.`);
@@ -38,7 +41,12 @@ class MongoDB {
         return await mongoconnect();
     }
 
-    public get server() {
+    public get server(): mongoose.Connection {
+        if (getENV('DB_TYPE') !== 'mongodb') {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            return system('db').error('mongodb is not available!');
+        }
         return mongoose.connection;
     }
 
@@ -47,12 +55,12 @@ class MongoDB {
     }
 
     public get isUseful() {
-        return this.server.readyState === 1;
+        return getENV('DB_TYPE') !== 'mongodb' || this.server.readyState === 1;
     }
 
-    public async close() {
-        return await mongoose.connection.close();
+    public async close(): Promise<void> {
+        if (this.isUseful) {
+            await this.server.close();
+        }
     }
-}
-
-export default new MongoDB();
+};

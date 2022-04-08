@@ -29,6 +29,8 @@
     "@godaddy/terminus": "^4.10.2",
     "agentkeepalive": "^4.2.1",
     "ali-sms": "^1.0.3",
+    "amqp-connection-manager": "^4.1.1",
+    "amqplib": "^0.8.0",
     "axios": "^0.26.1",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",

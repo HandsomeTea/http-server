@@ -2,9 +2,12 @@ import { Sequelize } from 'sequelize';
 import { getENV, system } from '@/configs';
 
 export default new class MySQL {
-    public server: Sequelize;
+    private service!: Sequelize;
     private isReady = false;
     constructor() {
+        if (getENV('DB_TYPE') !== 'mysql') {
+            return;
+        }
         const mysqlAddress = getENV('MYSQL_URL');
 
         if (!mysqlAddress) {
@@ -12,7 +15,7 @@ export default new class MySQL {
         }
         const mysqlConfig = new URL(mysqlAddress);
 
-        this.server = new Sequelize({
+        this.service = new Sequelize({
             username: mysqlConfig.username,
             password: mysqlConfig.password,
             host: mysqlConfig.hostname,
@@ -28,7 +31,7 @@ export default new class MySQL {
     }
 
     private init() {
-        this.server.authenticate().then(() => {
+        this.service.authenticate().then(() => {
             this.isReady = true;
             system('mysql').info(`mysql connected on ${getENV('MYSQL_URL')} success and ready to use.`);
         }).catch(error => {
@@ -36,13 +39,24 @@ export default new class MySQL {
         });
     }
 
-    public get isUseful() {
-        return this.isReady;
+    public get server(): Sequelize {
+        if (this.isUseful) {
+            return this.service;
+        }
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return system('db').error('mysql is not available!');
     }
 
-    public async close() {
-        this.isReady = false;
-        await this.server.close();
-        system('mysql').error('all connections in the pool have ended');
+    public get isUseful() {
+        return getENV('DB_TYPE') !== 'mysql' || this.isReady;
+    }
+
+    public async close(): Promise<void> {
+        if (this.isUseful) {
+            this.isReady = false;
+            await this.service.close();
+            system('mysql').error('all connections in the pool have ended');
+        }
     }
 };

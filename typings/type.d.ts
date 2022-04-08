@@ -19,7 +19,7 @@ declare interface ExceptionConstructor {
 
 declare const Exception: ExceptionConstructor;
 
-type DBServerType = 'mongodb' | 'mysql';
+type DBServerType = 'mongodb' | 'mysql' | 'dameng';
 
 declare namespace Express {
     interface Response {
