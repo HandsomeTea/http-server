@@ -18,7 +18,7 @@ const mongoconnect = () => {
 
 export default new class MongoDB {
     constructor() {
-        if (getENV('DB_TYPE') !== 'mongodb') {
+        if (!this.isUseful) {
             return;
         }
         // 初始化操作
@@ -41,21 +41,30 @@ export default new class MongoDB {
         return await mongoconnect();
     }
 
+    /**
+     * 系统是否采用mongodb作为数据库
+     * @readonly
+     * @private
+     */
+    private get isUseful() {
+        return getENV('DB_TYPE') === 'mongodb';
+    }
+
     public get server(): mongoose.Connection {
-        if (getENV('DB_TYPE') !== 'mongodb') {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            return system('db').error('mongodb is not available!');
+        if (this.isUseful) {
+            return mongoose.connection;
         }
-        return mongoose.connection;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return system('db').error('mongodb is not available!');
     }
 
     public get schema() {
         return mongoose.Schema;
     }
 
-    public get isUseful() {
-        return getENV('DB_TYPE') !== 'mongodb' || this.server.readyState === 1;
+    public get isOK() {
+        return !this.isUseful || this.isUseful && this.server.readyState === 1;
     }
 
     public async close(): Promise<void> {

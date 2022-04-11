@@ -5,7 +5,7 @@ export default new class MySQL {
     private service!: Sequelize;
     private isReady = false;
     constructor() {
-        if (getENV('DB_TYPE') !== 'mysql') {
+        if (!this.isUseful) {
             return;
         }
         const mysqlAddress = getENV('MYSQL_URL');
@@ -39,6 +39,15 @@ export default new class MySQL {
         });
     }
 
+    /**
+     * 系统是否采用mysql作为数据库
+     * @readonly
+     * @private
+     */
+    private get isUseful() {
+        return getENV('DB_TYPE') === 'mysql';
+    }
+
     public get server(): Sequelize {
         if (this.isUseful) {
             return this.service;
@@ -48,15 +57,14 @@ export default new class MySQL {
         return system('db').error('mysql is not available!');
     }
 
-    public get isUseful() {
-        return getENV('DB_TYPE') !== 'mysql' || this.isReady;
+    public get isOK() {
+        return !this.isUseful || this.isUseful && this.isReady;
     }
 
     public async close(): Promise<void> {
-        if (this.isUseful) {
-            this.isReady = false;
+        if (this.isReady) {
             await this.service.close();
-            system('mysql').error('all connections in the pool have ended');
+            this.isReady = false;
         }
     }
 };

@@ -19,7 +19,7 @@ export default new class MQ {
         });
     }
 
-    public get isUseful() {
+    public get isOK() {
         return this.server.isConnected();
     }
 

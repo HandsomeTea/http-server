@@ -64,6 +64,7 @@ interface EnvConfigType {
     DB_TYPE: DBServerType
     MONGO_URL: string
     MYSQL_URL: string
+    DM_URL: string
     MQ_URL: string
 }
 const developConfig: EnvConfigType = {
@@ -82,6 +83,7 @@ const developConfig: EnvConfigType = {
     DB_TYPE: 'mongodb',
     MONGO_URL: 'mongodb://localhost:27017/test',
     MYSQL_URL: 'mysql://root:root@localhost:3306/test',
+    DM_URL: 'dm://SYSDBA:SYSDBA@localhost:5236?autoCommit=false',
     MQ_URL: ''
 };
 

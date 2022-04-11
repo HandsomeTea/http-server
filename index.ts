@@ -48,19 +48,19 @@ import mq from '@/tools/mq';
 const isHealth = async () => {
     let result = true;
 
-    if (!mongodb.isUseful) {
+    if (!mongodb.isOK) {
         result = false;
         log('STARTUP').error('mongodb connection is unusual');
     }
-    if (!redis.isUseful) {
+    if (!redis.isOK) {
         result = false;
         log('STARTUP').error('redis connection is unusual');
     }
-    if (!mysql.isUseful) {
+    if (!mysql.isOK) {
         result = false;
         log('STARTUP').error('mysql connection is unusual');
     }
-    if (!mq.isUseful) {
+    if (!mq.isOK) {
         result = false;
         log('STARTUP').error('mq connection is unusual');
     }
