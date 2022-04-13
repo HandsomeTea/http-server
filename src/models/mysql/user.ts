@@ -17,12 +17,12 @@ export default class User extends Base<UserModel> {
             test: {
                 type: DataTypes.STRING
             }
-        }, {
+        }, tenantId, {
             omitNull: true,
             indexes: [{
                 unique: true,
                 fields: ['name']
             }]
-        }, tenantId);
+        });
     }
 }

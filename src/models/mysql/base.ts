@@ -1,4 +1,6 @@
-import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions, CreationAttributes } from 'sequelize';
+import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions, CreationAttributes, QueryTypes } from 'sequelize';
+import { Types } from 'mongoose';
+
 import MySQL from '@/tools/mysql';
 
 export default class SqlBase<TM>{
@@ -6,13 +8,13 @@ export default class SqlBase<TM>{
     private model: ModelStatic<Model<TM>>;
     private modelIsSync: boolean;
     protected tenantId!: string | undefined;
-    constructor(tableName: string, tableStruct: ModelAttributes<Model<TM>>, option?: ModelOptions, tenantId?: string) {
+    constructor(tableName: string, tableStruct: ModelAttributes<Model<TM>>, tenantId?: string, option?: ModelOptions) {
         this.tenantId = tenantId;
         this.tableName = this.tenantId ? `${this.tenantId}_${tableName}` : tableName;
         this.model = MySQL.server.define(this.tableName, tableStruct, {
             ...option,
-            createdAt: true,
-            updatedAt: true,
+            createdAt: 'create_at',
+            updatedAt: 'updated_at',
             omitNull: true,
             freezeTableName: true //默认会给表名加s
         });
@@ -38,6 +40,15 @@ export default class SqlBase<TM>{
             }, 30 * 60 * 1000)
         };
         return global.tenantDBModel[this.tableName].data;
+    }
+
+    /**
+     * 生成一个可以作为primaryKey的随机字符串
+     * @readonly
+     * @memberof SqlBase
+     */
+    public get randomId() {
+        return new Types.ObjectId().toString();
     }
 
     public async insert(data: CreationAttributes<Model<TM>>, option?: CreateOptions): Promise<TM> {
@@ -75,5 +86,29 @@ export default class SqlBase<TM>{
         const { count, rows } = await (await this.getModelInstance()).findAndCountAll(query);
 
         return { count, data: rows as unknown as Array<TM> };
+    }
+
+    // ？
+    public async insertExecute(sql: string): Promise<[number, number]> {
+        return await MySQL.server.query(sql, { type: QueryTypes.INSERT });
+    }
+
+    // ？
+    public async deleteExecute(sql: string): Promise<void> {
+        return await MySQL.server.query(sql, { type: QueryTypes.DELETE });
+    }
+
+    // ？
+    public async updateExecute(sql: string): Promise<[undefined, number]> {
+        return await MySQL.server.query(sql, { type: QueryTypes.UPDATE });
+    }
+
+    // ？
+    public async upsertExecute(sql: string): Promise<number> {
+        return await MySQL.server.query(sql, { type: QueryTypes.UPSERT });
+    }
+
+    public async selectExecute(sql: string): Promise<Array<TM>> {
+        return await MySQL.server.query(sql, { type: QueryTypes.SELECT }) as unknown as Array<TM>;
     }
 }
