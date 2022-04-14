@@ -1,4 +1,4 @@
-import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions, CreationAttributes, QueryTypes } from 'sequelize';
+import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions, CreationAttributes, QueryTypes, CountOptions } from 'sequelize';
 import { Types } from 'mongoose';
 
 import MySQL from '@/tools/mysql';
@@ -51,6 +51,13 @@ export default class SqlBase<TM>{
         return new Types.ObjectId().toString();
     }
 
+    public async tableIsExist(tableName?: string) {
+        const databaseName = MySQL.server.getDatabaseName();
+        const tableInfo = (await MySQL.server.showAllSchemas({})).find(a => a[`Tables_in_${databaseName}`] === tableName || this.tableName);
+
+        return tableInfo ? true : false;
+    }
+
     public async insert(data: CreationAttributes<Model<TM>>, option?: CreateOptions): Promise<TM> {
         return await (await this.getModelInstance()).create(data, option) as unknown as TM;
     }
@@ -88,26 +95,53 @@ export default class SqlBase<TM>{
         return { count, data: rows as unknown as Array<TM> };
     }
 
-    // ？
+    public async count(query?: Omit<CountOptions<TM>, 'group'>): Promise<number> {
+        return await (await this.getModelInstance())?.count(query) || 0;
+    }
+
+    /**
+     * @param {string} sql 如: insert into test (id, user_id, type, create_at, updated_at) values ('test123', 'aaaaaa', 'ws', '2022-4-13 21:10:12', '2022-4-13 21:10:12');
+     * @returns {Promise<[number, number]>}
+     * @memberof SqlBase
+     */
     public async insertExecute(sql: string): Promise<[number, number]> {
         return await MySQL.server.query(sql, { type: QueryTypes.INSERT });
     }
 
-    // ？
-    public async deleteExecute(sql: string): Promise<void> {
-        return await MySQL.server.query(sql, { type: QueryTypes.DELETE });
+    /**
+     * @param {string} sql 如: delete from test where type='ws';
+     * @returns {Promise<undefined>}
+     * @memberof SqlBase
+     */
+    public async deleteExecute(sql: string): Promise<undefined> {
+        return await MySQL.server.query(sql, { type: QueryTypes.DELETE }) as undefined;
     }
 
-    // ？
-    public async updateExecute(sql: string): Promise<[undefined, number]> {
-        return await MySQL.server.query(sql, { type: QueryTypes.UPDATE });
+    /**
+     * 注意: where条件必须在set条件之后
+     * @param {string} sql 如: update test set user_id='asdasdasd1234' where id='sad23asd345dfg';
+     * @returns {Promise<[null, number]>}
+     * @memberof SqlBase
+     */
+    public async updateExecute(sql: string): Promise<[null, number]> {
+        return await MySQL.server.query(sql, { type: QueryTypes.UPDATE }) as unknown as [null, number];
     }
 
-    // ？
-    public async upsertExecute(sql: string): Promise<number> {
-        return await MySQL.server.query(sql, { type: QueryTypes.UPSERT });
+    /**
+     * update的是: duplicate key 后面的数据
+     * @param {string} sql 如: insert into test (id, user_id, type, create_at, updated_at) values ('test12345ss', 'sssaa', 'ws', '2022-4-13 21:10:12', '2022-4-13 21:10:12') on duplicate key update id='test12345ss1', user_id='sssaa1';
+     * @returns {Promise<[number, boolean]>} [0, true]代表insert，[0, false]代表update
+     * @memberof SqlBase
+     */
+    public async upsertExecute(sql: string): Promise<[number, boolean]> {
+        return await MySQL.server.query(sql, { type: QueryTypes.UPSERT }) as unknown as [number, boolean];
     }
 
+    /**
+     * @param {string} sql 如: select * from test;
+     * @returns {Promise<Array<TM>>}
+     * @memberof SqlBase
+     */
     public async selectExecute(sql: string): Promise<Array<TM>> {
         return await MySQL.server.query(sql, { type: QueryTypes.SELECT }) as unknown as Array<TM>;
     }
