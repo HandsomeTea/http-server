@@ -1,4 +1,4 @@
-import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions, CreationAttributes, QueryTypes, CountOptions } from 'sequelize';
+import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions, CreationAttributes, QueryTypes, CountOptions, BulkCreateOptions } from 'sequelize';
 import { Types } from 'mongoose';
 
 import MySQL from '@/tools/mysql';
@@ -58,8 +58,12 @@ export default class SqlBase<TM>{
         return tableInfo ? true : false;
     }
 
-    public async insert(data: CreationAttributes<Model<TM>>, option?: CreateOptions): Promise<TM> {
+    public async insert(data: CreationAttributes<Model<TM>>, option?: CreateOptions<TM>): Promise<TM> {
         return await (await this.getModelInstance()).create(data, option) as unknown as TM;
+    }
+
+    public async insertMany(data: Array<CreationAttributes<Model<TM>>>, option?: BulkCreateOptions<TM>): Promise<Array<TM>> {
+        return await (await this.getModelInstance()).bulkCreate(data, option) as unknown as Array<TM>;
     }
 
     public async delete(option: DestroyOptions<TM>) {
