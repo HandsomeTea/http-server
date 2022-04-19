@@ -1,7 +1,6 @@
 import delay from './delay';
 import fixedNumString from './fixedNumStr';
 import base64Encode from './base64Encode';
-import { check } from './check';
 import isEmail from './isEmail';
 import isURL from './isURL';
 import isPhone from './isPhone';
@@ -13,7 +12,6 @@ export {
     delay,
     fixedNumString,
     base64Encode,
-    check,
     isEmail,
     isURL,
     isPhone,
@@ -32,3 +30,6 @@ export {
     escapeRegExp,
     capitalize
 } from './stringHandler';
+
+export { check } from './check';
+export { typeIs } from './typeIs';
