@@ -1,30 +1,42 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { typeIs } from '@/utils';
 
+interface SQLOption<M, P extends keyof M> {
+    $ne?: M[P]
+    $in?: Array<M[P]>
+    $notIn?: Array<M[P]>
+    $like?: string
+    $regexp?: string | RegExp
+    $between?: [M[P], M[P]]
+    $gt?: M[P]
+    $lt?: M[P]
+    $gte?: M[P]
+    $lte?: M[P]
+}
+
+type WhereOption<M> = {
+    [P in keyof M]?: M[P] | SQLOption<M, P>
+}
+
 interface QueryOption<M> {
-    $and?: { [P in keyof M]?: M[P] }
-    $or?: { [P in keyof M]?: M[P] }
-    $ne?: { [P in keyof M]?: M[P] }
-    $in?: { [P in keyof M]?: Array<M[P]> }
-    $notIn?: { [P in keyof M]?: Array<M[P]> }
-    $like?: { [P in keyof M as P extends string ? `$${P}` | `${P}$` | `$${P}$` | P : P]?: M[P] }
-    $regexp?: { [P in keyof M]?: string | RegExp }
-    $between?: { [P in keyof M]?: [M[P], M[P]] }
-    $gt?: { [P in keyof M]?: M[P] }
-    $lt?: { [P in keyof M]?: M[P] }
-    $gte?: { [P in keyof M]?: M[P] }
-    $lte?: { [P in keyof M]?: M[P] }
-    $order?: Array<{ [P in keyof M]?: 'asc' | 'desc' }>
+    where?: WhereOption<M> & { $or?: Array<WhereOption<M>> }
+    order?: Array<{ [P in keyof M]?: 'asc' | 'desc' }>
+    limit?: number
+    offset?: number
 }
 
 // type UpsertOption<M> = { [P in keyof M]?: M[P] }
-type UpdateOption<M> = { [P in keyof M]?: M[P] extends string ? M[P] | { $pull: M[P], $split: ',' } : M[P] }
+type UpdateOption<M> = { [P in keyof M]?: M[P] extends string ? string | { $pull: M[P], $split: ',' } : M[P] }
 
 export default class SQL<Model extends Record<string, any>> {
     private tableName: string;
 
-    constructor(tableName: string) {
-        this.tableName = tableName;
+    constructor(tableName: string, DBName?: string) {
+        if (DBName) {
+            this.tableName = `${DBName}.${tableName}`;
+        } else {
+            this.tableName = tableName;
+        }
     }
 
     private getSqlValue(value: any) {
@@ -45,180 +57,131 @@ export default class SQL<Model extends Record<string, any>> {
         }
     }
 
-    private getQueryOption(query: QueryOption<Model>): string {
-        const addArr: Array<string> = [];
-        const orArr: Array<string> = [];
-        const neArr: Array<string> = [];
-        const inArr: Array<string> = [];
-        const notInArr: Array<string> = [];
-        const likeArr: Array<string> = [];
-        const regexpArr: Array<string> = [];
-        const betweenArr: Array<string> = [];
-        const gtArr: Array<string> = [];
-        const ltArr: Array<string> = [];
-        const gteArr: Array<string> = [];
-        const lteArr: Array<string> = [];
-        const orderArr: Array<string> = [];
-        const { $and, $or, $ne, $in, $notIn, $like, $regexp, $between, $gt, $lt, $gte, $lte, $order } = query;
-
+    private getWhereQuery(where: WhereOption<Model>): Array<string> {
+        const arr: Array<string> = [];
         const isVal = new Set(['null', true, false]);
 
-        if ($and) {
-            for (const key in $and) {
-                const value = this.getSqlValue($and[key]);
+        for (const key in where) {
+            const option = where[key];
 
-                addArr.push(isVal.has(value) ? `${key} is ${value}` : `${key}=${value}`);
+            if (typeIs(option) === 'object'
+                && (typeof option.$between !== 'undefined' ||
+                    typeof option.$gt !== 'undefined' ||
+                    typeof option.$gte !== 'undefined' ||
+                    typeof option.$in !== 'undefined' ||
+                    typeof option.$like !== 'undefined' ||
+                    typeof option.$lt !== 'undefined' ||
+                    typeof option.$lte !== 'undefined' ||
+                    typeof option.$ne !== 'undefined' ||
+                    typeof option.$notIn !== 'undefined' ||
+                    typeof option.$regexp !== 'undefined'
+                )) {
+                const { $between, $gt, $gte, $in, $like, $lt, $lte, $ne, $notIn, $regexp } = option as SQLOption<Model, keyof Model>;
+
+                if ($between) {
+                    arr.push(`${key} between ${this.getSqlValue($between[0])} and ${this.getSqlValue($between[1])}`);
+                }
+                if (typeof $gt !== 'undefined') {
+                    arr.push(`${key} > ${this.getSqlValue($gt)}`);
+                }
+                if (typeof $gte !== 'undefined') {
+                    arr.push(`${key} >= ${this.getSqlValue($gte)}`);
+                }
+                if ($in) {
+                    const _in = $in.map(a => this.getSqlValue(a));
+
+                    arr.push(`${key} in (${_in.join(', ')})`);
+                }
+                if ($like) {
+                    arr.push(`${key} like '%${$like}%'`);
+                }
+                if (typeof $lt !== 'undefined') {
+                    arr.push(`${key} > ${this.getSqlValue($lt)}`);
+                }
+                if (typeof $lte !== 'undefined') {
+                    arr.push(`${key} >= ${this.getSqlValue($lte)}`);
+                }
+                if (typeof $ne !== 'undefined') {
+                    const value = this.getSqlValue($ne);
+
+                    arr.push(isVal.has(value) ? `${key} is not ${value}` : `${key}!=${value}`);
+                }
+                if ($notIn) {
+                    const _notIn = $notIn.map(a => this.getSqlValue(a));
+
+                    arr.push(`${key} not in (${_notIn.join(', ')})`);
+                }
+                if ($regexp) {
+                    let regStr = new RegExp($regexp as string | RegExp, '').toString();
+
+                    regStr = regStr.substring(1, regStr.length - 1);
+                    arr.push(`${key} regexp ${regStr}`);
+                }
+            } else {
+                const value = this.getSqlValue(option);
+
+                arr.push(isVal.has(value) ? `${key} is ${value}` : `${key}=${value}`);
             }
         }
+        return arr;
+    }
 
-        if ($or) {
-            for (const key in $or) {
-                const value = this.getSqlValue($or[key]);
+    private getQueryOption(query: QueryOption<Model>): string {
+        const { where, order, offset = 0, limit } = query;
 
-                orArr.push(isVal.has(value) ? `${key} is ${value}` : `${key}=${value}`);
-            }
-        }
+        const orArr: Array<string> = [];
+        const andArr: Array<string> = [];
 
-        if ($ne) {
-            for (const key in $ne) {
-                const value = this.getSqlValue($ne[key]);
+        if (where) {
+            const { $or } = where;
 
-                neArr.push(isVal.has(value) ? `${key} is not ${value}` : `${key}!=${value}`);
-            }
-        }
-
-        if ($in) {
-            for (const key in $in) {
-                const _in = $in[key]?.map(a => this.getSqlValue(a));
-
-                if (_in && _in.length > 0) {
-                    inArr.push(`${key} in (${_in.join(', ')})`);
+            if ($or) {
+                for (let s = 0; s < $or.length; s++) {
+                    orArr.push(...this.getWhereQuery($or[s]));
                 }
             }
+            const _where = { ...where };
+
+            delete _where.$or;
+            andArr.push(...this.getWhereQuery(_where));
         }
 
-        if ($notIn) {
-            for (const key in $notIn) {
-                const _notIn = $notIn[key]?.map(a => this.getSqlValue(a));
+        const orderArr: Array<string> = [];
 
-                if (_notIn && _notIn.length > 0) {
-                    notInArr.push(`${key} not in (${_notIn.join(', ')})`);
-                }
+        if (order) {
+            for (let s = 0; s < order.length; s++) {
+                orderArr.push(`${Object.keys(order[s])[0]} ${Object.values(order[s])[0]}`);
             }
         }
 
-        if ($like) {
-            for (const key in $like) {
-                if (!$like[key]) {
-                    continue;
-                }
-                const count$ = key.split('$').length - 1;
-
-                if (count$ === 2) {
-                    likeArr.push(`${key.replace(/\$/g, '')} like '%${$like[key]}%'`);
-                } else if (count$ === 0) {
-                    likeArr.push(`${key}=${$like[key]}`);
-                } else if (key[0] === '$') {
-                    likeArr.push(`${key.replace(/\$/g, '')} like '${$like[key]}%'`);
-                } else {
-                    likeArr.push(`${key.replace(/\$/g, '')} like '%${$like[key]}'`);
-                }
-            }
-        }
-
-        if ($regexp) {
-            for (const key in $regexp) {
-                let regStr = new RegExp($regexp[key] as string | RegExp, '').toString();
-
-                regStr = regStr.substring(1, regStr.length - 1);
-                regexpArr.push(`${key} regexp ${regStr}`);
-            }
-        }
-
-        if ($between) {
-            for (const key in $between) {
-                betweenArr.push(`${key} between ${this.getSqlValue($between[key]?.[0])} and ${this.getSqlValue($between[key]?.[1])}`);
-            }
-        }
-
-        if ($gt) {
-            for (const key in $gt) {
-                gtArr.push(`${key} > ${this.getSqlValue($gt[key])}`);
-            }
-        }
-
-        if ($lt) {
-            for (const key in $lt) {
-                ltArr.push(`${key} < ${this.getSqlValue($lt[key])}`);
-            }
-        }
-
-        if ($gte) {
-            for (const key in $gte) {
-                gteArr.push(`${key} >= ${this.getSqlValue($gte[key])}`);
-            }
-        }
-
-        if ($lte) {
-            for (const key in $lte) {
-                lteArr.push(`${key} <= ${this.getSqlValue($lte[key])}`);
-            }
-        }
-
-        if ($order) {
-            for (let s = 0; s < $order.length; s++) {
-                orderArr.push(`${Object.keys($order[s])[0]} ${Object.values($order[s])[0]}`);
-            }
-        }
-
+        let str = '';
         const queryArr: Array<string> = [];
 
-        if (addArr.length > 0) {
-            queryArr.push(`(${addArr.join(' and ')})`);
-        }
         if (orArr.length > 0) {
             queryArr.push(`(${orArr.join(' or ')})`);
         }
-        if (neArr.length > 0) {
-            queryArr.push(`(${neArr.join(' and ')})`);
+
+        if (andArr.length > 0) {
+            queryArr.push(`(${andArr.join(' and ')})`);
         }
-        if (inArr.length > 0) {
-            queryArr.push(`(${inArr.join(' and ')})`);
-        }
-        if (notInArr.length > 0) {
-            queryArr.push(`(${notInArr.join(' and ')})`);
-        }
-        if (likeArr.length > 0) {
-            queryArr.push(`(${likeArr.join(' and ')})`);
-        }
-        if (regexpArr.length > 0) {
-            queryArr.push(`(${regexpArr.join(' and ')})`);
-        }
-        if (betweenArr.length > 0) {
-            queryArr.push(`(${betweenArr.join(' and ')})`);
-        }
-        if (gtArr.length > 0) {
-            queryArr.push(`(${gtArr.join(' and ')})`);
-        }
-        if (ltArr.length > 0) {
-            queryArr.push(`(${ltArr.join(' and ')})`);
-        }
-        if (gteArr.length > 0) {
-            queryArr.push(`(${gteArr.join(' and ')})`);
-        }
-        if (lteArr.length > 0) {
-            queryArr.push(`(${lteArr.join(' and ')})`);
-        }
-        let str = '';
 
         if (queryArr.length > 0) {
             str = `where ${queryArr.join(' and ')}`;
         }
 
         if (orderArr.length > 0) {
-            str += ` order by ${orderArr.join(', ')}`;
+            if (str) {
+                str += ' ';
+            }
+            str += `order by ${orderArr.join(', ')}`;
         }
 
+        if (typeof offset !== 'undefined' && typeof limit !== 'undefined') {
+            if (str) {
+                str += ' ';
+            }
+            str += `limit ${offset}, ${limit}`;
+        }
         return str;
     }
 
