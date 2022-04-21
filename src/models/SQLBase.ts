@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { getENV } from '@/configs';
 import { typeIs } from '@/utils';
 
 interface SQLOption<M, P extends keyof M> {
@@ -30,6 +31,7 @@ type UpdateOption<M> = { [P in keyof M]?: M[P] extends string ? string | { $pull
 
 export default class SQL<Model extends Record<string, any>> {
     private tableName: string;
+    private db: DBServerType;
 
     constructor(tableName: string, DBName?: string) {
         if (DBName) {
@@ -37,22 +39,26 @@ export default class SQL<Model extends Record<string, any>> {
         } else {
             this.tableName = tableName;
         }
+        this.db = getENV('DB_TYPE');
     }
 
     private getSqlValue(value: any) {
         const type = typeIs(value);
 
-        if (!new Set(['string', 'number', 'bigint', 'boolean', 'undefined', 'date', 'null']).has(type)) {
+        if (!new Set(['string', 'number', 'bigint', 'undefined', 'date', 'null']).has(type)) {
             throw new Exception(`SQL does not support storage of this data type: ${type}`);
         }
 
         if (type === 'string') {
             return `'${value}'`;
-        } else if (type === 'number' || type === 'bigint' || type === 'boolean') {
+        } else if (type === 'number' || type === 'bigint') {
             return value;
         } else if (type === 'undefined' || type === 'null') {
             return 'null';
         } else if (type === 'date') {
+            if (this.db === 'mysql') {
+                return `str_to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','%Y-%c-%e %H:%i:%s')`;
+            }
             return `to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','yyyy-mm-dd hh24:mi:ss:ssxff')`;
         }
     }
@@ -238,6 +244,6 @@ export default class SQL<Model extends Record<string, any>> {
     }
 
     public getCountSql(query: QueryOption<Model>): string {
-        return `select count(*) from ${this.tableName} ${this.getQueryOption(query)};`;
+        return `select count(*) as count from ${this.tableName} ${this.getQueryOption(query)};`;
     }
 }
