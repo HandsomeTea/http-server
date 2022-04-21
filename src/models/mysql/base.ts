@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 
 import MySQL from '@/tools/mysql';
 
-export default class SqlBase<TM>{
+export default class MySQLBase<TM>{
     protected tableName: string;
     private model: ModelStatic<Model<TM>>;
     private modelIsSync: boolean;

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getENV } from '@/configs';
 import { typeIs } from '@/utils';
+import DM from '@/tools/dameng';
 
 interface SQLOption<M, P extends keyof M> {
     $ne?: M[P]
@@ -29,7 +30,7 @@ interface QueryOption<M> {
 // type UpsertOption<M> = { [P in keyof M]?: M[P] }
 type UpdateOption<M> = { [P in keyof M]?: M[P] extends string ? string | { $pull: M[P], $split: ',' } : M[P] }
 
-export default class SQL<Model extends Record<string, any>> {
+class SQL<Model extends Record<string, any>> {
     private tableName: string;
     private db: DBServerType;
 
@@ -218,11 +219,11 @@ export default class SQL<Model extends Record<string, any>> {
         return `insert into ${this.tableName} (${keyStr}) values (${valueStr});`;
     }
 
-    public getDeleteSql(query: Omit<QueryOption<Model>, '$order'>): string {
+    public getDeleteSql(query: Pick<QueryOption<Model>, 'where'>): string {
         return `delete from ${this.tableName} ${this.getQueryOption(query)};`;
     }
 
-    public getUpdateSql(query: Omit<QueryOption<Model>, '$order'>, update: UpdateOption<Model>): string {
+    public getUpdateSql(query: Pick<QueryOption<Model>, 'where'>, update: UpdateOption<Model>): string {
         return `update ${this.tableName} set ${this.getUpdateOption(update)} ${this.getQueryOption(query)};`;
     }
 
@@ -245,5 +246,35 @@ export default class SQL<Model extends Record<string, any>> {
 
     public getCountSql(query: QueryOption<Model>): string {
         return `select count(*) as count from ${this.tableName} ${this.getQueryOption(query)};`;
+    }
+}
+
+export default class DMBase<TB> extends SQL<TB>{
+    constructor(tableName: string, DBName?: string) {
+        super(tableName, DBName);
+    }
+
+    public async insert(data: TB) {
+        return await DM.server.execute(this.getInsertSql(data));
+    }
+
+    public async delete(query: Pick<QueryOption<TB>, 'where'>) {
+        return await DM.server.execute(this.getDeleteSql(query));
+    }
+
+    public async update(query: Pick<QueryOption<TB>, 'where'>, update: UpdateOption<TB>) {
+        return await DM.server.execute(this.getUpdateSql(query, update));
+    }
+
+    public async select(query: QueryOption<TB>, projection?: Array<keyof TB>): Promise<Array<TB>> {
+        return await DM.server.execute(this.getSelectSql(query, projection));
+    }
+
+    public async page(query: QueryOption<TB>, option: { skip: number, limit: number }, projection?: Array<keyof TB>): Promise<Array<TB>> {
+        return await DM.server.execute(this.getPageSql(query, option, projection));
+    }
+
+    public async count(query: QueryOption<TB>): Promise<{ count: number }> {
+        return await DM.server.execute(this.getCountSql(query));
     }
 }
