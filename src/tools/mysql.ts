@@ -23,7 +23,7 @@ export default new class MySQL {
             database: mysqlConfig.pathname.replace('/', ''),
             dialect: 'mysql',
             omitNull: true,
-            timezone: '+08:00',
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             logging: sql => system('mysql-command').debug(sql)
         });
 
