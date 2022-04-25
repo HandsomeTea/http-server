@@ -34,11 +34,14 @@ class SQL<Model extends Record<string, any>> {
     private tableName: string;
     private db: DBServerType;
 
-    constructor(tableName: string, DBName?: string) {
-        if (DBName) {
-            this.tableName = `${DBName}.${tableName}`;
+    constructor(tableName: string, DBName?: string, tenantId?: string) {
+        if (tenantId) {
+            this.tableName = `${tenantId}_${tableName}`;
         } else {
             this.tableName = tableName;
+        }
+        if (DBName) {
+            this.tableName = `${DBName}.${this.tableName}`;
         }
         this.db = getENV('DB_TYPE');
     }
@@ -250,8 +253,8 @@ class SQL<Model extends Record<string, any>> {
 }
 
 export default class DMBase<TB> extends SQL<TB>{
-    constructor(tableName: string, DBName?: string) {
-        super(tableName, DBName);
+    constructor(tableName: string, DBName?: string, tenantId?: string) {
+        super(tableName, DBName, tenantId);
     }
 
     public async insert(data: TB) {

@@ -201,7 +201,7 @@ export default class MongoBase<CM>{
         return null;
     }
 
-    async paging(query: FilterQuery<CM>, limit: number, skip: number, sort?: Record<string, 'asc' | 'desc' | 'ascending' | 'descending' | '1' | '-1'>, options?: QueryOptions) {
+    async paging(query: FilterQuery<CM>, limit: number, skip: number, sort?: Record<keyof CM, 'asc' | 'desc' | 'ascending' | 'descending' | '1' | '-1'>, options?: QueryOptions) {
         if (await this.collectionExist()) {
             return await this.model.find(query, null, options).sort(sort).skip(skip || 0).limit(limit).lean();
         }
