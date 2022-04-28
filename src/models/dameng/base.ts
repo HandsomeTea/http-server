@@ -214,7 +214,7 @@ class SQL<Model extends Record<string, any>> {
     }
 
     public getInsertSql(data: Model): string {
-        const keyStr = Object.keys(data).join(',');
+        const keyStr = Object.keys(data).map(a => `"${a}"`).join(', ');
         const valueStr = Object.values(data).map(a => {
             return this.getSqlValue(a);
         }).join(', ');
@@ -257,27 +257,39 @@ export default class DMBase<TB> extends SQL<TB>{
         super(tableName, DBName, tenantId);
     }
 
-    public async insert(data: TB) {
-        return await DM.server.execute(this.getInsertSql(data));
+    public async insert(data: TB): Promise<void> {
+        await DM.server.execute(this.getInsertSql(data));
     }
 
-    public async delete(query: Pick<QueryOption<TB>, 'where'>) {
-        return await DM.server.execute(this.getDeleteSql(query));
+    public async delete(query: Pick<QueryOption<TB>, 'where'>): Promise<void> {
+        await DM.server.execute(this.getDeleteSql(query));
     }
 
-    public async update(query: Pick<QueryOption<TB>, 'where'>, update: UpdateOption<TB>) {
-        return await DM.server.execute(this.getUpdateSql(query, update));
+    public async update(query: Pick<QueryOption<TB>, 'where'>, update: UpdateOption<TB>): Promise<void> {
+        await DM.server.execute(this.getUpdateSql(query, update));
     }
 
-    public async select(query: QueryOption<TB>, projection?: Array<keyof TB>): Promise<Array<TB>> {
-        return await DM.server.execute(this.getSelectSql(query, projection));
+    public async find(query: QueryOption<TB>, projection?: Array<keyof TB>) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return (await DM.server.execute(this.getSelectSql(query, projection), [], { outFormat: 'OUT_FORMAT_OBJECT' })).rows as Array<TB>;
     }
 
-    public async page(query: QueryOption<TB>, option: { skip: number, limit: number }, projection?: Array<keyof TB>): Promise<Array<TB>> {
-        return await DM.server.execute(this.getPageSql(query, option, projection));
+    public async findOne(query: QueryOption<TB>, projection?: Array<keyof TB>): Promise<TB | null> {
+        return (await this.find(query, projection))[0] || null;
+    }
+
+    public async page(query: QueryOption<TB>, option: { skip: number, limit: number }, projection?: Array<keyof TB>) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return (await DM.server.execute(this.getPageSql(query, option, projection), [], { outFormat: 'OUT_FORMAT_OBJECT' })).rows as Array<TB>;
     }
 
     public async count(query: QueryOption<TB>): Promise<{ count: number }> {
-        return await DM.server.execute(this.getCountSql(query));
+        return {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            count: Object.values((await DM.server.execute(this.getCountSql(query), [], { outFormat: 'OUT_FORMAT_OBJECT' })).rows[0])[0] as number
+        };
     }
 }

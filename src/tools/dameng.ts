@@ -41,12 +41,10 @@ export default new class DM {
     }
 
     public get server() {
-        if (this.isUseful) {
-            return this.service;
+        if (!this.isUseful) {
+            throw new Exception('dameng db is not available!');
         }
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return system('db').error('dameng db is not available!');
+        return this.service;
     }
 
     public get isOK() {

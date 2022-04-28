@@ -50,13 +50,11 @@ export default new class MongoDB {
         return getENV('DB_TYPE') === 'mongodb';
     }
 
-    public get server(): mongoose.Connection {
+    public get server() {
         if (this.isUseful) {
-            return mongoose.connection;
+            throw new Exception('mongodb is not available!');
         }
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return system('db').error('mongodb is not available!');
+        return mongoose.connection;
     }
 
     public get schema() {

@@ -23,7 +23,7 @@ export default new class MySQL {
             database: mysqlConfig.pathname.replace('/', ''),
             dialect: 'mysql',
             omitNull: true,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            timezone: `${(new Date().toTimeString().match(/(GMT)(.?){5}/g) as Array<string>)[0].replace('GMT', '').substring(0, 3)}:00`,
             logging: sql => system('mysql-command').debug(sql)
         });
 
@@ -48,13 +48,11 @@ export default new class MySQL {
         return getENV('DB_TYPE') === 'mysql';
     }
 
-    public get server(): Sequelize {
-        if (this.isUseful) {
-            return this.service;
+    public get server() {
+        if (!this.isUseful) {
+            throw new Exception('mysql is not available!');
         }
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return system('db').error('mysql is not available!');
+        return this.service;
     }
 
     public get isOK() {
