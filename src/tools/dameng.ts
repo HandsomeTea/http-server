@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import dmdb from 'dmdb';
 import { getENV, system } from '@/configs';
 

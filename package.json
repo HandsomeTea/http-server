@@ -34,6 +34,7 @@
     "axios": "^0.26.1",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
+    "dmdb": "^1.0.10728",
     "express": "^4.17.3",
     "express-async-handler": "^1.2.0",
     "express-http-context": "^1.2.4",

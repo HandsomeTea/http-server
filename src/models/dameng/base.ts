@@ -2,6 +2,7 @@
 import { getENV } from '@/configs';
 import { typeIs } from '@/utils';
 import DM from '@/tools/dameng';
+import { log } from '../../configs';
 
 interface SQLOption<M, P extends keyof M> {
     $ne?: M[P]
@@ -34,7 +35,7 @@ class SQL<Model extends Record<string, any>> {
     private tableName: string;
     private db: DBServerType;
 
-    constructor(tableName: string, DBName?: string, tenantId?: string) {
+    constructor(tableName: string, tenantId?: string, DBName?: string) {
         if (tenantId) {
             this.tableName = `${tenantId}_${tableName}`;
         } else {
@@ -252,44 +253,45 @@ class SQL<Model extends Record<string, any>> {
     }
 }
 
-export default class DMBase<TB> extends SQL<TB>{
-    constructor(tableName: string, DBName?: string, tenantId?: string) {
-        super(tableName, DBName, tenantId);
+export default class SQLBase<TB> extends SQL<TB>{
+    constructor(tableName: string, tenantId?: string, DBName?: string) {
+        super(tableName, tenantId, DBName);
+    }
+
+    private async execute(sql: string){
+        log('dmdb-execute-sql').debug(sql);
+        return await DM.server.execute(sql, [], { outFormat: 'OUT_FORMAT_OBJECT' as unknown as number });
     }
 
     public async insert(data: TB): Promise<void> {
-        await DM.server.execute(this.getInsertSql(data));
+        await this.execute(this.getInsertSql(data));
     }
 
     public async delete(query: Pick<QueryOption<TB>, 'where'>): Promise<void> {
-        await DM.server.execute(this.getDeleteSql(query));
+        await this.execute(this.getDeleteSql(query));
     }
 
     public async update(query: Pick<QueryOption<TB>, 'where'>, update: UpdateOption<TB>): Promise<void> {
-        await DM.server.execute(this.getUpdateSql(query, update));
+        await this.execute(this.getUpdateSql(query, update));
     }
 
-    public async find(query: QueryOption<TB>, projection?: Array<keyof TB>) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return (await DM.server.execute(this.getSelectSql(query, projection), [], { outFormat: 'OUT_FORMAT_OBJECT' })).rows as Array<TB>;
+    public async find(query: QueryOption<TB>, projection?: Array<keyof TB>) : Promise<Array<TB>>{
+        return (await this.execute(this.getSelectSql(query, projection))).rows as Array<TB>;
     }
 
     public async findOne(query: QueryOption<TB>, projection?: Array<keyof TB>): Promise<TB | null> {
         return (await this.find(query, projection))[0] || null;
     }
 
-    public async page(query: QueryOption<TB>, option: { skip: number, limit: number }, projection?: Array<keyof TB>) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return (await DM.server.execute(this.getPageSql(query, option, projection), [], { outFormat: 'OUT_FORMAT_OBJECT' })).rows as Array<TB>;
+    public async page(query: QueryOption<TB>, option: { skip: number, limit: number }, projection?: Array<keyof TB>): Promise<Array<TB>> {
+        return (await this.execute(this.getPageSql(query, option, projection))).rows as Array<TB>;
     }
 
     public async count(query: QueryOption<TB>): Promise<{ count: number }> {
+        const data = (await this.execute(this.getCountSql(query))).rows as Array<Record<string, number>>;
+
         return {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            count: Object.values((await DM.server.execute(this.getCountSql(query), [], { outFormat: 'OUT_FORMAT_OBJECT' })).rows[0])[0] as number
+            count: Object.values(data[0])[0]
         };
     }
 }
