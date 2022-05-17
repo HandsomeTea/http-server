@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { getENV } from '@/configs';
+import { Types } from 'mongoose';
+import { getENV, log } from '@/configs';
 import { typeIs } from '@/utils';
 import DM from '@/tools/dameng';
-import { log } from '../../configs';
 
 interface SQLOption<M, P extends keyof M> {
     $ne?: M[P]
@@ -31,6 +30,7 @@ interface QueryOption<M> {
 // type UpsertOption<M> = { [P in keyof M]?: M[P] }
 type UpdateOption<M> = { [P in keyof M]?: M[P] extends string ? string | { $pull: M[P], $split: ',' } : M[P] }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 class SQL<Model extends Record<string, any>> {
     private tableName: string;
     private db: DBServerType;
@@ -47,6 +47,7 @@ class SQL<Model extends Record<string, any>> {
         this.db = getENV('DB_TYPE');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private getSqlValue(value: any) {
         const type = typeIs(value);
 
@@ -261,6 +262,15 @@ export default class SQLBase<TB> extends SQL<TB>{
     private async execute(sql: string) {
         log('dmdb-execute-sql').debug(sql);
         return await DM.server?.execute(sql, [], { outFormat: 'OUT_FORMAT_OBJECT' as unknown as number });
+    }
+
+    /**
+     * 生成一个可以作为primaryKey的随机字符串
+     * @readonly
+     * @memberof SqlBase
+     */
+    public get randomId() {
+        return new Types.ObjectId().toString();
     }
 
     public async insert(data: TB): Promise<void> {

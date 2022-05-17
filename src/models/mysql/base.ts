@@ -1,6 +1,5 @@
 import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions, CreationAttributes, QueryTypes, CountOptions, BulkCreateOptions } from 'sequelize';
 import { Types } from 'mongoose';
-
 import MySQL from '@/tools/mysql';
 
 export default class MySQLBase<TM>{
@@ -13,8 +12,8 @@ export default class MySQLBase<TM>{
         this.tableName = this.tenantId ? `${this.tenantId}_${tableName}` : tableName;
         this.model = MySQL.server?.define(this.tableName, tableStruct, {
             ...option,
-            createdAt: 'create_at',
-            updatedAt: 'updated_at',
+            createdAt: true,
+            updatedAt: true,
             omitNull: true,
             freezeTableName: true //默认会给表名加s
         });
@@ -94,15 +93,9 @@ export default class MySQLBase<TM>{
     }
 
     public async paging(query: FindAndCountOptions<TM>) {
-        const result = await (await this.getModelInstance())?.findAndCountAll(query);
+        const pageResult = await (await this.getModelInstance())?.findAndCountAll(query);
 
-        if (result) {
-            return {
-                count: result.count,
-                data: result.rows
-            };
-        }
-        return { count: 0, data: [] };
+        return { count: pageResult?.count || 0, data: (pageResult?.rows || []) as unknown as Array<TM> };
     }
 
     public async count(query?: Omit<CountOptions<TM>, 'group'>): Promise<number> {
