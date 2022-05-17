@@ -258,9 +258,9 @@ export default class SQLBase<TB> extends SQL<TB>{
         super(tableName, tenantId, DBName);
     }
 
-    private async execute(sql: string){
+    private async execute(sql: string) {
         log('dmdb-execute-sql').debug(sql);
-        return await DM.server.execute(sql, [], { outFormat: 'OUT_FORMAT_OBJECT' as unknown as number });
+        return await DM.server?.execute(sql, [], { outFormat: 'OUT_FORMAT_OBJECT' as unknown as number });
     }
 
     public async insert(data: TB): Promise<void> {
@@ -275,8 +275,8 @@ export default class SQLBase<TB> extends SQL<TB>{
         await this.execute(this.getUpdateSql(query, update));
     }
 
-    public async find(query: QueryOption<TB>, projection?: Array<keyof TB>) : Promise<Array<TB>>{
-        return (await this.execute(this.getSelectSql(query, projection))).rows as Array<TB>;
+    public async find(query: QueryOption<TB>, projection?: Array<keyof TB>): Promise<Array<TB>> {
+        return (await this.execute(this.getSelectSql(query, projection)))?.rows as Array<TB>;
     }
 
     public async findOne(query: QueryOption<TB>, projection?: Array<keyof TB>): Promise<TB | null> {
@@ -284,11 +284,11 @@ export default class SQLBase<TB> extends SQL<TB>{
     }
 
     public async page(query: QueryOption<TB>, option: { skip: number, limit: number }, projection?: Array<keyof TB>): Promise<Array<TB>> {
-        return (await this.execute(this.getPageSql(query, option, projection))).rows as Array<TB>;
+        return (await this.execute(this.getPageSql(query, option, projection)))?.rows as Array<TB>;
     }
 
     public async count(query: QueryOption<TB>): Promise<{ count: number }> {
-        const data = (await this.execute(this.getCountSql(query))).rows as Array<Record<string, number>>;
+        const data = (await this.execute(this.getCountSql(query)))?.rows as Array<Record<string, number>>;
 
         return {
             count: Object.values(data[0])[0]

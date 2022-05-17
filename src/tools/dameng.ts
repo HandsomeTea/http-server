@@ -2,7 +2,7 @@ import dmdb from 'dmdb';
 import { getENV, system } from '@/configs';
 
 export default new class DM {
-    private service!: dmdb.Connection;
+    private service!: dmdb.Connection | undefined;
     private isReady = false;
     constructor() {
         if (getENV('DB_TYPE') !== 'dameng') {
@@ -40,7 +40,7 @@ export default new class DM {
 
     public get server() {
         if (!this.isUseful) {
-            throw new Exception('dameng db is not available!');
+            system('dmdb').error(`require to use ${getENV('DB_TYPE')}, but call dameng db! dameng db is not available!`);
         }
         return this.service;
     }
@@ -51,7 +51,7 @@ export default new class DM {
 
     public async close(): Promise<void> {
         if (this.isUseful) {
-            await this.service.close();
+            await this.service?.close();
             this.isReady = false;
         }
     }

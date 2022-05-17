@@ -52,7 +52,7 @@ export default new class MongoDB {
 
     public get server() {
         if (this.isUseful) {
-            throw new Exception('mongodb is not available!');
+            system('mongodb').error(`require to use ${getENV('DB_TYPE')}, but call mongodb! mongodb is not available!`);
         }
         return mongoose.connection;
     }

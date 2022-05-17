@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 import { getENV, system } from '@/configs';
 
 export default new class MySQL {
-    private service!: Sequelize;
+    private service!: Sequelize | undefined;
     private isReady = false;
     constructor() {
         if (!this.isUseful) {
@@ -31,7 +31,7 @@ export default new class MySQL {
     }
 
     private init() {
-        this.service.authenticate().then(() => {
+        this.service?.authenticate().then(() => {
             this.isReady = true;
             system('mysql').info(`mysql connected on ${getENV('MYSQL_URL')} success and ready to use.`);
         }).catch(error => {
@@ -50,7 +50,7 @@ export default new class MySQL {
 
     public get server() {
         if (!this.isUseful) {
-            throw new Exception('mysql is not available!');
+            system('mysql').error(`require to use ${getENV('DB_TYPE')}, but call mysql! mysql is not available!`);
         }
         return this.service;
     }
@@ -61,7 +61,7 @@ export default new class MySQL {
 
     public async close(): Promise<void> {
         if (this.isReady) {
-            await this.service.close();
+            await this.service?.close();
             this.isReady = false;
         }
     }
