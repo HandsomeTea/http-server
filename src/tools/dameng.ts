@@ -40,7 +40,7 @@ export default new class DM {
 
     public get server() {
         if (!this.isUseful) {
-            system('dmdb').error(`require to use ${getENV('DB_TYPE')}, but call dameng db! dameng db is not available!`);
+            system('dmdb').warn(`require to use ${getENV('DB_TYPE')}, but call dameng db! dameng db is not available!`);
         }
         return this.service;
     }

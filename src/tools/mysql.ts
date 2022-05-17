@@ -50,7 +50,7 @@ export default new class MySQL {
 
     public get server() {
         if (!this.isUseful) {
-            system('mysql').error(`require to use ${getENV('DB_TYPE')}, but call mysql! mysql is not available!`);
+            system('mysql').warn(`require to use ${getENV('DB_TYPE')}, but call mysql! mysql is not available!`);
         }
         return this.service;
     }
