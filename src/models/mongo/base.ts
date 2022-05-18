@@ -212,8 +212,8 @@ export default class MongoBase<CM>{
         if (!await this.collectionExist()) {
             return 0;
         }
-        if (query) {
-            return await this.model.countDocuments(query);
+        if (Object.keys(query || {}).length > 0) {
+            return await this.model.countDocuments(query || {});
         } else {
             return await this.model.estimatedDocumentCount();
         }
