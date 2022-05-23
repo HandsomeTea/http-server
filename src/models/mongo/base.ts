@@ -203,9 +203,15 @@ export default class MongoBase<CM>{
 
     async paging(query: FilterQuery<CM>, limit: number, skip: number, sort?: { [K in keyof CM]?: 'asc' | 'desc' | 'ascending' | 'descending' | '1' | '-1' }, options?: QueryOptions) {
         if (await this.collectionExist()) {
-            return await this.model.find(query, null, options).sort(sort).skip(skip || 0).limit(limit).lean();
+            return {
+                list: await this.model.find(query, null, options).sort(sort).skip(skip || 0).limit(limit).lean(),
+                total: await this.count(query)
+            };
         }
-        return [];
+        return {
+            list: [],
+            total: 0
+        };
     }
 
     async count(query?: FilterQuery<CM>): Promise<number> {

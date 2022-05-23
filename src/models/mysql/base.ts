@@ -95,7 +95,7 @@ export default class MySQLBase<TM>{
     public async paging(query: FindAndCountOptions<TM>) {
         const pageResult = await (await this.getModelInstance())?.findAndCountAll(query);
 
-        return { count: pageResult?.count || 0, data: (pageResult?.rows || []) as unknown as Array<TM> };
+        return { list: (pageResult?.rows || []) as unknown as Array<TM>, total: pageResult?.count || 0 };
     }
 
     public async count(query?: Omit<CountOptions<TM>, 'group'>): Promise<number> {

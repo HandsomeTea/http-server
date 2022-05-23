@@ -293,8 +293,11 @@ export default class SQLBase<TB> extends SQL<TB>{
         return (await this.find(query, projection))[0] || null;
     }
 
-    public async page(query: QueryOption<TB>, option: { skip: number, limit: number }, projection?: Array<keyof TB>): Promise<Array<TB>> {
-        return (await this.execute(this.getPageSql(query, option, projection)))?.rows as Array<TB>;
+    public async page(query: QueryOption<TB>, option: { skip: number, limit: number }, projection?: Array<keyof TB>): Promise<{ list: Array<TB>, total: number }> {
+        return {
+            list: (await this.execute(this.getPageSql(query, option, projection)))?.rows as Array<TB>,
+            total: (await this.count(query)).count
+        };
     }
 
     public async count(query: QueryOption<TB>): Promise<{ count: number }> {
