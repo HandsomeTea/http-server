@@ -64,6 +64,7 @@ interface EnvConfigType {
     DB_TYPE: DBServerType
     MONGO_URL: string
     MYSQL_URL: string
+    POSTGRES_URL: string
     DM_URL: string
     MQ_URL: string
 }
@@ -80,9 +81,10 @@ const developConfig: EnvConfigType = {
     JWT_APP_ID: 'jwtAppId',
     JWT_APP_SECERT: 'jwtSecret',
     REDIS_URL: 'redis://127.0.0.1:6379',
-    DB_TYPE: 'mongodb',
+    DB_TYPE: 'mysql',
     MONGO_URL: 'mongodb://localhost:27017/test',
     MYSQL_URL: 'mysql://root:root@localhost:3306/test',
+    POSTGRES_URL: '',
     DM_URL: 'dm://SYSDBA:SYSDBA@localhost:5236?autoCommit=false',
     MQ_URL: ''
 };

@@ -110,8 +110,12 @@ class Request {
             log(`request-to-${target}`).error({
                 status,
                 statusText,
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 ...typeof data === 'string' ? { msg: data } : data
             });
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             throw new Exception(data);
         }
 

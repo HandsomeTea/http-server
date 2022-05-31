@@ -1,8 +1,8 @@
 import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions, CreationAttributes, QueryTypes, CountOptions, BulkCreateOptions } from 'sequelize';
 import { Types } from 'mongoose';
-import MySQL from '@/tools/mysql';
+import SQL from '@/tools/sql';
 
-export default class MySQLBase<TM>{
+export default class SQLBase<TM>{
     protected tableName: string;
     private model: ModelStatic<Model<TM>> | undefined;
     private modelIsSync: boolean;
@@ -10,7 +10,7 @@ export default class MySQLBase<TM>{
     constructor(tableName: string, tableStruct: ModelAttributes<Model<TM>>, tenantId?: string, option?: ModelOptions) {
         this.tenantId = tenantId;
         this.tableName = this.tenantId ? `${this.tenantId}_${tableName}` : tableName;
-        this.model = MySQL.server?.define(this.tableName, tableStruct, {
+        this.model = SQL.server?.define(this.tableName, tableStruct, {
             ...option,
             createdAt: true,
             updatedAt: true,
@@ -51,8 +51,8 @@ export default class MySQLBase<TM>{
     }
 
     public async tableIsExist(tableName?: string) {
-        const databaseName = MySQL.server?.getDatabaseName();
-        const tableInfo = (await MySQL.server?.showAllSchemas({}))?.find(a => a[`Tables_in_${databaseName}`] === tableName || this.tableName);
+        const databaseName = SQL.server?.getDatabaseName();
+        const tableInfo = (await SQL.server?.showAllSchemas({}))?.find(a => a[`Tables_in_${databaseName}`] === tableName || this.tableName);
 
         return tableInfo ? true : false;
     }
@@ -108,7 +108,7 @@ export default class MySQLBase<TM>{
      * @memberof SqlBase
      */
     public async insertExecute(sql: string): Promise<[number, number]> {
-        return await MySQL.server?.query(sql, { type: QueryTypes.INSERT }) as [number, number];
+        return await SQL.server?.query(sql, { type: QueryTypes.INSERT }) as [number, number];
     }
 
     /**
@@ -117,7 +117,7 @@ export default class MySQLBase<TM>{
      * @memberof SqlBase
      */
     public async deleteExecute(sql: string): Promise<undefined> {
-        return await MySQL.server?.query(sql, { type: QueryTypes.DELETE }) as undefined;
+        return await SQL.server?.query(sql, { type: QueryTypes.DELETE }) as undefined;
     }
 
     /**
@@ -127,7 +127,7 @@ export default class MySQLBase<TM>{
      * @memberof SqlBase
      */
     public async updateExecute(sql: string): Promise<[null, number]> {
-        return await MySQL.server?.query(sql, { type: QueryTypes.UPDATE }) as unknown as [null, number];
+        return await SQL.server?.query(sql, { type: QueryTypes.UPDATE }) as unknown as [null, number];
     }
 
     /**
@@ -137,7 +137,7 @@ export default class MySQLBase<TM>{
      * @memberof SqlBase
      */
     public async upsertExecute(sql: string): Promise<[number, boolean]> {
-        return await MySQL.server?.query(sql, { type: QueryTypes.UPSERT }) as unknown as [number, boolean];
+        return await SQL.server?.query(sql, { type: QueryTypes.UPSERT }) as unknown as [number, boolean];
     }
 
     /**
@@ -146,6 +146,6 @@ export default class MySQLBase<TM>{
      * @memberof SqlBase
      */
     public async selectExecute(sql: string): Promise<Array<TM>> {
-        return await MySQL.server?.query(sql, { type: QueryTypes.SELECT }) as unknown as Array<TM>;
+        return await SQL.server?.query(sql, { type: QueryTypes.SELECT }) as unknown as Array<TM>;
     }
 }

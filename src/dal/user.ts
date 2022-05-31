@@ -1,13 +1,13 @@
 import BaseDAL from './base';
 import redis from '@/tools/redis';
 import { _MongoUser } from '@/models/mongo';
-import { _MysqlUser } from '@/models/mysql';
+import { _SqlUser } from '@/models/sql';
 
 
 export default class UserDAL extends BaseDAL {
     private tId!: string;
     private mongoServer!: _MongoUser;
-    private mysqlServer!: _MysqlUser;
+    private sqlServer!: _SqlUser;
 
     constructor(tenantId: string) {
         super();
@@ -16,7 +16,7 @@ export default class UserDAL extends BaseDAL {
         if (this.db === 'mongodb') {
             this.mongoServer = new _MongoUser(this.tId);
         } if (this.db === 'mysql') {
-            this.mysqlServer = new _MysqlUser(this.tId);
+            this.sqlServer = new _SqlUser(this.tId);
         }
     }
 
@@ -28,7 +28,7 @@ export default class UserDAL extends BaseDAL {
         if (this.db === 'mongodb') {
             return await this.mongoServer.insertOne(user);
         } else {
-            return await this.mysqlServer.insert(user);
+            return await this.sqlServer.insert(user);
         }
     }
 
@@ -43,7 +43,7 @@ export default class UserDAL extends BaseDAL {
         if (this.db === 'mongodb') {
             result = await this.mongoServer.findById(userId);
         } else if (this.db === 'mysql') {
-            result = await this.mysqlServer.findById(userId);
+            result = await this.sqlServer.findById(userId);
         }
 
         if (!result) {

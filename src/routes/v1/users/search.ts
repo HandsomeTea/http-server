@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { _Users } from '@/dal';
+import { _UserTokens } from '@/dal';
 // import User from '../../../models/_mysql';
 
 const router = express.Router();
@@ -22,22 +22,33 @@ const router = express.Router();
  * @apiUse ErrorApiResult
  */
 router.post('/user', asyncHandler(async (_req, res) => {
-    const Users = new _Users('11685');
+    const UserTokens = new _UserTokens('11686');
 
     // await User.find();
-    return res.success(await Users.findById('t3id1mongo'));
+    return res.success({
+        result: await UserTokens.insertLoginToken({
+            type: 'ws',
+            userId: 'asdasdasds',
+            hashedToken: 'sad23asd345dfgss123'
+            // deviceType: 'BCD',
+            // serialNumber: 'ASDDFGFG45645'
+        })
+    });
     // console.log(await User.update<UserModel>({ where: { _id: 132 } }, { account: 'newaccount' }));
-    // return res.success(await User.find());
+    // return res.success(await UserTokens.findOne({
+    //     hashedToken: 'sad23asd345dfgs',
+    //     userId: 'asdasdasd'
+    // }));
     // throw new Exception(new Error('cuo wu'));
     // throw new Exception(new Exception('cuo wu'));
 }));
 
-router.get('/:userId', asyncHandler(async (req, res) => {
-    const Users = new _Users('11685');
+// router.get('/:userId', asyncHandler(async (req, res) => {
+//     const Users = new _Users('11685');
 
-    // 6215a94749e853ee5e2df2b9 test123sss
-    // return res.success(await Users.findById(req.params.userId, { projection: { name: 1 } }));
-    return res.success(await Users.findById(req.params.userId));
-}));
+//     // 6215a94749e853ee5e2df2b9 test123sss
+//     // return res.success(await Users.findById(req.params.userId, { projection: { name: 1 } }));
+//     return res.success(await Users.findById(req.params.userId));
+// }));
 
 export default router;

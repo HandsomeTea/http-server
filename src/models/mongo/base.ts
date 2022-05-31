@@ -201,10 +201,10 @@ export default class MongoBase<CM>{
         return null;
     }
 
-    async paging(query: FilterQuery<CM>, limit: number, skip: number, sort?: { [K in keyof CM]?: 'asc' | 'desc' | 'ascending' | 'descending' | '1' | '-1' }, options?: QueryOptions) {
+    async paging<K extends keyof CM>(query: FilterQuery<CM>, limit: number, skip: number, sort?: Record<K, 'asc' | 'desc' | 'ascending' | 'descending'>, options?: QueryOptions) {
         if (await this.collectionExist()) {
             return {
-                list: await this.model.find(query, null, options).sort(sort).skip(skip || 0).limit(limit).lean(),
+                list: await this.model.find(query, null, options).sort(sort || {}).skip(skip || 0).limit(limit).lean(),
                 total: await this.count(query)
             };
         }
