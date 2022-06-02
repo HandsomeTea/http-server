@@ -1,4 +1,4 @@
-import { getENV } from '@/configs';
+// import { getENV } from '@/configs';
 import { typeIs } from '@/utils';
 
 import { QueryOption, SQLOption, UpdateOption, WhereOption } from './typings';
@@ -7,10 +7,10 @@ import { QueryOption, SQLOption, UpdateOption, WhereOption } from './typings';
 type Model = Record<string, any>;
 
 export default new class SQL {
-    private db: DBServerType;
+    // private db: DBServerType;
 
     constructor() {
-        this.db = getENV('DB_TYPE');
+        // this.db = getENV('DB_TYPE');
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,9 +28,9 @@ export default new class SQL {
         } else if (type === 'undefined' || type === 'null') {
             return 'null';
         } else if (type === 'date') {
-            if (this.db === 'sqldb') {
-                return `str_to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','%Y-%c-%e %H:%i:%s')`;
-            }
+            // if (this.db === 'mysql') {
+            //     return `str_to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','%Y-%c-%e %H:%i:%s')`;
+            // }
             return `to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','yyyy-mm-dd hh24:mi:ss:ssxff')`;
         }
     }
