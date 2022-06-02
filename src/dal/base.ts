@@ -8,6 +8,12 @@ export default class BaseDAL {
     }
 
     get db() {
-        return this.source;
+        if (this.source === 'mysql' || this.source === 'postgres') {
+            return 'sqldb';
+        }
+        if (this.source === 'dameng') {
+            return 'dmdb';
+        }
+        return 'mongodb';
     }
 }

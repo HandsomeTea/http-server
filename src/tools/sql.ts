@@ -8,7 +8,7 @@ export default new class MySQL {
         if (!this.isUseful) {
             return;
         }
-        const sqlAddress = getENV('DB_TYPE') === 'postgres' ? getENV('POSTGRES_URL') : getENV('MYSQL_URL');
+        const sqlAddress = getENV('DB_URL');
 
         if (!sqlAddress) {
             throw new Exception(`sql connect address is required but get ${sqlAddress}`);
@@ -23,7 +23,7 @@ export default new class MySQL {
             database: sqlConfig.pathname.replace('/', ''),
             dialect: getENV('DB_TYPE') === 'postgres' ? 'postgres' : 'mysql',
             omitNull: true,
-            timezone: `${(new Date().toTimeString().match(/(GMT)(.?){5}/g) as Array<string>)[0].replace('GMT', '').substring(0, 3)}:00`,
+            // timezone: `${(new Date().toTimeString().match(/(GMT)(.?){5}/g) as Array<string>)[0].replace('GMT', '').substring(0, 3)}:00`,
             logging: sql => system('sql-command').debug(sql)
         });
 
@@ -33,7 +33,7 @@ export default new class MySQL {
     private init() {
         this.service?.authenticate().then(() => {
             this.isReady = true;
-            system('sql').info(`sql connected on ${getENV('MYSQL_URL')} success and ready to use.`);
+            system('sql').info('sql connected success and ready to use.');
         }).catch(error => {
             system('sql').error(error);
         });

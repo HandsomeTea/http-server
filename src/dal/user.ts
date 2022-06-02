@@ -15,7 +15,7 @@ export default class UserDAL extends BaseDAL {
 
         if (this.db === 'mongodb') {
             this.mongoServer = new _MongoUser(this.tId);
-        } if (this.db === 'mysql') {
+        } if (this.db === 'sqldb') {
             this.sqlServer = new _SqlUser(this.tId);
         }
     }
@@ -42,7 +42,7 @@ export default class UserDAL extends BaseDAL {
 
         if (this.db === 'mongodb') {
             result = await this.mongoServer.findById(userId);
-        } else if (this.db === 'mysql') {
+        } else if (this.db === 'sqldb') {
             result = await this.sqlServer.findById(userId);
         }
 

@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import dmdb from 'dmdb';
 import { getENV, system } from '@/configs';
 
@@ -15,7 +13,7 @@ export default new class DM {
     }
 
     private async init() {
-        const connectString = getENV('DM_URL');
+        const connectString = getENV('DB_URL');
 
         if (!connectString) {
             throw new Exception(`DM connect address is required but get ${connectString}`);

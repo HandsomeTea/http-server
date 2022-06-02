@@ -11,7 +11,7 @@ export default class UserTokenDAL extends BaseDal {
         super();
         this.tId = _tenantId;
 
-        if (this.db === 'mysql') {
+        if (this.db === 'sqldb') {
             this.mysqlServer = new _SqlUserToken(this.tId);
         }
     }
@@ -26,7 +26,7 @@ export default class UserTokenDAL extends BaseDal {
     // }): Promise<void> {
     //     const { hashedToken, stayHashedTokens, type, typeNot, serialNumber, userId } = option;
 
-    //     if (this.db === 'mysql') {
+    //     if (this.db === 'sqldb') {
     //         await this.mysqlServer.find({
     //             ...hashedToken ? { hashedToken: { $in: typeof hashedToken === 'string' ? [hashedToken] : hashedToken } } : {},
     //             ...stayHashedTokens ? { hashedToken: { $nin: stayHashedTokens } } : {},
@@ -41,7 +41,7 @@ export default class UserTokenDAL extends BaseDal {
     async insertLoginToken(tokenInfo: { type: 'ws' | 'http' | 'device-ws', userId: string, hashedToken: string, deviceType?: 'BCD' | 'BCM' | 'BR' | 'H323_SIP' | 'PSTN', serialNumber?: string }): Promise<void> {
         const { type, userId, hashedToken, deviceType, serialNumber } = tokenInfo;
 
-        if (this.db === 'mysql') {
+        if (this.db === 'sqldb') {
             await this.mysqlServer.insertMany([{
                 id: hashedToken,
                 user_id: userId,

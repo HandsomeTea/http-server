@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { getENV, log } from '@/configs';
+import { log } from '@/configs';
 import { typeIs } from '@/utils';
 import DM from '@/tools/dameng';
 
@@ -33,7 +33,7 @@ type UpdateOption<M> = { [P in keyof M]?: M[P] extends string ? string | { $pull
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 class SQL<Model extends Record<string, any>> {
     private tableName: string;
-    private db: DBServerType;
+    // private db: DBServerType;
 
     constructor(tableName: string, tenantId?: string, DBName?: string) {
         if (tenantId) {
@@ -44,7 +44,7 @@ class SQL<Model extends Record<string, any>> {
         if (DBName) {
             this.tableName = `${DBName}.${this.tableName}`;
         }
-        this.db = getENV('DB_TYPE');
+        // this.db = getENV('DB_TYPE');
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,9 +62,9 @@ class SQL<Model extends Record<string, any>> {
         } else if (type === 'undefined' || type === 'null') {
             return 'null';
         } else if (type === 'date') {
-            if (this.db === 'mysql') {
-                return `str_to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','%Y-%c-%e %H:%i:%s')`;
-            }
+            // if (this.db === 'mysql') {
+            //     return `str_to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','%Y-%c-%e %H:%i:%s')`;
+            // }
             return `to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','yyyy-mm-dd hh24:mi:ss:ssxff')`;
         }
     }
