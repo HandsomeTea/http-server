@@ -1,19 +1,16 @@
-// import { getENV } from '@/configs';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { typeIs } from '@/utils';
 
 import { QueryOption, SQLOption, UpdateOption, WhereOption } from './typings';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Model = Record<string, any>;
 
 export default new class SQL {
-    // private db: DBServerType;
 
     constructor() {
-        // this.db = getENV('DB_TYPE');
+        //
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private getSqlValue(value: any) {
         const type = typeIs(value);
 
@@ -28,9 +25,7 @@ export default new class SQL {
         } else if (type === 'undefined' || type === 'null') {
             return 'null';
         } else if (type === 'date') {
-            // if (this.db === 'mysql') {
-            //     return `str_to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','%Y-%c-%e %H:%i:%s')`;
-            // }
+            // `str_to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','%Y-%c-%e %H:%i:%s')`;
             return `to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','yyyy-mm-dd hh24:mi:ss:ssxff')`;
         }
     }
@@ -208,11 +203,15 @@ export default new class SQL {
     // }
 
     public getSelectSql(query: QueryOption<Model>, tableName: string, projection: Array<keyof Model>): string {
-        return `select ${projection.length > 0 ? projection.join(', ') : '*'} from ${tableName} ${this.getQueryOption(query)};`;
+        const fields = projection.map(a => `"${a}"`).join(', ');
+
+        return `select ${fields} from ${tableName} ${this.getQueryOption(query)};`;
     }
 
     public getPageSql(query: QueryOption<Model>, option: { skip: number, limit: number, tableName: string }, projection: Array<keyof Model>): string {
-        return `select ${projection.length > 0 ? projection.join(', ') : '*'} from ${option.tableName} ${this.getQueryOption(query)} limit ${option.skip}, ${option.limit};`;
+        const fields = projection.map(a => `"${a}"`).join(', ');
+
+        return `select ${fields} from ${option.tableName} ${this.getQueryOption(query)} limit ${option.skip}, ${option.limit};`;
     }
 
     public getCountSql(query: QueryOption<Model>, tableName: string): string {

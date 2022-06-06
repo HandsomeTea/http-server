@@ -2,18 +2,15 @@ import { Types } from 'mongoose';
 
 import DM from '@/tools/dameng';
 import { log } from '@/configs';
-import SQL from './dm-sql';
+import SQL from './sql';
 
 import { DmModel, QueryOption, UpdateOption } from './typings';
 import { typeIs } from '@/utils';
 
-type DMDBModelType = Record<string, DmModel<Record<string, unknown>>>
-
-const DMDBModel: DMDBModelType = {};
+const DMDBModel: Record<string, DmModel<Record<string, unknown>>> = {};
 
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default class DMBase<TB extends Record<string, any>>{
+export default class DMBase<TB>{
     private tableName: string;
 
     constructor(tableName: string, struct: DmModel<TB>, option?: { tenantId?: string, DBName?: string }) {
@@ -105,7 +102,7 @@ export default class DMBase<TB extends Record<string, any>>{
     }
 
     public async find(query: QueryOption<TB>, projection?: Array<keyof TB>): Promise<Array<TB>> {
-        return (await this.execute(SQL.getSelectSql(query, this.tableName, projection as Array<string> || [])))?.rows
+        return (await this.execute(SQL.getSelectSql(query, this.tableName, projection as Array<string> || Object.keys(DMDBModel[this.tableName]))))?.rows
             ?.map(a => this.dataFormat(a as Record<string, unknown>)) as Array<TB>;
     }
 
@@ -115,7 +112,7 @@ export default class DMBase<TB extends Record<string, any>>{
 
     public async page(query: QueryOption<TB>, option: { skip: number, limit: number }, projection?: Array<keyof TB>): Promise<{ list: Array<TB>, total: number }> {
         return {
-            list: (await this.execute(SQL.getPageSql(query, { ...option, tableName: this.tableName }, projection as Array<string> || [])))?.rows
+            list: (await this.execute(SQL.getPageSql(query, { ...option, tableName: this.tableName }, projection as Array<string> || Object.keys(DMDBModel[this.tableName]))))?.rows
                 ?.map(a => this.dataFormat(a as Record<string, unknown>)) as Array<TB>,
             total: (await this.count(query)).count
         };
