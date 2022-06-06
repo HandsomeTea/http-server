@@ -40,17 +40,11 @@ export default class DMBase<TB>{
         const data: { [P in keyof TB]?: TB[P] } = {};
 
         for (const key in struct) {
-            const { type, dbField } = struct[key];
+            const { type } = struct[key];
 
-            if (dbField) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                data[key] = dbData[dbField];
-            } else {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                data[key] = dbData[key];
-            }
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            data[key] = dbData[key];
 
             if (type === 'DATE' && !typeIs(data[key], 'date')) {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -61,9 +55,6 @@ export default class DMBase<TB>{
                 // @ts-ignore
                 data[key] = `${data[key]}`.trim();
             }
-            // else if (struct[key].type === 'NUMBER' && !typeIs(data[key], 'number')) {
-            //     data[key] = Number(data[key]);
-            // }
         }
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -80,7 +71,31 @@ export default class DMBase<TB>{
     }
 
     public async insert(data: TB): Promise<void> {
-        await this.execute(SQL.getInsertSql(data, this.tableName));
+        const struct = DMDBModel[this.tableName] as DmModel<TB>;
+        const _data: { [P in keyof TB]?: TB[P] } = {};
+
+        for (const key in struct) {
+            const { set, defaultValue } = struct[key];
+
+            if (set || defaultValue) {
+                if (typeof defaultValue !== 'undefined' && typeof data[key] === 'undefined') {
+                    if (typeof defaultValue !== 'function') {
+                        _data[key] = defaultValue;
+                    } else {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        _data[key] = defaultValue();
+                    }
+                }
+                if (set && (data[key] || _data[key])) {
+                    _data[key] = set(data[key] || _data[key]);
+                }
+            }
+            if (typeof _data[key] === 'undefined' && typeof data[key] !== 'undefined') {
+                _data[key] = data[key];
+            }
+        }
+        await this.execute(SQL.getInsertSql(_data, this.tableName));
     }
 
     public async delete(query: Pick<QueryOption<TB>, 'where'>): Promise<void> {
@@ -88,7 +103,32 @@ export default class DMBase<TB>{
     }
 
     public async update(query: Pick<QueryOption<TB>, 'where'>, update: UpdateOption<TB>): Promise<void> {
-        await this.execute(SQL.getUpdateSql(query, update, this.tableName));
+        const struct = DMDBModel[this.tableName] as DmModel<TB>;
+        const _update: { [P in keyof TB]?: TB[P] } = {};
+
+        for (const key in update) {
+            const { set } = struct[key];
+
+            if (set) {
+                if (!typeIs(update[key], 'object')) {
+                    _update[key] = set(update[key]);
+
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                } else if (update[key].$pull) { // 提示：$pull一定是对字符串的操作
+
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    _update[key] = { ...update[key], $pull: set(update[key].$pull) };
+                }
+            } else {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                _update[key] = update[key];
+            }
+        }
+
+        await this.execute(SQL.getUpdateSql(query, _update, this.tableName));
     }
 
     public async upsert(uniqueQuery: Pick<QueryOption<TB>, 'where'>, update: UpdateOption<TB>, insert: TB): Promise<void> {

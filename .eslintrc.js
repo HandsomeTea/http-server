@@ -23,7 +23,8 @@ module.exports = {
         progressConfigParams: 'readonly',
         httpArgument: 'readonly',
         UserModel: 'readonly',
-        InstanceModel: 'readonly'
+        InstanceModel: 'readonly',
+        AnyKeysOf: true
     },
     rules: {
         '@typescript-eslint/no-explicit-any': 2,
