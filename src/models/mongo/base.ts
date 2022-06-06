@@ -1,4 +1,4 @@
-import { Types, SchemaDefinition, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaDefinitionType, Model, AnyKeys, Aggregate, IndexOptions } from 'mongoose';
+import { Types, SchemaDefinition, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaDefinitionType, Model, AnyKeys, Aggregate, IndexOptions, SortOrder } from 'mongoose';
 import mongodb from '@/tools/mongodb';
 
 /**
@@ -204,7 +204,14 @@ export default class MongoBase<CM>{
     async paging<K extends keyof CM>(query: FilterQuery<CM>, limit: number, skip: number, sort?: Record<K, 'asc' | 'desc' | 'ascending' | 'descending'>, options?: QueryOptions) {
         if (await this.collectionExist()) {
             return {
-                list: await this.model.find(query, null, options).sort(sort || {}).skip(skip || 0).limit(limit).lean(),
+                list: await this.model.find(query, null, options).sort((() => {
+                    const obj: { [key: string]: SortOrder } = {};
+
+                    if (sort) {
+                        Object.keys(sort).filter(a => !!sort[a]).map(b => obj[b] = sort[b]);
+                    }
+                    return obj;
+                })()).skip(skip || 0).limit(limit).lean(),
                 total: await this.count(query)
             };
         }
