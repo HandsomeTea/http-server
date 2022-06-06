@@ -94,6 +94,16 @@ export default class DMBase<TB extends Record<string, any>>{
         await this.execute(SQL.getUpdateSql(query, update, this.tableName));
     }
 
+    public async upsert(uniqueQuery: Pick<QueryOption<TB>, 'where'>, update: UpdateOption<TB>, insert: TB): Promise<void> {
+        const data = await this.findOne(uniqueQuery);
+
+        if (data) {
+            await this.update(uniqueQuery, update);
+        } else {
+            await this.insert(insert);
+        }
+    }
+
     public async find(query: QueryOption<TB>, projection?: Array<keyof TB>): Promise<Array<TB>> {
         return (await this.execute(SQL.getSelectSql(query, this.tableName, projection as Array<string> || [])))?.rows
             ?.map(a => this.dataFormat(a as Record<string, unknown>)) as Array<TB>;
