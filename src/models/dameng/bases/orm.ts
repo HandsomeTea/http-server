@@ -61,16 +61,7 @@ export default class DMBase<TB>{
         return data;
     }
 
-    /**
-     * 生成一个可以作为primaryKey的随机字符串
-     * @readonly
-     * @memberof SqlBase
-     */
-    public get randomId() {
-        return new Types.ObjectId().toString();
-    }
-
-    public async insert(data: TB): Promise<void> {
+    private formatInsertData(data: TB): TB {
         const struct = DMDBModel[this.tableName] as DmModel<TB>;
         const _data: { [P in keyof TB]?: TB[P] } = {};
 
@@ -95,11 +86,39 @@ export default class DMBase<TB>{
                 _data[key] = data[key];
             }
         }
-        await this.execute(SQL.getInsertSql(_data, this.tableName));
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return _data;
+    }
+
+    /**
+     * 生成一个可以作为primaryKey的随机字符串
+     * @readonly
+     * @memberof SqlBase
+     */
+    public get randomId() {
+        return new Types.ObjectId().toString();
+    }
+
+    public async insert(data: TB): Promise<void> {
+        const sql = SQL.getInsertSql(this.formatInsertData(data), this.tableName);
+
+        await this.execute(sql);
+    }
+
+    public async insertMany(data: Array<TB>): Promise<void> {
+        let sql = '';
+
+        for (let s = 0; s < data.length; s++) {
+            sql += SQL.getInsertSql(this.formatInsertData(data[s]), this.tableName);
+        }
+        await this.execute(sql);
     }
 
     public async delete(query: Pick<QueryOption<TB>, 'where'>): Promise<void> {
-        await this.execute(SQL.getDeleteSql(query, this.tableName));
+        const sql = SQL.getDeleteSql(query, this.tableName);
+
+        await this.execute(sql);
     }
 
     public async update(query: Pick<QueryOption<TB>, 'where'>, update: UpdateOption<TB>): Promise<void> {
@@ -127,8 +146,9 @@ export default class DMBase<TB>{
                 _update[key] = update[key];
             }
         }
+        const sql = SQL.getUpdateSql(query, _update, this.tableName);
 
-        await this.execute(SQL.getUpdateSql(query, _update, this.tableName));
+        await this.execute(sql);
     }
 
     public async upsert(uniqueQuery: Pick<QueryOption<TB>, 'where'>, update: UpdateOption<TB>, insert: TB): Promise<void> {
@@ -142,8 +162,9 @@ export default class DMBase<TB>{
     }
 
     public async find(query: QueryOption<TB>, projection?: Array<keyof TB>): Promise<Array<TB>> {
-        return (await this.execute(SQL.getSelectSql(query, this.tableName, projection as Array<string> || Object.keys(DMDBModel[this.tableName]))))?.rows
-            ?.map(a => this.dataFormat(a as Record<string, unknown>)) as Array<TB>;
+        const sql = SQL.getSelectSql(query, this.tableName, projection as Array<string> || Object.keys(DMDBModel[this.tableName]));
+
+        return (await this.execute(sql))?.rows?.map((a: unknown) => this.dataFormat(a as Record<string, unknown>)) as Array<TB>;
     }
 
     public async findOne(query: QueryOption<TB>, projection?: Array<keyof TB>): Promise<TB | null> {
@@ -151,9 +172,10 @@ export default class DMBase<TB>{
     }
 
     public async page(query: QueryOption<TB>, option: { skip: number, limit: number }, projection?: Array<keyof TB>): Promise<{ list: Array<TB>, total: number }> {
+        const sql = SQL.getPageSql(query, { ...option, tableName: this.tableName }, projection as Array<string> || Object.keys(DMDBModel[this.tableName]));
+
         return {
-            list: (await this.execute(SQL.getPageSql(query, { ...option, tableName: this.tableName }, projection as Array<string> || Object.keys(DMDBModel[this.tableName]))))?.rows
-                ?.map(a => this.dataFormat(a as Record<string, unknown>)) as Array<TB>,
+            list: (await this.execute(sql))?.rows?.map((a: unknown) => this.dataFormat(a as Record<string, unknown>)) as Array<TB>,
             total: (await this.count(query)).count
         };
     }
