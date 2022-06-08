@@ -1,4 +1,4 @@
-import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, UpsertOptions, CreationAttributes, QueryTypes, CountOptions, BulkCreateOptions } from 'sequelize';
+import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindOptions, Identifier, FindAndCountOptions, DestroyOptions, UpdateOptions, CreationAttributes, QueryTypes, CountOptions, BulkCreateOptions } from 'sequelize';
 import { Types } from 'mongoose';
 import SQL from '@/tools/sql';
 
@@ -73,9 +73,9 @@ export default class SQLBase<TM>{
         return await (await this.getModelInstance())?.update(set, query);
     }
 
-    public async upsert(set: CreationAttributes<Model<TM>>, option?: UpsertOptions<TM>): Promise<[TM, boolean | null]> {
-        return await (await this.getModelInstance())?.upsert(set, option) as unknown as [TM, boolean | null];
-    }
+    // public async upsert(set: CreationAttributes<Model<TM>>, option?: UpsertOptions<TM>): Promise<[TM, boolean | null]> {
+    //     return await (await this.getModelInstance())?.upsert(set, option) as unknown as [TM, boolean | null];
+    // }
 
     public async find(query?: FindOptions<TM>) {
         return await (await this.getModelInstance())?.findAll(query) as unknown as Array<TM>;
@@ -130,15 +130,15 @@ export default class SQLBase<TM>{
         return await SQL.server?.query(sql, { type: QueryTypes.UPDATE }) as unknown as [null, number];
     }
 
-    /**
-     * update的是: duplicate key 后面的数据
-     * @param {string} sql 如: insert into test (id, user_id, type, create_at, updated_at) values ('test12345ss', 'sssaa', 'ws', '2022-4-13 21:10:12', '2022-4-13 21:10:12') on duplicate key update id='test12345ss1', user_id='sssaa1';
-     * @returns {Promise<[number, boolean]>} [0, true]代表insert，[0, false]代表update
-     * @memberof SqlBase
-     */
-    public async upsertExecute(sql: string): Promise<[number, boolean]> {
-        return await SQL.server?.query(sql, { type: QueryTypes.UPSERT }) as unknown as [number, boolean];
-    }
+    // /**
+    //  * update的是: duplicate key 后面的数据
+    //  * @param {string} sql 如: insert into test (id, user_id, type, create_at, updated_at) values ('test12345ss', 'sssaa', 'ws', '2022-4-13 21:10:12', '2022-4-13 21:10:12') on duplicate key update id='test12345ss1', user_id='sssaa1';
+    //  * @returns {Promise<[number, boolean]>} [0, true]代表insert，[0, false]代表update
+    //  * @memberof SqlBase
+    //  */
+    // public async upsertExecute(sql: string): Promise<[number, boolean]> {
+    //     return await SQL.server?.query(sql, { type: QueryTypes.UPSERT }) as unknown as [number, boolean];
+    // }
 
     /**
      * @param {string} sql 如: select * from test;
