@@ -2,7 +2,7 @@ import amqp, { AmqpConnectionManager } from 'amqp-connection-manager';
 import { getENV, system } from '@/configs';
 
 export default new class MQ {
-    private service!: AmqpConnectionManager;
+    private service: AmqpConnectionManager | undefined;
     constructor() {
         if (!this.isUseful) {
             return;
@@ -13,11 +13,11 @@ export default new class MQ {
     }
 
     private init() {
-        this.service.on('connect', () => {
+        this.service?.on('connect', () => {
             system('mq').info(`mq connected on ${getENV('MQ_URL')} success and ready to use.`);
         });
 
-        this.service.on('disconnect', e => {
+        this.service?.on('disconnect', e => {
             system('mq').error(e);
         });
     }
@@ -34,10 +34,10 @@ export default new class MQ {
     }
 
     public get isOK() {
-        return !this.isUseful || this.isUseful && this.service.isConnected();
+        return !this.isUseful || this.isUseful && this.service?.isConnected();
     }
 
     public async close(): Promise<void> {
-        await this.server.close();
+        await this.server?.close();
     }
 };

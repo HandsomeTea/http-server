@@ -4,7 +4,7 @@ import { getENV, system } from '@/configs';
 const RECONNET_TIME = 5000;
 
 export default new class Redis {
-    private service!: ioredis;
+    private service: ioredis | undefined;
     constructor() {
         if (!this.isUseful) {
             return;
@@ -49,7 +49,7 @@ export default new class Redis {
         return !this.isUseful || this.isUseful && this.service?.status === 'ready';
     }
 
-    public async close(): Promise<'OK'> {
-        return await this.server.quit();
+    public async close(): Promise<'OK' | undefined> {
+        return await this.service?.quit();
     }
 };

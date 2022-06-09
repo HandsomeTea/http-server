@@ -33,7 +33,7 @@ export default class UserDAL extends BaseDAL {
     }
 
     async findById(userId: string): Promise<UserModel | null> {
-        const redisResult = await redis.server.get(this.catchKey(userId));
+        const redisResult = await redis.server?.get(this.catchKey(userId));
 
         if (redisResult) {
             return JSON.parse(redisResult) as UserModel;
@@ -49,7 +49,7 @@ export default class UserDAL extends BaseDAL {
         if (!result) {
             return null;
         }
-        await redis.server.set(this.catchKey(userId), JSON.stringify(result), 'EX', Math.floor(Math.random() * 11 + 50) * 60); //秒为单位
+        await redis.server?.set(this.catchKey(userId), JSON.stringify(result), 'EX', Math.floor(Math.random() * 11 + 50) * 60); //秒为单位
         return result;
     }
 }
