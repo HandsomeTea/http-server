@@ -1,6 +1,6 @@
-import { DmModel, DMORM, DmType } from './bases';
+import { DmModel, DMORM, DmType } from './base';
 
-export default class User extends DMORM<UserModel> {
+export default new class User extends DMORM<UserModel> {
     constructor() {
         const model: DmModel<UserModel> = {
             _id: { type: DmType.STRING },
@@ -10,4 +10,4 @@ export default class User extends DMORM<UserModel> {
 
         super('user', model);
     }
-}
+};

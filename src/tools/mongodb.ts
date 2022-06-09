@@ -51,7 +51,7 @@ export default new class MongoDB {
     }
 
     public get server() {
-        if (this.isUseful) {
+        if (!this.isUseful) {
             system('mongodb').warn(`require to use ${getENV('DB_TYPE')}, but call mongodb! mongodb is not available!`);
         }
         return mongoose.connection;

@@ -81,9 +81,10 @@ const developConfig: EnvConfigType = {
     // 'mysql://root:root@localhost:3306/test'
     // 'dm://SYSDBA:SYSDBA@localhost:5236?autoCommit=false'
     // 'mongodb://localhost:27017/test'
-    DB_URL: 'mongodb://localhost:27017/test',
+    DB_URL: 'dm://SYSDBA:surpass1234@10.184.102.105:5236',
     MQ_URL: '',
-    REDIS_URL: 'redis://127.0.0.1:6379'
+    // redis://127.0.0.1:6379
+    REDIS_URL: ''
 };
 
 export default <K extends keyof EnvConfigType>(env: K): EnvConfigType[K] => {

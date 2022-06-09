@@ -2,25 +2,39 @@ import amqp, { AmqpConnectionManager } from 'amqp-connection-manager';
 import { getENV, system } from '@/configs';
 
 export default new class MQ {
-    public server: AmqpConnectionManager;
+    private service!: AmqpConnectionManager;
     constructor() {
-        this.server = amqp.connect([getENV('MQ_URL')]);
+        if (!this.isUseful) {
+            return;
+        }
+        this.service = amqp.connect([getENV('MQ_URL')]);
 
         this.init();
     }
 
     private init() {
-        this.server.on('connect', () => {
+        this.service.on('connect', () => {
             system('mq').info(`mq connected on ${getENV('MQ_URL')} success and ready to use.`);
         });
 
-        this.server.on('disconnect', e => {
+        this.service.on('disconnect', e => {
             system('mq').error(e);
         });
     }
 
+    private get isUseful() {
+        return Boolean(getENV('REDIS_URL'));
+    }
+
+    public get server() {
+        if (!this.isUseful) {
+            system('mq').warn('there is no mq config, but call it! mq is not available!');
+        }
+        return this.service;
+    }
+
     public get isOK() {
-        return this.server.isConnected();
+        return !this.isUseful || this.isUseful && this.service.isConnected();
     }
 
     public async close(): Promise<void> {

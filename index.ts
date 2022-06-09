@@ -37,9 +37,10 @@ import app from '@/routes/app';
 app.set('port', port);
 const server = http.createServer(app);
 
-import redis from '@/tools/redis';
 import mongodb from '@/tools/mongodb';
 import sql from '@/tools/sql';
+import dm from '@/tools/dameng';
+import redis from '@/tools/redis';
 import mq from '@/tools/mq';
 
 /**
@@ -52,13 +53,17 @@ const isHealth = async () => {
         result = false;
         log('STARTUP').error('mongodb connection is unusual');
     }
-    if (!redis.isOK) {
-        result = false;
-        log('STARTUP').error('redis connection is unusual');
-    }
     if (!sql.isOK) {
         result = false;
         log('STARTUP').error('sql connection is unusual');
+    }
+    if (!dm.isOK) {
+        result = false;
+        log('STARTUP').error('dmdb connection is unusual');
+    }
+    if (!redis.isOK) {
+        result = false;
+        log('STARTUP').error('redis connection is unusual');
     }
     if (!mq.isOK) {
         result = false;
@@ -93,8 +98,9 @@ process.on('SIGINT', () => {
 
 process.on('exit', async () => {
     await mongodb.close();
-    await redis.close();
     await sql.close();
+    await dm.close();
+    await redis.close();
     await mq.close();
     log('SYSREM_STOP_CLEAN').info('server connection will stop normally.');
 });

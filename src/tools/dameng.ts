@@ -7,7 +7,7 @@ export default new class DM {
     private service!: dmdb.Connection | undefined;
     private isReady = false;
     constructor() {
-        if (getENV('DB_TYPE') !== 'dameng') {
+        if (!this.isUseful) {
             return;
         }
         this.isReady = false;
