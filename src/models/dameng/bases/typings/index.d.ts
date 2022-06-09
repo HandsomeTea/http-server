@@ -1,3 +1,5 @@
+// export type DMFnType = 'lower'
+
 export interface SQLOption<M, P extends keyof M> {
     $ne?: M[P]
     $in?: Array<M[P]>
@@ -9,6 +11,8 @@ export interface SQLOption<M, P extends keyof M> {
     $lt?: M[P]
     $gte?: M[P]
     $lte?: M[P]
+    // useFn?: { value: M[P], fn: DMFnType, useForCol?: boolean | DMFnType }
+    useFn?: { value: M[P], fn: string, useForCol?: boolean | string }
 }
 
 export type WhereOption<M> = {

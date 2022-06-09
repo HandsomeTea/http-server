@@ -47,9 +47,10 @@ export default new class SQL {
                     typeof option.$lte !== 'undefined' ||
                     typeof option.$ne !== 'undefined' ||
                     typeof option.$notIn !== 'undefined' ||
-                    typeof option.$regexp !== 'undefined'
+                    typeof option.$regexp !== 'undefined' ||
+                    typeof option.useFn !== 'undefined'
                 )) {
-                const { $between, $gt, $gte, $in, $like, $lt, $lte, $ne, $notIn, $regexp } = option as SQLOption<Model, keyof Model>;
+                const { $between, $gt, $gte, $in, $like, $lt, $lte, $ne, $notIn, $regexp, useFn } = option as SQLOption<Model, keyof Model>;
 
                 if ($between) {
                     arr.push(`${key} between ${this.getSqlValue($between[0])} and ${this.getSqlValue($between[1])}`);
@@ -89,6 +90,17 @@ export default new class SQL {
 
                     regStr = regStr.substring(1, regStr.length - 1);
                     arr.push(`${key} regexp ${regStr}`);
+                }
+                if (useFn) {
+                    const { useForCol, fn, value } = useFn;
+
+                    if (typeof useForCol === 'string') {
+                        arr.push(`${useForCol}(${key}) = ${fn}(${this.getSqlValue(value)})`);
+                    } else if (Boolean(useForCol) === true) {
+                        arr.push(`${fn}(${key}) = ${fn}(${this.getSqlValue(value)})`);
+                    } else {
+                        arr.push(`${key} = ${fn}(${this.getSqlValue(value)})`);
+                    }
                 }
             } else {
                 const value = this.getSqlValue(option);
