@@ -77,9 +77,10 @@ const developConfig: EnvConfigType = {
     JWT_APP_NAME: 'my project',
     JWT_APP_ID: 'jwtAppId',
     JWT_APP_SECERT: 'jwtSecret',
-    DB_TYPE: 'mysql',
+    DB_TYPE: 'dameng',
     // 'mysql://root:root@localhost:3306/test'
     // 'dm://SYSDBA:SYSDBA@localhost:5236?autoCommit=false'
+    // 'mongodb://localhost:27017/test'
     DB_URL: 'mongodb://localhost:27017/test',
     MQ_URL: '',
     REDIS_URL: 'redis://127.0.0.1:6379'
