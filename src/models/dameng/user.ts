@@ -1,4 +1,5 @@
-import { DmModel, DMORM, DmType } from './base';
+import { DmModel } from 'dm-type';
+import { DMORM, DmType } from './base';
 
 export default new class User extends DMORM<UserModel> {
     constructor() {
