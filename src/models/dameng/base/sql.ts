@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { typeIs } from '@/utils';
 
-import { QueryOption, SQLOption, UpdateOption, WhereOption } from './typings';
+import { QueryOption, SQLOption, UpdateOption, WhereOption } from 'dm-type';
 
 type Model = Record<string, any>;
 
@@ -25,8 +25,7 @@ export default new class SQL {
         } else if (type === 'undefined' || type === 'null') {
             return 'null';
         } else if (type === 'date') {
-            // `str_to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','%Y-%c-%e %H:%i:%s')`;
-            return `to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','yyyy-mm-dd hh24:mi:ss:ssxff')`;
+            return `to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','yyyy-mm-dd hh24:mi:ss')`;
         }
     }
 

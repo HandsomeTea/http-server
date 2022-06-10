@@ -1,10 +1,11 @@
 import { Types } from 'mongoose';
+import dmdb from 'dmdb';
 
 import DM from '@/tools/dameng';
 import { log } from '@/configs';
 import SQL from './sql';
 
-import { DmModel, QueryOption, UpdateOption } from './typings';
+import { DmModel, QueryOption, UpdateOption } from 'dm-type';
 import { typeIs } from '@/utils';
 
 const DMDBModel: Record<string, DmModel<Record<string, unknown>>> = {};
@@ -22,9 +23,8 @@ export default class DMBase<TB>{
             if (tenantId) {
                 this.tableName = `${tenantId}_${this.tableName}`;
             }
-            if (DBName) {
-                this.tableName = `${DBName}.${this.tableName}`;
-            }
+
+            this.tableName = `${DBName || 'test'}."${this.tableName}"`;
         }
 
         DMDBModel[this.tableName] = struct;
@@ -32,7 +32,7 @@ export default class DMBase<TB>{
 
     private async execute(sql: string) {
         log('dmdb-execute-sql').debug(sql);
-        return await DM.server?.execute(sql, [], { outFormat: 'OUT_FORMAT_OBJECT' as unknown as number });
+        return await DM.server?.execute(sql, [], { outFormat: dmdb.OUT_FORMAT_OBJECT });
     }
 
     private dataFormat(dbData: Record<string, unknown>): TB {
@@ -40,17 +40,13 @@ export default class DMBase<TB>{
         const data: { [P in keyof TB]?: TB[P] } = {};
 
         for (const key in struct) {
-            const { type } = struct[key];
+            // const { type } = struct[key];
 
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             data[key] = dbData[key];
 
-            if (type === 'DATE' && !typeIs(data[key], 'date')) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                data[key] = new Date(data[key]);
-            } else if (struct[key].type === 'STRING' && !typeIs(data[key], 'string')) {
+            if (struct[key].type === 'STRING') {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 data[key] = `${data[key]}`.trim();
@@ -171,7 +167,7 @@ export default class DMBase<TB>{
         return (await this.find(query, projection))[0] || null;
     }
 
-    public async page(query: QueryOption<TB>, option: { skip: number, limit: number }, projection?: Array<keyof TB>): Promise<{ list: Array<TB>, total: number }> {
+    public async paging(query: QueryOption<TB>, option: { skip: number, limit: number }, projection?: Array<keyof TB>): Promise<{ list: Array<TB>, total: number }> {
         const sql = SQL.getPageSql(query, { ...option, tableName: this.tableName }, projection as Array<string> || Object.keys(DMDBModel[this.tableName]));
 
         return {
@@ -184,7 +180,7 @@ export default class DMBase<TB>{
         const data = (await this.execute(SQL.getCountSql(query, this.tableName)))?.rows as Array<Record<string, number>>;
 
         return {
-            count: Object.values(data[0])[0]
+            count: Number(Object.values(data[0])[0])
         };
     }
 }
