@@ -1,5 +1,7 @@
-import { Types } from 'mongoose';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import dmdb from 'dmdb';
+import { Types } from 'mongoose';
 
 import DM from '@/tools/dameng';
 import { log } from '@/configs';
@@ -157,8 +159,8 @@ export default class DMBase<TB>{
         }
     }
 
-    public async find(query: QueryOption<TB>, projection?: Array<keyof TB>): Promise<Array<TB>> {
-        const sql = SQL.getSelectSql(query, this.tableName, projection as Array<string> || Object.keys(DMDBModel[this.tableName]));
+    public async find(query?: QueryOption<TB>, projection?: Array<keyof TB>): Promise<Array<TB>> {
+        const sql = SQL.getSelectSql(query || {}, this.tableName, projection as Array<string> || Object.keys(DMDBModel[this.tableName]));
 
         return (await this.execute(sql))?.rows?.map((a: unknown) => this.dataFormat(a as Record<string, unknown>)) as Array<TB>;
     }
