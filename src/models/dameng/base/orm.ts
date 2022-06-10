@@ -174,15 +174,13 @@ export default class DMBase<TB>{
 
         return {
             list: (await this.execute(sql))?.rows?.map((a: unknown) => this.dataFormat(a as Record<string, unknown>)) as Array<TB>,
-            total: (await this.count(query)).count
+            total: await this.count(query)
         };
     }
 
-    public async count(query: QueryOption<TB>): Promise<{ count: number }> {
+    public async count(query: QueryOption<TB>): Promise<number> {
         const data = (await this.execute(SQL.getCountSql(query, this.tableName)))?.rows as Array<Record<string, number>>;
 
-        return {
-            count: Number(Object.values(data[0])[0])
-        };
+        return Number(Object.values(data[0])[0]);
     }
 }
