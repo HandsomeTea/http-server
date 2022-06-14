@@ -7,17 +7,16 @@ export default new class MQ {
         if (!this.isUseful) {
             return;
         }
-        this.service = amqp.connect([getENV('MQ_URL')]);
-
         this.init();
     }
 
     private init() {
-        this.service?.on('connect', () => {
+        this.service = amqp.connect([getENV('MQ_URL')]);
+        this.service.on('connect', () => {
             system('mq').info(`mq connected on ${getENV('MQ_URL')} success and ready to use.`);
         });
 
-        this.service?.on('disconnect', e => {
+        this.service.on('disconnect', e => {
             system('mq').error(e);
         });
     }

@@ -8,6 +8,11 @@ export default new class MySQL {
         if (!this.isUseful) {
             return;
         }
+
+        this.init();
+    }
+
+    private init() {
         const sqlAddress = getENV('DB_URL');
 
         if (!sqlAddress) {
@@ -27,11 +32,7 @@ export default new class MySQL {
             logging: sql => system('sql-command').debug(sql)
         });
 
-        this.init();
-    }
-
-    private init() {
-        this.service?.authenticate().then(() => {
+        this.service.authenticate().then(() => {
             this.isReady = true;
             system('sql').info('sql connected success and ready to use.');
         }).catch(error => {
