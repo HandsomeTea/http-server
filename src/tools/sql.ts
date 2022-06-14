@@ -29,7 +29,15 @@ export default new class MySQL {
             dialect: getENV('DB_TYPE') === 'postgres' ? 'postgres' : 'mysql',
             omitNull: true,
             // timezone: `${(new Date().toTimeString().match(/(GMT)(.?){5}/g) as Array<string>)[0].replace('GMT', '').substring(0, 3)}:00`,
-            logging: sql => system('sql-command').debug(sql)
+            logging: (...args) => {
+                const [sql, { bind }] = args as unknown as [string, { bind: Array<string | number> | undefined }];
+
+                if (bind) {
+                    system('sql-command').debug(sql.replace(/\?/g, '%s'), ...bind.map(a => typeof a === 'number' ? a : `'${a}'`));
+                } else {
+                    system('sql-command').debug(sql);
+                }
+            }
         });
 
         this.service.authenticate().then(() => {

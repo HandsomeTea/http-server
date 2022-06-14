@@ -2,23 +2,14 @@ import './startup';
 
 import { audit, getENV, log } from '@/configs';
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', reason => {
     log('SYSTEM').fatal(reason);
     audit('SYSTEM').fatal(reason);
-
-    if (promise) {
-        promise.catch(error => {
-            log('SYSTEM').error(error);
-            audit('SYSTEM').error(error);
-        }).then(data => {
-            log('SYSTEM').info(data);
-            audit('SYSTEM').info(data);
-        });
-    }
 });
 
-process.on('uncaughtException', (reason) => {
+process.on('uncaughtException', reason => {
     log('SYSTEM').fatal(reason);
+    audit('SYSTEM').fatal(reason);
 });
 
 const port = ((val: string): number => {
