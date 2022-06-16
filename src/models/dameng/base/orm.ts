@@ -25,7 +25,6 @@ export default class DMBase<TB>{
         struct: DmModel<TB>,
         option?: {
             tenantId?: string,
-            DBName?: string,
             createdAt?: string | boolean
             updatedAt?: string | boolean
         }
@@ -34,13 +33,11 @@ export default class DMBase<TB>{
         this.timestamp = {};
 
         if (option) {
-            const { tenantId, DBName, createdAt, updatedAt } = option;
+            const { tenantId, createdAt, updatedAt } = option;
 
             if (tenantId) {
                 this.tableName = `${tenantId}_${this.tableName}`;
             }
-
-            this.tableName = `${DBName || 'test'}."${this.tableName}"`;
 
             if (createdAt) {
                 this.timestamp.createdAt = typeof createdAt === 'string' ? createdAt : 'createdAt';
@@ -49,6 +46,7 @@ export default class DMBase<TB>{
                 this.timestamp.updatedAt = typeof updatedAt === 'string' ? updatedAt : 'updatedAt';
             }
         }
+        this.tableName = `"test"."${this.tableName}"`;
 
         DMDBModel[this.tableName] = struct;
     }

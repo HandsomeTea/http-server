@@ -206,7 +206,7 @@ export default new class SQL {
         return `delete from ${tableName} ${this.getQueryOption(query)};`;
     }
 
-    public getUpdateSql(query: Pick<QueryOption<Model>, 'where'>, update: UpdateOption<Model>, option: { tableName: string, createdAt?: string, updatedAt?: string }): string {
+    public getUpdateSql(query: Pick<QueryOption<Model>, 'where'>, update: UpdateOption<Model>, option: { tableName: string, updatedAt?: string }): string {
         if (option.updatedAt) {
             update[option.updatedAt] = new Date();
         }
