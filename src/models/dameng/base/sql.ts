@@ -224,17 +224,33 @@ export default new class SQL {
 
     public getSelectSql(query: QueryOption<Model>, tableName: string, projection: Array<keyof Model>): string {
         const fields = projection.map(a => `"${a}"`).join(', ');
+        const name = tableName.split('.');
 
-        return `select ${fields} from ${tableName} ${this.getQueryOption(query)};`;
+        if (name.length === 1) {
+            return `select ${fields} from ${tableName} ${this.getQueryOption(query)};`;
+        } else {
+            return `select ${fields} from ${tableName} as ${name[1]} ${this.getQueryOption(query)};`;
+        }
     }
 
     public getPageSql(query: QueryOption<Model>, option: { skip: number, limit: number, tableName: string }, projection: Array<keyof Model>): string {
         const fields = projection.map(a => `"${a}"`).join(', ');
+        const name = option.tableName.split('.');
 
-        return `select ${fields} from ${option.tableName} ${this.getQueryOption(query)} limit ${option.skip}, ${option.limit};`;
+        if (name.length === 1) {
+            return `select ${fields} from ${option.tableName} ${this.getQueryOption(query)} limit ${option.skip}, ${option.limit};`;
+        } else {
+            return `select ${fields} from ${option.tableName} as ${name[1]} ${this.getQueryOption(query)} limit ${option.skip}, ${option.limit};`;
+        }
     }
 
     public getCountSql(query: QueryOption<Model>, tableName: string): string {
-        return `select count(*) as count from ${tableName} ${this.getQueryOption(query)};`;
+        const name = tableName.split('.');
+
+        if (name.length === 1) {
+            return `select count(*) as count from ${tableName} ${this.getQueryOption(query)};`;
+        } else {
+            return `select count(*) as count from ${tableName} as ${name[1]} ${this.getQueryOption(query)};`;
+        }
     }
 };
