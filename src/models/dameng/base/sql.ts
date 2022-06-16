@@ -187,21 +187,30 @@ export default new class SQL {
         return arr.join(', ');
     }
 
-    public getInsertSql(data: Model, tableName: string): string {
+    public getInsertSql(data: Model, option: { tableName: string, createdAt?: string, updatedAt?: string }): string {
+        if (option.createdAt) {
+            data[option.createdAt] = new Date();
+        }
+        if (option.updatedAt) {
+            data[option.updatedAt] = new Date();
+        }
         const keyStr = Object.keys(data).map(a => `"${a}"`).join(', ');
         const valueStr = Object.values(data).map(a => {
             return this.getSqlValue(a);
         }).join(', ');
 
-        return `insert into ${tableName} (${keyStr}) values (${valueStr});`;
+        return `insert into ${option.tableName} (${keyStr}) values (${valueStr});`;
     }
 
     public getDeleteSql(query: Pick<QueryOption<Model>, 'where'>, tableName: string): string {
         return `delete from ${tableName} ${this.getQueryOption(query)};`;
     }
 
-    public getUpdateSql(query: Pick<QueryOption<Model>, 'where'>, update: UpdateOption<Model>, tableName: string): string {
-        return `update ${tableName} set ${this.getUpdateOption(update)} ${this.getQueryOption(query)};`;
+    public getUpdateSql(query: Pick<QueryOption<Model>, 'where'>, update: UpdateOption<Model>, option: { tableName: string, createdAt?: string, updatedAt?: string }): string {
+        if (option.updatedAt) {
+            update[option.updatedAt] = new Date();
+        }
+        return `update ${option.tableName} set ${this.getUpdateOption(update)} ${this.getQueryOption(query)};`;
     }
 
     // public getUpsertSql(insert: Model, update: UpsertOption<Model>, tableName: string): string {

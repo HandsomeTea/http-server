@@ -15,18 +15,39 @@ const DMDBModel: Record<string, DmModel<Record<string, unknown>>> = {};
 
 export default class DMBase<TB>{
     private tableName: string;
+    private timestamp: {
+        createdAt?: string
+        updatedAt?: string
+    };
 
-    constructor(tableName: string, struct: DmModel<TB>, option?: { tenantId?: string, DBName?: string }) {
+    constructor(
+        tableName: string,
+        struct: DmModel<TB>,
+        option?: {
+            tenantId?: string,
+            DBName?: string,
+            createdAt?: string | boolean
+            updatedAt?: string | boolean
+        }
+    ) {
         this.tableName = tableName;
+        this.timestamp = {};
 
         if (option) {
-            const { tenantId, DBName } = option;
+            const { tenantId, DBName, createdAt, updatedAt } = option;
 
             if (tenantId) {
                 this.tableName = `${tenantId}_${this.tableName}`;
             }
 
             this.tableName = `${DBName || 'test'}."${this.tableName}"`;
+
+            if (createdAt) {
+                this.timestamp.createdAt = typeof createdAt === 'string' ? createdAt : 'createdAt';
+            }
+            if (updatedAt) {
+                this.timestamp.updatedAt = typeof updatedAt === 'string' ? updatedAt : 'updatedAt';
+            }
         }
 
         DMDBModel[this.tableName] = struct;
@@ -99,7 +120,7 @@ export default class DMBase<TB>{
     }
 
     public async insert(data: TB): Promise<void> {
-        const sql = SQL.getInsertSql(this.formatInsertData(data), this.tableName);
+        const sql = SQL.getInsertSql(this.formatInsertData(data), { tableName: this.tableName, ...this.timestamp });
 
         await this.execute(sql);
     }
@@ -108,7 +129,7 @@ export default class DMBase<TB>{
         let sql = '';
 
         for (let s = 0; s < data.length; s++) {
-            sql += SQL.getInsertSql(this.formatInsertData(data[s]), this.tableName);
+            sql += SQL.getInsertSql(this.formatInsertData(data[s]), { tableName: this.tableName, ...this.timestamp });
         }
         await this.execute(sql);
     }
@@ -144,7 +165,7 @@ export default class DMBase<TB>{
                 _update[key] = update[key];
             }
         }
-        const sql = SQL.getUpdateSql(query, _update, this.tableName);
+        const sql = SQL.getUpdateSql(query, _update, { tableName: this.tableName, ...this.timestamp });
 
         await this.execute(sql);
     }

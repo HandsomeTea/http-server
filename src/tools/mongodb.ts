@@ -21,6 +21,11 @@ export default new class MongoDB {
         if (!this.isUseful) {
             return;
         }
+
+        this.init();
+    }
+
+    private async init() {
         // 初始化操作
         this.server.once('connected', () => {// 连接成功
             system('mongodb').info(`mongodb connected on ${getENV('DB_URL')} success and ready to use.`);
@@ -33,11 +38,6 @@ export default new class MongoDB {
         this.server.on('reconnected', () => {// 重新连接成功
             system('mongodb').info(`reconnect on ${getENV('DB_URL')} success and ready to use.`);
         });
-
-        this.init();
-    }
-
-    private async init() {
         return await mongoconnect();
     }
 

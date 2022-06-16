@@ -9,6 +9,6 @@ export default new class User extends DMORM<UserModel> {
             test: { type: DmType.DATE }
         };
 
-        super('user', model);
+        super('user', model, { updatedAt: true });
     }
 };
