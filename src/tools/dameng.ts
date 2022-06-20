@@ -10,11 +10,11 @@ export default new class DM {
         if (!this.isUseful) {
             return;
         }
-        this.isReady = false;
         this.init();
     }
 
     private async init() {
+        this.isReady = false;
         const connectString = getENV('DB_URL');
 
         if (!connectString) {

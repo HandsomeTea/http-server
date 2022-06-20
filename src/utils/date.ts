@@ -1,4 +1,4 @@
-import _toFixed from './fixedNumStr';
+import { fixedNumString } from './fixedNumStr';
 
 /**
  * 生成 yyyy-MM-ddTHH:mm:ss.SSSXXX 格式的UTC时间
@@ -7,12 +7,12 @@ export const getUTCTime = (): string => {
     const now = new Date();
     const { year, month, day, hour, minute, seconds, milliseconds } = {
         year: now.getUTCFullYear(),
-        month: _toFixed(now.getUTCMonth() + 1),
-        day: _toFixed(now.getUTCDate()),
-        hour: _toFixed(now.getUTCHours()),
-        minute: _toFixed(now.getUTCMinutes()),
-        seconds: _toFixed(now.getUTCSeconds()),
-        milliseconds: _toFixed(now.getUTCMilliseconds(), 3)
+        month: fixedNumString(now.getUTCMonth() + 1),
+        day: fixedNumString(now.getUTCDate()),
+        hour: fixedNumString(now.getUTCHours()),
+        minute: fixedNumString(now.getUTCMinutes()),
+        seconds: fixedNumString(now.getUTCSeconds()),
+        milliseconds: fixedNumString(now.getUTCMilliseconds(), 3)
     };
 
     return `${year}-${month}-${day}T${hour}:${minute}:${seconds}.${milliseconds}Z`;

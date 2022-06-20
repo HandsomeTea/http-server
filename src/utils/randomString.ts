@@ -45,7 +45,10 @@ export default (charsCount?: number, alphabet?: string): string => {
     if (!alphabet) {
         alphabet = '23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz';
     }
-    for (let i = 0; i < (charsCount || 17); i++) {
+    if (!charsCount) {
+        charsCount = 17;
+    }
+    for (let i = 0; i < charsCount; i++) {
         digits[i] = choice(alphabet);
     }
     return digits.join('');

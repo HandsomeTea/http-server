@@ -63,6 +63,7 @@
     "@types/mocha": "^9.1.1",
     "@types/module-alias": "^2.0.1",
     "@types/nodemailer": "^6.4.4",
+    "@types/pinyin": "^2.10.0",
     "@types/supertest": "^2.0.12",
     "@types/underscore": "^1.11.4",
     "@types/xml-crypto": "^1.4.2",

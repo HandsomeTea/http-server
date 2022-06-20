@@ -1,22 +1,23 @@
-import delay from './delay';
-import fixedNumString from './fixedNumStr';
-import base64Encode from './base64Encode';
+import isPhone from './isPhone';
 import isEmail from './isEmail';
 import isURL from './isURL';
-import isPhone from './isPhone';
+import base64 from './base64';
+import sha256 from './sha256';
+import displayPhone from './displayPhone';
 import randomString from './randomString';
-import SHA256 from './sha256';
-
+import pinyin from './pinyin';
+import delay from './delay';
 
 export {
-    delay,
-    fixedNumString,
-    base64Encode,
+    isPhone,
     isEmail,
     isURL,
-    isPhone,
+    base64,
+    sha256,
+    displayPhone,
     randomString,
-    SHA256
+    pinyin,
+    delay
 };
 
 export {
@@ -33,3 +34,5 @@ export {
 
 export { check } from './check';
 export { typeIs } from './typeIs';
+export { fixedNumString } from './fixedNumStr';
+export { arrayToObject } from './arrayToObject';
