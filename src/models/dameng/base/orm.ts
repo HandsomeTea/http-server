@@ -9,6 +9,7 @@ import SQL from './sql';
 
 import { DmModel, QueryOption, UpdateOption } from 'dm-type';
 import { typeIs } from '@/utils';
+import { DmType } from './index';
 
 const DMDBModel: Record<string, DmModel<Record<string, unknown>>> = {};
 
@@ -48,7 +49,11 @@ export default class DMBase<TB>{
         }
         this.tableName = `"test"."${this.tableName}"`;
 
-        DMDBModel[this.tableName] = struct;
+        DMDBModel[this.tableName] = {
+            ...struct,
+            ...this.timestamp.createdAt ? { [this.timestamp.createdAt]: { type: DmType.DATE } } : {},
+            ...this.timestamp.updatedAt ? { [this.timestamp.updatedAt]: { type: DmType.DATE } } : {}
+        };
     }
 
     private async execute(sql: string) {

@@ -6,7 +6,6 @@ import { QueryOption, SQLOption, UpdateOption, WhereOption } from 'dm-type';
 type Model = Record<string, any>;
 
 export default new class SQL {
-
     constructor() {
         //
     }
