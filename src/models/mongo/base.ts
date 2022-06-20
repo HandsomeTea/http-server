@@ -94,24 +94,12 @@ export default class MongoBase<CM>{
         // }
     }
 
-    // async create(data: CM | Array<CM>): Promise<CM | Array<CM>> {
-    //     if (Array.isArray(data)) {
-    //         return await this.model.insertMany(this.id(data));
-    //     } else {
-    //         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //         // @ts-ignore
-    //         return await new this.model(this.id(data)[0]).save();
-    //     }
-    // }
-
     async insertOne(data: CM): Promise<CM> {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return await new this.model(this.id(data)[0]).save();
+        return await new this.model(this.id(data)[0]).save() as unknown as CM;
     }
 
     async insertMany(data: Array<CM>): Promise<Array<CM>> {
-        return await this.model.insertMany(data.map(a => this.id(a)));
+        return await this.model.insertMany(data.map(a => this.id(a)), { lean: true }) as unknown as Array<CM>;
     }
 
     async removeOne(query: FilterQuery<CM>): Promise<{ deletedCount: number }> {
@@ -128,7 +116,7 @@ export default class MongoBase<CM>{
         return { deletedCount: 0 };
     }
 
-    async updateOne(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
+    async updateOne(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions<CM>): Promise<{
         acknowledged: boolean
         modifiedCount: number
         upsertedId: null | string
@@ -150,11 +138,11 @@ export default class MongoBase<CM>{
     }
 
     /**upsert尽量不要触发insert，否则会生成一个ObjectId构建的_id，除非指定一个_id，并且collection里面的default默认设置的字段也不会有 */
-    async upsertOne(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions) {
+    async upsertOne(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions<CM>) {
         return await this.updateOne(query, update, { ...options, upsert: true });
     }
 
-    async updateMany(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions): Promise<{
+    async updateMany(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions<CM>): Promise<{
         acknowledged: boolean
         modifiedCount: number
         upsertedId: null | string
@@ -176,34 +164,38 @@ export default class MongoBase<CM>{
     }
 
     /**upsert尽量不要触发insert，否则会生成一个ObjectId构建的_id，除非指定_id，并且collection里面的default默认设置的字段也不会有 */
-    async upsertMany(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions) {
+    async upsertMany(query: FilterQuery<CM>, update: UpdateQuery<CM> | UpdateWithAggregationPipeline, options?: QueryOptions<CM>) {
         return await this.updateMany(query, update, { ...options, upsert: true });
     }
 
-    async find(query?: FilterQuery<CM>, options?: QueryOptions) {
+    async find(query?: FilterQuery<CM>, options?: QueryOptions<CM>) {
         if (await this.collectionExist()) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             return await this.model.find(query || {}, null, options).lean();
         }
         return [];
     }
 
-    async findOne(query: FilterQuery<CM>, options?: QueryOptions) {
+    async findOne(query: FilterQuery<CM>, options?: QueryOptions<CM>) {
         if (await this.collectionExist()) {
             return await this.model.findOne(query, null, options).lean();
         }
         return null;
     }
 
-    async findById(_id: string, options?: QueryOptions) {
+    async findById(_id: string, options?: QueryOptions<CM>) {
         if (await this.collectionExist()) {
             return await this.model.findById(_id, null, options).lean();
         }
         return null;
     }
 
-    async paging<K extends keyof CM>(query: FilterQuery<CM>, limit: number, skip: number, sort?: Record<K, 'asc' | 'desc' | 'ascending' | 'descending'>, options?: QueryOptions) {
+    async paging<K extends keyof CM>(query: FilterQuery<CM>, limit: number, skip: number, sort?: Record<K, 'asc' | 'desc' | 'ascending' | 'descending'>, options?: QueryOptions<CM>) {
         if (await this.collectionExist()) {
             return {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 list: await this.model.find(query, null, options).sort((() => {
                     const obj: { [key: string]: SortOrder } = {};
 
