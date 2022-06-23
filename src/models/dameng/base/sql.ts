@@ -223,24 +223,24 @@ export default new class SQL {
 
     public getSelectSql(query: QueryOption<Model>, tableName: string, projection: Array<keyof Model>): string {
         const fields = projection.map(a => `"${a}"`).join(', ');
-        const name = tableName.split('.');
-        const tbName = name.length > 1 ? `${tableName} as ${name[1]}` : tableName;
+        // const name = tableName.split('.');
+        // const tbName = name.length > 1 ? `${tableName} as ${name[1]}` : tableName;
 
-        return `select ${fields} from ${tbName} ${this.getQueryOption(query)};`;
+        return `select ${fields} from ${tableName} ${this.getQueryOption(query)};`;
     }
 
     public getPageSql(query: QueryOption<Model>, option: { skip: number, limit: number, tableName: string }, projection: Array<keyof Model>): string {
         const fields = projection.map(a => `"${a}"`).join(', ');
-        const name = option.tableName.split('.');
-        const tbName = name.length > 1 ? `${option.tableName} as ${name[1]}` : option.tableName;
+        // const name = option.tableName.split('.');
+        // const tbName = name.length > 1 ? `${option.tableName} as ${name[1]}` : option.tableName;
 
-        return `select ${fields} from ${tbName} ${this.getQueryOption(query)} limit ${option.skip}, ${option.limit};`;
+        return `select ${fields} from ${option.tableName} ${this.getQueryOption(query)} limit ${option.skip}, ${option.limit};`;
     }
 
     public getCountSql(query: QueryOption<Model>, tableName: string): string {
-        const name = tableName.split('.');
-        const tbName = name.length > 1 ? `${tableName} as ${name[1]}` : tableName;
+        // const name = tableName.split('.');
+        // const tbName = name.length > 1 ? `${tableName} as ${name[1]}` : tableName;
 
-        return `select count(*) as count from ${tbName} ${this.getQueryOption(query)};`;
+        return `select count(*) as count from ${tableName} ${this.getQueryOption(query)};`;
     }
 };
