@@ -55,7 +55,7 @@ import v1 from './v1';
 
 app.use('/api/v1', v1);
 app.use('*', (req) => {
-    throw new Exception(`url: ${req.originalUrl} not found!`, errorType.URL_NOT_FOUND);
+    throw new Exception(`url: [${req.method}]${req.originalUrl} not found!`, errorType.URL_NOT_FOUND);
 });
 
 /**捕捉路由中throw new Eexception的情况 */
