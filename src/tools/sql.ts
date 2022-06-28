@@ -36,7 +36,7 @@ export default new class MySQL {
                     system('sql-command').debug(sql.replace(/\?/g, '%s'), ...bind.map(a => typeof a === 'number' ? a : `'${a}'`));
                     system('sql-command').debug({
                         sql,
-                        arguments: bind
+                        arguments: JSON.stringify(bind)
                     });
                 } else {
                     system('sql-command').debug(sql);
