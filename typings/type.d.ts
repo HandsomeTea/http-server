@@ -31,4 +31,4 @@ declare namespace Express {
     }
 }
 
-type AnyKeysOf<T> = { [P in keyof T]?: T[P] | any };
+type KeysOf<T> = { [P in keyof T]?: T[P] | any };

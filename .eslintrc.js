@@ -24,7 +24,7 @@ module.exports = {
         httpArgument: 'readonly',
         UserModel: 'readonly',
         InstanceModel: 'readonly',
-        AnyKeysOf: true
+        KeysOf: true
     },
     rules: {
         '@typescript-eslint/no-explicit-any': 2,
