@@ -33,7 +33,7 @@ export default new class MySQL {
                 const [sql, { bind }] = args as unknown as [string, { bind: Array<string | number> | undefined }];
 
                 if (bind) {
-                    system('sql-command').debug(sql.replace(/\?/g, '%s'), ...bind.map(a => typeof a === 'number' ? a : `'${a}'`));
+                    // system('sql-command').debug(sql.replace(/\?/g, '%s'), ...bind.map(a => typeof a === 'number' ? a : `'${a}'`));
                     system('sql-command').debug({
                         sql,
                         arguments: JSON.stringify(bind)
