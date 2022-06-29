@@ -198,7 +198,7 @@ export default new class SQL {
             return this.getSqlValue(a);
         }).join(', ');
 
-        return `insert into ${option.tableName} (${keyStr}) values (${valueStr}) returning ${keyStr};`;
+        return `insert into ${option.tableName} (${keyStr}) values (${valueStr});`;
     }
 
     public getDeleteSql(query: Pick<QueryOption<Model>, 'where'>, tableName: string): string {
