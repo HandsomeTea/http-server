@@ -125,7 +125,7 @@ export default class DMBase<TB>{
     public async insert(data: TB): Promise<void> {
         const sql = SQL.getInsertSql(this.formatInsertData(data), { tableName: this.tableName, ...this.timestamp });
 
-        await this.execute(sql);
+        return await this.execute(sql);
     }
 
     public async insertMany(data: Array<TB>): Promise<void> {
@@ -134,7 +134,7 @@ export default class DMBase<TB>{
         for (let s = 0; s < data.length; s++) {
             sql += SQL.getInsertSql(this.formatInsertData(data[s]), { tableName: this.tableName, ...this.timestamp });
         }
-        await this.execute(sql);
+        return await this.execute(sql);
     }
 
     public async delete(query: Pick<QueryOption<TB>, 'where'>): Promise<void> {
