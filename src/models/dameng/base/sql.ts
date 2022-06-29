@@ -6,8 +6,14 @@ import { QueryOption, SQLOption, UpdateOption, WhereOption } from 'dm-type';
 type Model = Record<string, any>;
 
 export default new class SQL {
+    /** 时区取值
+     * iso: 将使用new Date().toISOString()取值并使用sql函数to_date存库
+     * local: 将使用new Date().toLocaleString()取值并使用sql函数to_date存库
+     */
+    private timezone: 'local' | 'iso';
+
     constructor() {
-        //
+        this.timezone = 'iso';
     }
 
     private getSqlValue(value: any) {
@@ -24,7 +30,16 @@ export default new class SQL {
         } else if (type === 'undefined' || type === 'null') {
             return 'null';
         } else if (type === 'date') {
-            return `to_date('${(value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-')}','yyyy-mm-dd hh24:mi:ss')`;
+            let date = '';
+
+            if (this.timezone === 'local') {
+                date = (value as Date).toLocaleString(undefined, { hour12: false }).replace(/\//g, '-');
+            } else {
+                const str = (value as Date).toISOString();
+
+                date = `${str.substring(0, 10)} ${str.substring(11, 19)}`;
+            }
+            return `to_date('${date}','yyyy-mm-dd hh24:mi:ss')`;
         }
     }
 
