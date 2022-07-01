@@ -29,7 +29,10 @@ export default class UserToken extends BaseDb<MysqlUserTokenModel> {
                 type: DataTypes.STRING
             },
             device_type: {
-                type: DataTypes.STRING
+                type: DataTypes.STRING,
+                get() {
+                    return this.getDataValue('device_type') || 'default device_type';
+                }
             },
             serial_number: {
                 type: DataTypes.STRING

@@ -58,19 +58,19 @@ export default class SQLBase<TM>{
     }
 
     public async insert(data: CreationAttributes<Model<TM>>, option?: CreateOptions<TM>): Promise<TM> {
-        return await (await this.getModelInstance())?.create(data, option) as unknown as TM;
+        return (await (await this.getModelInstance())?.create(data, option))?.get() as unknown as TM;
     }
 
     public async insertMany(data: Array<CreationAttributes<Model<TM>>>, option?: BulkCreateOptions<TM>): Promise<Array<TM>> {
-        return await (await this.getModelInstance())?.bulkCreate(data, option) as unknown as Array<TM>;
+        return (await (await this.getModelInstance())?.bulkCreate(data, option))?.map(a => a.get()) as unknown as Array<TM>;
     }
 
     public async delete(option: DestroyOptions<TM>) {
-        return await (await this.getModelInstance())?.destroy(option);
+        return await (await this.getModelInstance())?.destroy(option) as number;
     }
 
     public async update(query: UpdateOptions<TM>, set: { [key in keyof TM]?: TM[key] }) {
-        return await (await this.getModelInstance())?.update(set, query);
+        return (await (await this.getModelInstance())?.update(set, query) as [number])[0];
     }
 
     // public async upsert(set: CreationAttributes<Model<TM>>, option?: UpsertOptions<TM>): Promise<[TM, boolean | null]> {
@@ -78,16 +78,16 @@ export default class SQLBase<TM>{
     // }
 
     public async find(query?: FindOptions<TM>) {
-        return await (await this.getModelInstance())?.findAll(query) as unknown as Array<TM>;
+        return (await (await this.getModelInstance())?.findAll(query))?.map(a => a.get()) as unknown as Array<TM>;
     }
 
-    public async findOne(query: FindOptions<TM>) {
-        return await (await this.getModelInstance())?.findOne(query) as TM | null;
+    public async findOne(query?: FindOptions<TM>) {
+        return (await (await this.getModelInstance())?.findOne(query || {}))?.get() as TM | null;
     }
 
-    public async findById(id: Identifier, option?: FindOptions<TM>) {
+    public async findById(id: Identifier, option?: Omit<FindOptions<TM>, 'where'>) {
         if (id) {
-            return await (await this.getModelInstance())?.findByPk(id, option) as TM | null;
+            return (await (await this.getModelInstance())?.findByPk(id, option))?.get() as TM | null;
         }
         return null;
     }
@@ -95,7 +95,7 @@ export default class SQLBase<TM>{
     public async paging(query: FindAndCountOptions<TM>) {
         const pageResult = await (await this.getModelInstance())?.findAndCountAll(query);
 
-        return { list: (pageResult?.rows || []) as unknown as Array<TM>, total: pageResult?.count || 0 };
+        return { list: (pageResult?.rows.map(a => a.get()) || []) as unknown as Array<TM>, total: pageResult?.count || 0 };
     }
 
     public async count(query?: Omit<CountOptions<TM>, 'group'>): Promise<number> {

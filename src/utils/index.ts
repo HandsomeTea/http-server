@@ -5,7 +5,7 @@ import base64 from './base64';
 import sha256 from './sha256';
 import displayPhone from './displayPhone';
 import randomString from './randomString';
-import pinyin from './pinyin';
+// import pinyin from './pinyin';
 import delay from './delay';
 
 export {
@@ -16,7 +16,7 @@ export {
     sha256,
     displayPhone,
     randomString,
-    pinyin,
+    // pinyin,
     delay
 };
 

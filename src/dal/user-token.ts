@@ -42,13 +42,20 @@ export default class UserTokenDAL extends BaseDal {
         const { type, userId, hashedToken, deviceType, serialNumber } = tokenInfo;
 
         if (this.db === 'sqldb') {
-            await this.mysqlServer.insertMany([{
+            // await this.mysqlServer.insertMany([{
+            //     id: hashedToken,
+            //     user_id: userId,
+            //     type,
+            //     device_type: deviceType,
+            //     serial_number: serialNumber
+            // }]);
+            await this.mysqlServer.insert({
                 id: hashedToken,
                 user_id: userId,
                 type,
                 device_type: deviceType,
                 serial_number: serialNumber
-            }]);
+            });
             // return await this.mysqlServer.tableIsExist();
             // return await this.mysqlServer.upsertExecute(`insert into  11686_user_token (id, user_id, type, create_at, updated_at) values ('test12345ss', 'sssaa', 'ws', '2022-4-13 21:10:12', '2022-4-13 21:10:12') on duplicate key update id='test12345ss1', user_id='sssaa1';`);
             // return await this.mysqlServer.insertExecute(`insert into  11686_user_token (id, user_id, type, create_at, updated_at) values ('test123==================', 'aaaaaa', 'ws', str_to_date('2022-4-21 10:23:06','%Y-%c-%e %H:%i:%s'), '2022-4-13 21:10:12');`);
@@ -65,6 +72,36 @@ export default class UserTokenDAL extends BaseDal {
                 ...query.hashedToken ? { id: query.hashedToken } : {},
                 ...query.userId ? { user_id: query.userId } : {},
                 ...query.deviceType ? { device_type: query.deviceType } : {}
+            }
+        });
+    }
+
+    async find(query: { hashedToken?: string, userId?: string, deviceType?: 'BCD' | 'BCM' | 'BR' | 'H323_SIP' | 'PSTN', serialNumber?: string }) {
+        return await this.mysqlServer.find({
+            where: {
+                ...query.hashedToken ? { id: query.hashedToken } : {},
+                ...query.userId ? { user_id: query.userId } : {},
+                ...query.deviceType ? { device_type: query.deviceType } : {}
+            }
+        });
+    }
+
+    async paging(query: { hashedToken?: string, userId?: string, deviceType?: 'BCD' | 'BCM' | 'BR' | 'H323_SIP' | 'PSTN', serialNumber?: string }, skip: number, limit: number) {
+        return await this.mysqlServer.paging({
+            where: {
+                ...query.hashedToken ? { id: query.hashedToken } : {},
+                ...query.userId ? { user_id: query.userId } : {},
+                ...query.deviceType ? { device_type: query.deviceType } : {}
+            },
+            offset: skip,
+            limit
+        });
+    }
+
+    async remove(query: { userId?: string }) {
+        return await this.mysqlServer.delete({
+            where: {
+                ...query.userId ? { user_id: query.userId } : {}
             }
         });
     }

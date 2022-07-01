@@ -22,23 +22,20 @@ const router = express.Router();
  * @apiUse ErrorApiResult
  */
 router.post('/user', asyncHandler(async (_req, res) => {
-    const UserTokens = new _UserTokens('11686');
+    const UserTokens = new _UserTokens('11685');
 
     // await User.find();
-    return res.success({
-        result: await UserTokens.insertLoginToken({
-            type: 'ws',
-            userId: 'asdasdasds',
-            hashedToken: 'sad23asd345dfgss123'
-            // deviceType: 'BCD',
-            // serialNumber: 'ASDDFGFG45645'
-        })
-    });
+    // return res.success({
+    //     result: await UserTokens.insertLoginToken({
+    //         type: 'ws',
+    //         userId: 'asdasdasdsssssss',
+    //         hashedToken: 'sad23asd345dfgsdsadss123'
+    //         // deviceType: 'BCD',
+    //         // serialNumber: 'ASDDFGFG45645'
+    //     })
+    // });
     // console.log(await User.update<UserModel>({ where: { _id: 132 } }, { account: 'newaccount' }));
-    // return res.success(await UserTokens.findOne({
-    //     hashedToken: 'sad23asd345dfgs',
-    //     userId: 'asdasdasd'
-    // }));
+    return res.success({ result: await UserTokens.remove({ userId: 'asdasdasdsssssss' }) });
     // throw new Exception(new Error('cuo wu'));
     // throw new Exception(new Exception('cuo wu'));
 }));
