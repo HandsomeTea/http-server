@@ -37,33 +37,24 @@ import mq from '@/tools/mq';
 /**
  * 健康检查
  */
-const isHealth = async () => {
-    let result = true;
-
+const isHealth = async (): Promise<true | void> => {
     if (!mongodb.isOK) {
-        result = false;
-        log('STARTUP').error('mongodb connection is unusual');
+        return log('STARTUP').error('mongodb connection is unusual');
     }
     if (!sql.isOK) {
-        result = false;
-        log('STARTUP').error('sql connection is unusual');
+        return log('STARTUP').error('sql connection is unusual');
     }
     // if (!dm.isOK) {
-    //     result = false;
-    //     log('STARTUP').error('dmdb connection is unusual');
+    //     return log('STARTUP').error('dmdb connection is unusual');
     // }
     if (!redis.isOK) {
-        result = false;
-        log('STARTUP').error('redis connection is unusual');
+        return log('STARTUP').error('redis connection is unusual');
     }
     if (!mq.isOK) {
-        result = false;
-        log('STARTUP').error('mq connection is unusual');
+        return log('STARTUP').error('mq connection is unusual');
     }
-    if (result) {
-        log('STARTUP').debug('system is normal.');
-    }
-    return result;
+    log('STARTUP').debug('health check: system is normal.');
+    return true;
 };
 
 /** 健康检查机制 */
