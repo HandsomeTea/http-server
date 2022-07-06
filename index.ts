@@ -53,7 +53,7 @@ const isHealth = async (): Promise<true | void> => {
     if (!mq.isOK) {
         return log('STARTUP').error('mq connection is unusual');
     }
-    log('STARTUP').debug('health check: system is normal.');
+    log('SYSTEM-STATUS').debug('health check: system is normal.');
     return true;
 };
 

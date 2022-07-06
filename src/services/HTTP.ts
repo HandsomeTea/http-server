@@ -65,26 +65,33 @@ class Request {
         }
 
         const { url, baseURL, method, params, data, headers } = config;
+        const address = new URL(`${baseURL ? baseURL + url : url}`);
 
-        log('send-to-other-server').debug({
-            target: `(${method}): ${baseURL ? baseURL + url : url}`,
+        log(`request-to:[(${method}) ${address.origin + address.pathname}]`).info({
             headers,
-            params: params || {},
-            data: data || {}
+            query: Object.keys(params || {}).length > 0 ? params : (() => {
+                const obj = {};
+
+                [...address.searchParams.entries()].map(a => obj[a[0]] = a[1]);
+                return obj;
+            })(),
+            body: data || {}
         });
 
         return config;
     }
 
     private beforeSendToServerButError(error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-        log('request-server').error(error);
+        log('request-to-other-server').error(error);
         throw new Exception(error);
     }
 
     private async receiveSuccessResponse(response: AxiosResponse) {
         // 这里只处理 response.status >= 200 && response.status <= 207 的情况
-        const { data/*, config, headers, request, status, statusText*/ } = response;
+        const { data, config: { method, baseURL, url }/*, headers, request, status, statusText*/ } = response;
+        const address = new URL(`${baseURL ? baseURL + url : url}`);
 
+        log(`response-from:[(${method}) ${address.origin + address.pathname}]`).info(data);
         return Promise.resolve(data);
     }
 
@@ -100,14 +107,16 @@ class Request {
         } else if (request) {
             target = request.responseURL;
         } else {
-            log('send-to-other-server-error').error(error);
+            log('response-from-other-server-error').error(error);
             throw new Exception(error);
         }
+        const address = new URL(config ? `${config.baseURL ? config.baseURL + config.url : config.url}` : `${target}`);
+        const _target = config ? `(${config.method}) ${address.origin + address.pathname}` : address.origin + address.pathname;
 
         if (response) {
             const { status, statusText, data } = response;
 
-            log(`request-to-${target}`).error({
+            log(`response-from:[${_target}]`).error({
                 status,
                 statusText,
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -119,7 +128,7 @@ class Request {
             throw new Exception(data);
         }
 
-        log(`request-to-${target}`).error(error);
+        log(`response-from:[${_target}]`).error(error);
         throw new Exception(`request to ${target} error : no response.`);
     }
 
