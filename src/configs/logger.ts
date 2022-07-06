@@ -12,7 +12,7 @@ export const updateOrCreateLogInstance = (): void => {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%X{Module}] [%X{TraceId}|%X{SpanId}|%X{ParentSpanId}] [%h]%] %m%n'
+                    pattern: '[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%X{Module}] [%X{TraceId}|%X{SpanId}|%X{ParentSpanId}] %[ %m%n %]'
                 }
             },
             _audit: {
@@ -23,21 +23,21 @@ export const updateOrCreateLogInstance = (): void => {
                 encoding: 'utf-8',
                 layout: {
                     type: 'pattern',
-                    pattern: '[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] [%X{Module}] %m%n'
+                    pattern: '[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] [%X{Module}] %[ %m%n %]'
                 }
             },
             _develop: {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%X{Module}] [%f:%l:%o]%] %m%n'
+                    pattern: '[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [%X{Module}] [%f:%l:%o] %[ %m%n %]'
                 }
             },
             _system: {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [SYSTEM:%X{Module}]%] %m%n'
+                    pattern: '[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [SYSTEM:%X{Module}] %[ %m%n %]'
                 }
             }
             // [2021-09-23 16:59:33.762] %d{yyyy-MM-dd hh:mm:ss.SSS}

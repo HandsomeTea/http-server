@@ -31,16 +31,16 @@ const getRequestIp = (request: Request): string | undefined => {
  */
 export default (req: Request, _res: Response, next: NextFunction): void => {
 
-    let _datas = ` header=>${JSON.stringify(req.headers)}`;
+    let _datas = `\n\theader: ${JSON.stringify(req.headers)}`;
 
     if (Object.getOwnPropertyNames(req.body).length > 0) {
-        _datas += ` body=>${JSON.stringify(req.body)}`;
+        _datas += `\n\tbody: ${JSON.stringify(req.body)}`;
     }
     if (Object.getOwnPropertyNames(req.query).length > 0) {
-        _datas += ` query=>${JSON.stringify(req.query)}`;
+        _datas += `\n\tquery: ${JSON.stringify(req.query)}`;
     }
     if (Object.getOwnPropertyNames(req.params).length > 0) {
-        _datas += ` params=>${JSON.stringify(req.params)}`;
+        _datas += `\n\tparams: ${JSON.stringify(req.params)}`;
     }
 
     httpContext.set('ip', getRequestIp(req));
@@ -52,7 +52,7 @@ export default (req: Request, _res: Response, next: NextFunction): void => {
         traceId: httpContext.get('traceId'),
         spanId: httpContext.get('spanId'),
         parentSpanId: httpContext.get('parentSpanId')
-    }, 'receive-request').debug(`[${httpContext.get('ip')}(${req.method}): ${req.protocol}://${req.get('host')}${req.originalUrl}] request parameter :${_datas || ' no parameter'} .`);
+    }, 'receive-request').info(`${req.method}: ${req.originalUrl} , request parameter:` + _datas);
 
     next();
 };
