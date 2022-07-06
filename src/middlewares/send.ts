@@ -12,7 +12,7 @@ export default (req: Request, res: Response, next: NextFunction): void => {
             traceId: httpContext.get('traceId'),
             spanId: httpContext.get('spanId'),
             parentSpanId: httpContext.get('parentSpanId')
-        }, 'return-response').info(`${req.method}: ${req.originalUrl} , response : ${JSON.stringify(data)} .`);
+        }, 'return-response').info(`${req.method}: ${req.originalUrl} =>\n\t${JSON.stringify(data)}`);
 
         res.status(200).send(data);
     };

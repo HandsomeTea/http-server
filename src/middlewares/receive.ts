@@ -52,7 +52,7 @@ export default (req: Request, _res: Response, next: NextFunction): void => {
         traceId: httpContext.get('traceId'),
         spanId: httpContext.get('spanId'),
         parentSpanId: httpContext.get('parentSpanId')
-    }, 'receive-request').info(`${req.method}: ${req.originalUrl} , request parameter:` + _datas);
+    }, 'receive-request').info(`${req.method}: ${req.originalUrl} ${_datas}`);
 
     next();
 };
