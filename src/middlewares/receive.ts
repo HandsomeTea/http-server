@@ -31,16 +31,16 @@ const getRequestIp = (request: Request): string | undefined => {
  */
 export default (req: Request, _res: Response, next: NextFunction): void => {
 
-    let _datas = `\n\theader: ${JSON.stringify(req.headers)}`;
+    let _datas = `\nheader: ${JSON.stringify(req.headers, null, '   ')}`;
 
     if (Object.getOwnPropertyNames(req.body).length > 0) {
-        _datas += `\n\tbody: ${JSON.stringify(req.body)}`;
+        _datas += `\nbody: ${JSON.stringify(req.body, null, '   ')}`;
     }
     if (Object.getOwnPropertyNames(req.query).length > 0) {
-        _datas += `\n\tquery: ${JSON.stringify(req.query)}`;
+        _datas += `\nquery: ${JSON.stringify(req.query, null, '   ')}`;
     }
     if (Object.getOwnPropertyNames(req.params).length > 0) {
-        _datas += `\n\tparams: ${JSON.stringify(req.params)}`;
+        _datas += `\nparams: ${JSON.stringify(req.params, null, '   ')}`;
     }
 
     httpContext.set('ip', getRequestIp(req));

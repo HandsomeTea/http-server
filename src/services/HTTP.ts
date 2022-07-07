@@ -67,7 +67,7 @@ class Request {
         const { url, baseURL, method, params, data, headers } = config;
         const address = new URL(`${baseURL ? baseURL + url : url}`);
 
-        log(`request-to:[(${method}) ${address.origin + address.pathname}]`).info({
+        log(`request-to:[(${method}) ${address.origin + address.pathname}]`).info(JSON.stringify({
             headers,
             query: Object.keys(params || {}).length > 0 ? params : (() => {
                 const obj = {};
@@ -76,7 +76,7 @@ class Request {
                 return obj;
             })(),
             body: data || {}
-        });
+        }, null, '   '));
 
         return config;
     }
@@ -91,7 +91,7 @@ class Request {
         const { data, config: { method, baseURL, url }/*, headers, request, status, statusText*/ } = response;
         const address = new URL(`${baseURL ? baseURL + url : url}`);
 
-        log(`response-from:[(${method}) ${address.origin + address.pathname}]`).info(data);
+        log(`response-from:[(${method}) ${address.origin + address.pathname}]`).info(JSON.stringify(data, null, '   '));
         return Promise.resolve(data);
     }
 
