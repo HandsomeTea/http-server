@@ -60,10 +60,10 @@ global.Exception = class Exception extends Error {
         }
 
         // reason
+        if (!this.reason) {
+            this.reason = [];
+        }
         if (reason && reason.length > 0) {
-            if (!this.reason) {
-                this.reason = [];
-            }
             this.reason.push(...reason);
         }
     }

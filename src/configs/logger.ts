@@ -23,7 +23,7 @@ export const updateOrCreateLogInstance = (): void => {
                 encoding: 'utf-8',
                 layout: {
                     type: 'pattern',
-                    pattern: '[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] [%X{Module}] %[ %m%n %]'
+                    pattern: '[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] [%X{Module}]  %m%n '
                 }
             },
             _develop: {
