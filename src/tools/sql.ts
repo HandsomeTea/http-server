@@ -47,7 +47,7 @@ export default new class MySQL {
 
         this.service.authenticate().then(() => {
             this.isReady = true;
-            system('sql').info('sql connected success and ready to use.');
+            system('sql').info(`sql connected on ${sqlAddress} success and ready to use.`);
         }).catch(error => {
             system('sql').error(error);
         });
