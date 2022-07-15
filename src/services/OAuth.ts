@@ -494,3 +494,58 @@ export default class OauthService {
 //         noDepartmentDeal
 //     };
 // };
+
+/*
+ * @apiParamExample {json} body-Example:
+ * {
+ *      oauthType: '', // 自定义oauth类型
+ *      oauthServerURL: '', // oauth服务器地址
+ *      tokenApi: '', // token获取地址
+ *      tokenApiMethod: 'post' | 'get', // 默认get
+ *      tokenApiParamsFormation: [{ // token获取访问参数
+ *          [grantTypeKey]: '', // grant type，默认grant_type
+ *          [grantTypeValue]: '',
+ *          [clientIdKey]: '', // 应用id，默认client_id
+ *          [clientIdValue]: '',
+ *          [clientSecretKey]: '', // 应用secret，默认client_secret
+ *          [clientSecretValue]: '',
+ *          [codeKey]: '', // code参数名称，默认code
+ *          [stateKey]: '', // state参数名称，默认state
+ *          [redirectUriKey]: '', // 回调(会畅)地址参数名称，默认redirect_uri
+ *          [auth]: '', // 应用鉴权信息，该字段也是应用id和secret信息，所以clientIdKey，clientIdValue，clientSecretKey，clientSecretValue和auth二选一
+ *          position: 'header' | 'query' | 'data'| 'auth', // api参数所在http请求的位置，auth字段如果有，则position必须为auth
+ *          [key]: '', // 其他参数名称
+ *          [value]: '' // 其他参数值
+ *      }],
+ *      tokenApiResponseFormation: { // token解析规范
+ *          accessTokenKey: '', // token所在字段
+ *          [refreshTokenKey]: '', // refresh token所在字段
+ *          [expiresKey]: '' // token过期信息所在字段
+ *      },
+ *      userApi: '', // 用户信息获取地址
+ *      userApiMethod: 'post' | 'get', // 默认post
+ *      userApiParamsFormation: { // 用户信息访问参数
+ *          [tokenKey]: '', // token参数名称
+ *          [refreshTokenKey]: '', // refresh token参数名称
+ *          [tokenExpiresKey]: '', // token过期参数名称
+ *          [Authorization]: false, // 是否使用Bearer-token鉴权，如果该字段有，则position必须为header
+ *          position: 'header' | 'query' | 'data', // api参数所在http请求的位置
+ *          [key]: '', // 其他参数名称
+ *          [value]: '' // 其他参数值
+ *      },
+ *      userApiResponseFormation: { //用户信息解析规范
+ *          name: '', // 姓名
+ *          username: '',// 账号
+ *          email: '',
+ *          [departmentName]: '',
+ *          [phone]: '',
+ *          [userId]: '',
+ *          [firstName]: '',
+ *          [lastName]: '',
+ *          [position]: '',
+ *          [location]: '',
+ *          [avatar]: ''
+ *      },
+ *      noDepartmentDeal: 'as-root' | 'refused' | 'create-belong',
+ * }
+ */
