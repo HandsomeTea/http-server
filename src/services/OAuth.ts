@@ -366,16 +366,16 @@ export default class OauthService {
 
 //     check(oauthType, String, false);
 
-//     if (!oauthServerURL && (!isURL(tokenApi) || !isURL(userApi))) {
-//         throw new Exception('oauthServerURL is required!', errorType.INVALID_ARGUMENTS);
-//     }
-
 //     if (!tokenApi) {
 //         throw new Exception('tokenApi is required!', errorType.INVALID_ARGUMENTS);
 //     }
 
 //     if (!userApi) {
 //         throw new Exception('userApi is required!', errorType.INVALID_ARGUMENTS);
+//     }
+
+//     if (!oauthServerURL && (!isURL(tokenApi) || !isURL(userApi))) {
+//         throw new Exception('oauthServerURL is required!', errorType.INVALID_ARGUMENTS);
 //     }
 
 //     if (!tokenApiMethod) {
