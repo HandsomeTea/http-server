@@ -66,16 +66,18 @@ export default class DMBase<TB>{
         const data: { [P in keyof TB]?: TB[P] } = {};
 
         for (const key in struct) {
-            // const { type } = struct[key];
+            if (typeof dbData[key] !== 'undefined') {
+                // const { type } = struct[key];
 
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            data[key] = dbData[key];
-
-            if (struct[key].type === 'STRING') {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                data[key] = `${data[key]}`.trim();
+                data[key] = dbData[key];
+
+                if (struct[key].type === 'STRING') {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    data[key] = `${data[key]}`.trim();
+                }
             }
         }
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

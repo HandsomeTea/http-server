@@ -82,7 +82,7 @@ export default class OauthService {
     private userApiParamsFormation: Array<OauthGetUserArgument>;
     private userApiResponseFormation: OauthUserInfoFormation;
     constructor(oauthType: string, tenantId: string, query: { code: string, state: string }) {
-        this.oauthType = oauthType.toLowerCase();
+        this.oauthType = oauthType;
         this.tenantId = tenantId;
         this.code = query.code;
         this.state = query.state;
@@ -488,7 +488,7 @@ export default class OauthService {
 //     }
 
 //     return {
-//         _id: oauthType.toLowerCase(),
+//         _id: oauthType,
 //         oauthServerURL,
 //         tokenApi,
 //         tokenApiMethod,
@@ -511,7 +511,7 @@ export default class OauthService {
  *      tokenApiMethod: 'post' | 'get', // 默认get
  *      tokenApiParamsFormation: [{ // token获取访问参数
  *          [grantTypeKey]: '', // grant type，默认grant_type
- *          [grantTypeValue]: '',
+ *          [grantTypeValue]: '', // 默认authorization_code
  *          [clientIdKey]: '', // 应用id，默认client_id
  *          [clientIdValue]: '',
  *          [clientSecretKey]: '', // 应用secret，默认client_secret
