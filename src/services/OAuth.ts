@@ -167,6 +167,9 @@ export default class OauthService {
         let result = { ...obj };
 
         for (let s = 0; s < keyPath.length; s++) {
+            if (!result[keyPath[s]]) {
+                return null;
+            }
             result = result[keyPath[s]];
         }
         return result;
@@ -324,6 +327,10 @@ export default class OauthService {
                 position: position ? this.formatObjPathData(result, position) : undefined,
                 location: location ? this.formatObjPathData(result, location) : undefined
             };
+
+            if (!_obj.id || !_obj.username || !_obj.email) {
+                throw new Exception(`can not get id or username or email in value is required in \n${JSON.stringify(result, null, '   ')}\nby formation: \n${JSON.stringify({ userId, username, email }, null, '   ')}`, errorType.GET_OAUTH_IDENTITY_ERROR);
+            }
 
             return _obj;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -524,7 +531,7 @@ export default class OauthService {
  *      },
  *      userApi: '', // 用户信息获取地址
  *      userApiMethod: 'post' | 'get', // 默认post
- *      userApiParamsFormation: { // 用户信息访问参数
+ *      userApiParamsFormation: [{ // 用户信息访问参数
  *          [tokenKey]: '', // token参数名称
  *          [refreshTokenKey]: '', // refresh token参数名称
  *          [tokenExpiresKey]: '', // token过期参数名称
@@ -532,7 +539,7 @@ export default class OauthService {
  *          position: 'header' | 'query' | 'data', // api参数所在http请求的位置
  *          [key]: '', // 其他参数名称
  *          [value]: '' // 其他参数值
- *      },
+ *      }],
  *      userApiResponseFormation: { //用户信息解析规范
  *          name: '', // 姓名
  *          username: '',// 账号
