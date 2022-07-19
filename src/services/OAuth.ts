@@ -3,6 +3,19 @@ import { getENV, errorType, log } from '@/configs';
 // import { _OauthSettings } from '@/dal';
 import HTTP from '@/services/HTTP';
 
+// interface OauthAuthorizeArgument {
+//     clientIdKey?: string
+//     clientIdValue?: string
+//     redirectUriKey?: string
+//     responseTypeKey?: string
+//     responseTypeValue?: string
+//     scopeKey?: string
+//     scopeValue?: string
+//     stateKey?: string
+//     key?: string
+//     value?: string
+// }
+
 interface OauthGetTokenArgument {
     grantTypeKey?: string
     grantTypeValue?: string
@@ -52,6 +65,9 @@ interface OauthUserInfoFormation {
 // interface OauthSettingModel {
 //     _id: string
 //     oauthServerURL: string
+//     authorizeApi: string
+//     authorizeApiParamsFormationJson: string
+//     authorizeApiResponseFormationJson: string
 //     tokenApi: string
 //     tokenApiMethod: 'post' | 'get'
 //     tokenApiParamsFormationJson: string
@@ -130,7 +146,7 @@ export default class OauthService {
     }
 
     get redirectUri(): string {
-        return `${getENV('ROOT_URL')}/oauth/${this.oauthType}/${this.tenantId}`;
+        return `${getENV('ROOT_URL')}/api/surpasspub/usermanager/2.0/account/oauth/${this.oauthType}/tenant/${this.tenantId}/callback`;
     }
 
     async init() {
@@ -348,6 +364,9 @@ export default class OauthService {
 // export default (setting: {
 //     oauthType: string
 //     oauthServerURL: string
+//     authorizeApi: string
+//     authorizeApiParamsFormation: Array<OauthAuthorizeArgument>
+//     authorizeApiResponseFormation: { codeKey: string, stateKey: string }
 //     tokenApi: string
 //     tokenApiMethod: 'post' | 'get'
 //     tokenApiParamsFormation: Array<OauthGetTokenArgument>
@@ -355,11 +374,12 @@ export default class OauthService {
 //     userApi: string
 //     userApiMethod: 'post' | 'get'
 //     userApiParamsFormation: Array<OauthGetUserArgument>
-//     userApiResponseFormation: SamlUserInfo
+//     userApiResponseFormation: SamlUserInfoFormation
 //     noDepartmentDeal: 'as-root' | 'refused' | 'create-belong'
 // }): OauthSettingModel => {
 //     const {
 //         oauthType, oauthServerURL,
+//         authorizeApi, authorizeApiParamsFormation, authorizeApiResponseFormation,
 //         tokenApi, tokenApiMethod, tokenApiParamsFormation, tokenApiResponseFormation,
 //         userApi, userApiMethod, userApiParamsFormation, userApiResponseFormation,
 //         noDepartmentDeal } = setting;
@@ -374,7 +394,11 @@ export default class OauthService {
 //         throw new Exception('userApi is required!', errorType.INVALID_ARGUMENTS);
 //     }
 
-//     if (!oauthServerURL && (!isURL(tokenApi) || !isURL(userApi))) {
+//     if (!authorizeApi) {
+//         throw new Exception('authorizeApi is required!', errorType.INVALID_ARGUMENTS);
+//     }
+
+//     if (!oauthServerURL && (!isURL(tokenApi) || !isURL(userApi) || !isURL(authorizeApi))) {
 //         throw new Exception('oauthServerURL is required!', errorType.INVALID_ARGUMENTS);
 //     }
 
@@ -397,6 +421,58 @@ export default class OauthService {
 
 //     if (!new Set(['as-root', 'refused', 'create-belong']).has(noDepartmentDeal)) {
 //         throw new Exception('noDepartmentDeal is invalid!', errorType.INVALID_ARGUMENTS);
+//     }
+
+//     // 授权链接参数解析
+//     const authorizeParams: OauthAuthorizeArgument = {};
+
+//     for (let s = 0; s < authorizeApiParamsFormation.length; s++) {
+//         if (Object.keys(authorizeApiParamsFormation[s]).length > 2) {
+//             throw new Exception(`can not set config more than one in ${JSON.stringify(authorizeApiParamsFormation[s])}`, errorType.INVALID_ARGUMENTS);
+//         }
+
+//         const {
+//             clientIdKey, clientIdValue,
+//             redirectUriKey,
+//             responseTypeKey, responseTypeValue,
+//             scopeKey, scopeValue,
+//             stateKey
+//         } = authorizeApiParamsFormation[s];
+
+//         if (clientIdKey && clientIdValue) {
+//             authorizeParams.clientIdKey = clientIdKey;
+//             authorizeParams.clientIdValue = clientIdValue;
+//         } else if (redirectUriKey) {
+//             authorizeParams.redirectUriKey = redirectUriKey;
+//         } else if (responseTypeKey && responseTypeValue) {
+//             authorizeParams.responseTypeKey = responseTypeKey;
+//             authorizeParams.responseTypeValue = responseTypeValue;
+//         } else if (scopeKey && scopeValue) {
+//             authorizeParams.scopeKey = scopeKey;
+//             authorizeParams.scopeValue = scopeValue;
+//         } else if (stateKey) {
+//             authorizeParams.stateKey = stateKey;
+//         }
+//     }
+
+//     if (!authorizeParams.clientIdKey || !authorizeParams.clientIdValue) {
+//         throw new Exception('clientIdKey, clientIdValue is required in authorize api params!', errorType.INVALID_ARGUMENTS);
+//     }
+
+//     if (!authorizeParams.redirectUriKey) {
+//         throw new Exception('redirectUriKey is required in authorize api params!', errorType.INVALID_ARGUMENTS);
+//     }
+
+//     if (!authorizeParams.responseTypeKey || !authorizeParams.responseTypeValue) {
+//         throw new Exception('responseTypeKey, responseTypeValue is required in authorize api params!', errorType.INVALID_ARGUMENTS);
+//     }
+
+//     if (!authorizeParams.stateKey) {
+//         throw new Exception('stateKey is required in authorize api params!', errorType.INVALID_ARGUMENTS);
+//     }
+
+//     if (!authorizeApiResponseFormation.codeKey || !authorizeApiResponseFormation.stateKey) {
+//         throw new Exception('codeKey, stateKey is required in authorize api response params!', errorType.INVALID_ARGUMENTS);
 //     }
 
 //     // 获取token接口参数检查
@@ -490,6 +566,9 @@ export default class OauthService {
 //     return {
 //         _id: oauthType,
 //         oauthServerURL,
+//         authorizeApi,
+//         authorizeApiParamsFormationJson: JSON.stringify(authorizeApiParamsFormation),
+//         authorizeApiResponseFormationJson: JSON.stringify(authorizeApiResponseFormation),
 //         tokenApi,
 //         tokenApiMethod,
 //         tokenApiParamsFormationJson: JSON.stringify(tokenApiParamsFormation),
@@ -507,6 +586,23 @@ export default class OauthService {
  * {
  *      oauthType: '', // 自定义oauth类型
  *      oauthServerURL: '', // oauth服务器地址
+ *      authorizeApi: '', // oauth授权地址
+ *      authorizeApiParamsFormation: [{ // oauth授权参数
+ *          clientIdKey: '', // 应用id，默认client_id
+ *          clientIdValue: '',
+ *          redirectUriKey: '', // 回调(会畅)地址参数名称，默认redirect_uri
+ *          responseTypeKey: '', // response type，默认response_type
+ *          responseTypeValue: '',
+ *          [scopeKey]: '', // scope，默认scope
+ *          [scopeValue]: '',
+ *          stateKey: '', // state，默认state
+ *          [key]: '', // 其他参数名称
+ *          [value]: '' // 其他参数值
+ *      }],
+ *      authorizeApiResponseFormation: { // oauth授权解析规范
+ *          codeKey: '', // code所在字段
+ *          stateKey: '' // state所在字段
+ *      },
  *      tokenApi: '', // token获取地址
  *      tokenApiMethod: 'post' | 'get', // 默认get
  *      tokenApiParamsFormation: [{ // token获取访问参数
