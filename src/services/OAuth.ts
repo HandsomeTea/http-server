@@ -301,9 +301,9 @@ export default class OauthService {
             const { accessTokenKey, refreshTokenKey, expiresKey } = this.tokenApiResponseFormation;
 
             return {
-                accessToken: this.formatObjPathData(result, accessTokenKey) as string,
-                ...refreshTokenKey ? { refreshToken: this.formatObjPathData(result, refreshTokenKey) as string } : {},
-                ...expiresKey ? { expiresIn: parseInt(this.formatObjPathData(result, expiresKey)) || 0 } : {}
+                accessToken: this.formatObjPathData(result.data, accessTokenKey) as string,
+                ...refreshTokenKey ? { refreshToken: this.formatObjPathData(result.data, refreshTokenKey) as string } : {},
+                ...expiresKey ? { expiresIn: parseInt(this.formatObjPathData(result.data, expiresKey)) || 0 } : {}
             };
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
@@ -325,6 +325,9 @@ export default class OauthService {
                 params,
                 data
             });
+
+            log('oauth-user-response').info(JSON.stringify(result, null, '   '));
+
             const {
                 userId, name, username, email, phone, departmentName, avatar,
                 firstName, lastName, position, location
