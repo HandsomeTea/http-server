@@ -655,3 +655,105 @@ export default class OauthService {
  *      noDepartmentDeal: 'as-root' | 'refused' | 'create-belong',
  * }
  */
+
+// const oauthConfig = await new _OauthSettingsDal(tenantId).find() as Array<OauthSettingModel>;
+
+// if (oauthConfig.length > 0) {
+//     _temp.oauth = {};
+//     oauthConfig.map(i => {
+//         if (_temp.oauth) {
+//             const authorizeParams: Array<[string, string]> = [];
+//             const authorizeApiParamsFormation = JSON.parse(i.authorizeApiParamsFormationJson) as Array<OauthAuthorizeArgument>;
+
+//             for (let s = 0; s < authorizeApiParamsFormation.length; s++) {
+//                 const {
+//                     clientIdKey, clientIdValue,
+//                     redirectUriKey,
+//                     responseTypeKey, responseTypeValue,
+//                     scopeKey, scopeValue,
+//                     stateKey,
+//                     key, value
+//                 } = authorizeApiParamsFormation[s];
+
+//                 if (clientIdKey && clientIdValue) {
+//                     authorizeParams.push([clientIdKey, clientIdValue]);
+//                 } else if (redirectUriKey) {
+//                     authorizeParams.push([redirectUriKey, `${serverConfig.sgAddr}/${serverConfig.namespace}/api/surpasspub/usermanager/2.0/account/oauth/${i._id}/tenant/${tenantId}/callback`]);
+//                 } else if (responseTypeKey && responseTypeValue) {
+//                     authorizeParams.push([responseTypeKey, responseTypeValue]);
+//                 } else if (scopeKey && scopeValue) {
+//                     authorizeParams.push([scopeKey, scopeValue]);
+//                 } else if (stateKey) {
+//                     authorizeParams.push([stateKey, spanId]);
+//                 } else if (key && value) {
+//                     authorizeParams.push([key, value]);
+//                 }
+//             }
+//             _temp.oauth[i._id] = `${i.oauthServerURL}?${authorizeParams.map(a => `${a[0]}=${a[1]}`).join('&')}`;
+//         }
+//     });
+// }
+
+
+/**
+ * @api {get} /api/surpasspub/usermanager/2.0/account/oauth/:oauthType/tenant/:tenantId/callback oauth授权回调
+ * @apiName oauth-redirectUrl
+ * @apiGroup account-v2
+ * @apiDescription 无验证
+ * @apiVersion 2.0.0
+ * @apiParam (params) {string} oauthType oauth类型，取值：deepin、gt
+ * @apiParam (params) {string} tenantId tenantId，例如t2
+ * @apiParam  (query) {string} code 回调的code
+ * @apiParam  (query) {string} state 回调的state
+ * @apiSuccess {String} html 一个html页面.
+ */
+//  router.get('/oauth/:oauthType/tenant/:tenantId/callback', asyncHandler(async (req, res) => {
+//     const { oauthType, tenantId } = req.params as { oauthType: string, tenantId: string };
+
+//     check(tenantId, String, false);
+//     check(oauthType, String, false);
+//     const oauthConfig = await new _OauthSettingsDal(tenantId).findById(oauthType);
+
+//     if (!oauthConfig) {
+//         throw new Exception('invalid oauth type!', errorType.INVALID_ARGUMENTS);
+//     }
+//     const { codeKey, stateKey } = JSON.parse(oauthConfig.authorizeApiResponseFormationJson) as { codeKey: string, stateKey: string };
+//     const code = req.query[codeKey] as undefined | string;
+//     const state = req.query[stateKey] as undefined | string;
+
+//     if (!code || !state) {
+//         throw new Exception('code and state is required.', errorType.INVALID_ARGUMENTS);
+//     }
+//     const oauthServer = new OAuth(oauthType, tenantId, { code, state });
+
+//     await oauthServer.init();
+//     const serviceData = await oauthServer.oauthResult();
+//     const credentialSecret = randomSecret();
+//     const credentialToken = credentialTokenFromQuery(state);
+
+//     // Store the login result so it can be retrieved in another browser tab by the result handler
+//     await vendorTempService.storeOauthCredential(credentialToken, tenantId, oauthType, {
+//         serviceData,
+//         credentialSecret
+//     });
+//     const commandInfo = credentialToken.split('-');
+//     const idMark = commandInfo[0];
+
+//     // socket后端自动登录的逻辑
+//     if (idMark === 'ws') {
+//         await mqService.sendToWebSocketConnections([commandInfo[1]], {
+//             event: 'trans_autonomic_action',
+//             action: 'sso_login',
+//             signal: 'SUCCESS',
+//             type: 'oauth',
+//             token: credentialToken,
+//             secret: credentialSecret
+//         });
+//     }
+//     vendorAuthPopup(res, {
+//         type: 'Oauth',
+//         credentialToken,
+//         credentialSecret,
+//         schema: idMark === 's' ? commandInfo[1] : undefined
+//     });
+// }));

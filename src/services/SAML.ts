@@ -12,12 +12,37 @@ import { Request, Response } from 'express';
 import { errorType, log, getENV } from '@/configs';
 import { randomString } from '@/utils';
 
-const closePopup = (res: Response, credentialToken: string/*, err?: Error*/) => {
+const closePopup = (res: Response, option: {
+    type: 'SAML' | 'Oauth',
+    credentialToken: string,
+    credentialSecret?: string,
+    schema?: string
+}, err?: Error) => {
     res.writeHead(200, {
         'Content-Type': 'text/html'
     });
+    if (err) {
+        const content = `<html><body><h2>Sorry, an annoying error occured</h2><div>${err}</div><a onclick="window.close();">Close Window</a></body></html>`;
 
-    const temp = `<html><head><title>Verified</title></head><body><div id="token" style="display: none;">${credentialToken}</div></body><script type="text/javascript">window.localStorage.setItem('samlLoginToken', document.getElementById('token').innerText.trim());window.close()</script></html>`;
+        return res.end(content, 'utf-8');
+    }
+    const { type, credentialToken, credentialSecret, schema } = option;
+    const schemaParams = [`t=${type.toLowerCase()}`];
+
+    if (credentialToken) {
+        schemaParams.push(`token=${credentialToken}`);
+    }
+    if (credentialSecret) {
+        schemaParams.push(`secret=${credentialSecret}`);
+    }
+    const schemaAddr = schema ? `${schema}://localhost/login?${schemaParams.join('&')}` : '';
+
+    const jsHtml = `window.localStorage.setItem('${type === 'SAML' ? 'samlLoginToken' : 'oauthLoginToken'}', document.getElementById('token').innerText.trim());`
+        + (schemaAddr ? `window.open('${schemaAddr}');` : '')
+        + 'window.close();';
+    const tokenHtml = `<div id="token" style="display: none;">${type === 'SAML' ? credentialToken : JSON.stringify({ credentialToken, credentialSecret })}</div>`;
+
+    const temp = `<html><head><title>${type} Verified</title></head><body> ${tokenHtml}</body><script type="text/javascript">${jsHtml}</script></html>`;
 
     return res.end(temp, 'utf-8');
 };
@@ -813,7 +838,24 @@ export default class SamlService {
             this.response.end();
         } else {
             // await vendorTempService.storeSamlCredential(credentialToken, this.tenantId, this.samlType, data);
-            closePopup(this.response, credentialToken);
+            const commandInfo = credentialToken.split('-');
+            const idMark = commandInfo[0];
+
+            // socket后端自动登录的逻辑
+            if (idMark === 'ws') {
+                // await mqService.sendToWebSocketConnections([commandInfo[1]], {
+                //     event: 'trans_autonomic_action',
+                //     action: 'sso_login',
+                //     signal: 'SUCCESS',
+                //     type: 'saml',
+                //     token: credentialToken
+                // });
+            }
+            closePopup(this.response, {
+                type: 'SAML',
+                credentialToken,
+                schema: idMark === 's' ? commandInfo[1] : undefined
+            });
         }
     }
 
@@ -827,3 +869,81 @@ export default class SamlService {
         }
     }
 }
+
+// interface SamlSettingModel {
+//     _id: 'microsoft'
+//     usernameNormalize?: 'None' | 'Lowercase'
+//     nameOverwrite?: boolean
+//     customAuthnContext: string
+//     userDataFieldMap: SamlUserInfoFormation
+//     policy: {
+//         noDepartmentDeal: 'as-root' | 'refused' | 'create-belong'
+//     }
+//     authnContextComparison: 'better' | 'exact' | 'maximum' | 'minimum'
+//     idpSLORedirectURL: string
+//     entryPoint: string
+//     issuer: string
+//     trustEndpointURL: string
+//     customCert?: string
+//     privateKey?: string
+//     publicCert?: string
+//     createdAt?: Date
+//     updatedAt?: Date
+// }
+
+
+// const samlConfig = await new _SamlSettingsDal(tenantId).find();
+
+// if (samlConfig.length > 0) {
+//     _temp.saml = {};
+//     samlConfig.map(i => {
+//         if (_temp.saml && i._id) {
+//             _temp.saml[i._id] = `${serverConfig.sgAddr}/${serverConfig.namespace}/api/surpasspub/usermanager/2.0/account/saml/${i._id}/tenant/${tenantId}/token/${spanId}/authorize`;
+//         }
+//     });
+// }
+
+/**
+ * @api {get} /api/surpasspub/usermanager/2.0/account/saml/:samlType/tenant/:tenantId/token/:credentialToken/authorize saml的redirectUrl
+ * @apiName saml-redirectUrl
+ * @apiGroup account-v2
+ * @apiDescription 无验证
+ * @apiVersion 2.0.0
+ * @apiParam (params) {string} samlType samlType，例如microsoft
+ * @apiParam (params) {string} tenantId tenantId，例如t2
+ * @apiParam (params) {string} credentialToken 客户端一次性标识，例如83562f3447c8cbbafd52
+ * @apiSuccess {String} html 一个html页面.
+ */
+//  router.get('/saml/:samlType/tenant/:tenantId/token/:credentialToken/:actionName', asyncHandler(async (req, res) => {
+//     return await samlAction(req, res);
+// }));
+
+/**
+ * @api {post} /api/surpasspub/usermanager/2.0/account/saml/:samlType/tenant/:tenantId/validate 获取saml的用户信息
+ * @apiName get-saml-user-info
+ * @apiGroup account-v2
+ * @apiDescription 无验证
+ * @apiVersion 2.0.0
+ * @apiParam (params) {string} samlType samlType，例如microsoft
+ * @apiParam (params) {string} tenantId tenantId，例如t2
+ * @apiSuccess {String} html 一个html页面.
+ */
+//  router.route('/saml/:samlType/tenant/:tenantId/:actionName').get(asyncHandler(async (req, res) => {
+//     return await samlAction(req, res);
+// })).post(asyncHandler(async (req, res) => {
+//     return await samlAction(req, res);
+// }));
+
+// const samlAction = async (req: Request, res: Response): Promise<void> => {
+//     const { actionName, samlType, credentialToken, tenantId } = req.params;
+
+//     check(actionName, String, false);
+//     try {
+//         const samlInstance = new SAML({ actionName, samlType, credentialToken }, tenantId, req, res);
+
+//         await samlInstance.result();
+//     } catch (e) {
+//         devLogger(`${req.method.toLowerCase()}: ${req.originalUrl}`).error(e);
+//         throw new Exception('saml api run error.');
+//     }
+// };
