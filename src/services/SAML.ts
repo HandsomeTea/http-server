@@ -42,8 +42,9 @@ const vendorAuthPopup = (res: Response, option: {
 
     const jsHtml = (browserStore ? jsSetStorage : '')
         + (schemaAddr ? `window.open('${schemaAddr}');` : '')
-        + 'window.close();';
-    const tokenHtml = `<div id="token" style="display: none;">${type === 'SAML' ? credentialToken : JSON.stringify({ credentialToken, credentialSecret })}</div>`;
+        + 'document.getElementById("loginCompleted").onclick = () => { window.open("about:blank", "_self"); window.close(); }';
+    const tokenHtml = `<div id="token" style="display: none;">${type === 'SAML' ? credentialToken : JSON.stringify({ credentialToken, credentialSecret })}</div>` +
+        '<p>    Login completed. <a href="#" id="loginCompleted">Click here</a> to close this window.</p>';
 
     const temp = `<html><head><title>${type} Verified</title></head><body> ${tokenHtml}</body><script type="text/javascript">${jsHtml}</script></html>`;
 
