@@ -12,11 +12,12 @@ import { Request, Response } from 'express';
 import { errorType, log, getENV } from '@/configs';
 import { randomString } from '@/utils';
 
-const closePopup = (res: Response, option: {
+const vendorAuthPopup = (res: Response, option: {
     type: 'SAML' | 'Oauth',
     credentialToken: string,
     credentialSecret?: string,
     schema?: string
+    browserStore?: boolean
 }, err?: Error) => {
     res.writeHead(200, {
         'Content-Type': 'text/html'
@@ -27,6 +28,7 @@ const closePopup = (res: Response, option: {
         return res.end(content, 'utf-8');
     }
     const { type, credentialToken, credentialSecret, schema } = option;
+    const browserStore = Boolean(option.browserStore);
     const schemaParams = [`t=${type.toLowerCase()}`];
 
     if (credentialToken) {
@@ -36,8 +38,9 @@ const closePopup = (res: Response, option: {
         schemaParams.push(`secret=${credentialSecret}`);
     }
     const schemaAddr = schema ? `${schema}://localhost/login?${schemaParams.join('&')}` : '';
+    const jsSetStorage = `window.localStorage.setItem('${type === 'SAML' ? 'samlLoginToken' : 'oauthLoginToken'}', document.getElementById('token').innerText.trim());`;
 
-    const jsHtml = `window.localStorage.setItem('${type === 'SAML' ? 'samlLoginToken' : 'oauthLoginToken'}', document.getElementById('token').innerText.trim());`
+    const jsHtml = (browserStore ? jsSetStorage : '')
         + (schemaAddr ? `window.open('${schemaAddr}');` : '')
         + 'window.close();';
     const tokenHtml = `<div id="token" style="display: none;">${type === 'SAML' ? credentialToken : JSON.stringify({ credentialToken, credentialSecret })}</div>`;
@@ -46,6 +49,7 @@ const closePopup = (res: Response, option: {
 
     return res.end(temp, 'utf-8');
 };
+
 const saml = new class SAML {
     constructor() {
         //
@@ -851,10 +855,11 @@ export default class SamlService {
                 //     token: credentialToken
                 // });
             }
-            closePopup(this.response, {
+            vendorAuthPopup(this.response, {
                 type: 'SAML',
                 credentialToken,
-                schema: idMark === 's' ? commandInfo[1] : undefined
+                schema: idMark === 's' ? commandInfo[1] : undefined,
+                browserStore: idMark !== 's' && idMark !== 'ws'
             });
         }
     }

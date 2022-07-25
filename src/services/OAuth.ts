@@ -707,7 +707,7 @@ export default class OauthService {
  * @apiParam  (query) {string} state 回调的state
  * @apiSuccess {String} html 一个html页面.
  */
-//  router.get('/oauth/:oauthType/tenant/:tenantId/callback', asyncHandler(async (req, res) => {
+// router.get('/oauth/:oauthType/tenant/:tenantId/callback', asyncHandler(async (req, res) => {
 //     const { oauthType, tenantId } = req.params as { oauthType: string, tenantId: string };
 
 //     check(tenantId, String, false);
@@ -754,6 +754,7 @@ export default class OauthService {
 //         type: 'Oauth',
 //         credentialToken,
 //         credentialSecret,
-//         schema: idMark === 's' ? commandInfo[1] : undefined
+//         schema: idMark === 's' ? commandInfo[1] : undefined,
+//         browserStore: idMark !== 's' && idMark !== 'ws'
 //     });
 // }));
