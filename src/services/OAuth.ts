@@ -736,7 +736,7 @@ export default class OauthService {
 //         serviceData,
 //         credentialSecret
 //     });
-//     const commandInfo = credentialToken.split('-');
+//     const commandInfo = state.split('-');
 //     const idMark = commandInfo[0];
 
 //     // socket后端自动登录的逻辑
