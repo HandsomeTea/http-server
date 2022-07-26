@@ -29,7 +29,7 @@ const vendorAuthPopup = (res: Response, option: {
     }
     const { type, credentialToken, credentialSecret, schema } = option;
     const browserStore = Boolean(option.browserStore);
-    const schemaParams = [`t=${type.toLowerCase()}`];
+    const schemaParams = [];
 
     if (credentialToken) {
         schemaParams.push(`token=${credentialToken}`);
@@ -37,7 +37,7 @@ const vendorAuthPopup = (res: Response, option: {
     if (credentialSecret) {
         schemaParams.push(`secret=${credentialSecret}`);
     }
-    const schemaAddr = schema ? `${schema}://localhost/login?${schemaParams.join('&')}` : '';
+    const schemaAddr = schema ? `${schema}://localhost/loginby${type.toLowerCase()}?${schemaParams.join('&')}` : '';
     const jsSetStorage = `window.localStorage.setItem('${type === 'SAML' ? 'samlLoginToken' : 'oauthLoginToken'}', document.getElementById('token').innerText.trim());`;
 
     const jsHtml = (browserStore ? jsSetStorage : '')
