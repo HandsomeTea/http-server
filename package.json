@@ -54,6 +54,7 @@
     "xmldom": "^0.6.0"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.8.2",
     "@types/compression": "^1.7.2",
     "@types/cookie-parser": "^1.4.3",
     "@types/ioredis": "^4.28.10",

@@ -24,6 +24,10 @@ module.exports = {
         httpArgument: 'readonly',
         UserModel: 'readonly',
         InstanceModel: 'readonly',
+        ScheduledModel: true,
+        ScheduledTaskModel: true,
+        ScheduledType: true,
+        ScheduledTaskType: true,
         KeysOf: true
     },
     rules: {

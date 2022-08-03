@@ -1,5 +1,9 @@
 import _MongoUser from './user';
+import ScheduledMongo from './scheduled';
+import ScheduledTaskMongo from './scheduled-task';
 
 export {
-    _MongoUser
+    _MongoUser,
+    ScheduledMongo,
+    ScheduledTaskMongo
 };
