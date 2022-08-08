@@ -1,9 +1,11 @@
 import _MongoUser from './user';
-import ScheduledMongo from './scheduled';
-import ScheduledTaskMongo from './scheduled-task';
+import _MongoAddressBookRules from './addressbook-rule';
+import MongoScheduled from './scheduled';
+import MongoScheduledTask from './scheduled-task';
 
 export {
     _MongoUser,
-    ScheduledMongo,
-    ScheduledTaskMongo
+    _MongoAddressBookRules,
+    MongoScheduled,
+    MongoScheduledTask
 };

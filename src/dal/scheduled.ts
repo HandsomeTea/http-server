@@ -1,5 +1,5 @@
 import BaseDal from './base';
-import { ScheduledMongo, ScheduledTaskMongo } from '@/models/mongo';
+import { MongoScheduled, MongoScheduledTask } from '@/models/mongo';
 // import { SqlScheduled, SqlScheduledTask } from '@/models/sql';
 // import { DaMengScheduled, DaMengScheduledTask } from '@/models/dameng';
 // import { Op } from 'sequelize';
@@ -11,7 +11,7 @@ export default new class ScheduledDal extends BaseDal {
 
     async getShouldExcuteTask(): Promise<Array<ScheduledTaskModel>> {
         if (this.db === 'mongodb') {
-            return await ScheduledTaskMongo.find({ hitTime: { $lt: new Date() } });
+            return await MongoScheduledTask.find({ hitTime: { $lt: new Date() } });
         }
         //  else if (this.db === 'sqldb') {
         //     return await SqlScheduledTask.find({
@@ -33,7 +33,7 @@ export default new class ScheduledDal extends BaseDal {
         const { _id } = scheduledInfo;
 
         if (this.db === 'mongodb') {
-            return await ScheduledMongo.findOne({ _id });
+            return await MongoScheduled.findOne({ _id });
         }
         // else if (this.db === 'sqldb') {
         //     return await SqlScheduled.findOne({
@@ -53,7 +53,7 @@ export default new class ScheduledDal extends BaseDal {
 
     async createTask(data: ScheduledTaskModel): Promise<string> {
         if (this.db === 'mongodb') {
-            return (await ScheduledTaskMongo.insertOne(data))._id;
+            return (await MongoScheduledTask.insertOne(data))._id;
         }
         // else if (this.db === 'sqldb') {
         //     return (await SqlScheduledTask.insert(data._id ? data : {
@@ -74,7 +74,7 @@ export default new class ScheduledDal extends BaseDal {
 
     async createScheduled(data: ScheduledModel): Promise<string> {
         if (this.db === 'mongodb') {
-            return (await ScheduledMongo.insertOne(data))._id;
+            return (await MongoScheduled.insertOne(data))._id;
         }
         // else if (this.db === 'sqldb') {
         //     return (await SqlScheduled.insert({
@@ -105,7 +105,7 @@ export default new class ScheduledDal extends BaseDal {
 
     async removeTask(option: { _id?: string, type?: ScheduledTaskType, belongId?: ScheduledType }) {
         if (this.db === 'mongodb') {
-            await ScheduledTaskMongo.removeMany(option);
+            await MongoScheduledTask.removeMany(option);
         }
         // else if (this.db === 'sqldb') {
         //     await SqlScheduledTask.delete({
@@ -122,7 +122,7 @@ export default new class ScheduledDal extends BaseDal {
         const { _id } = option;
 
         if (this.db === 'mongodb') {
-            await ScheduledMongo.removeMany({ _id });
+            await MongoScheduled.removeMany({ _id });
         }
         // else if (this.db === 'sqldb') {
         //     await SqlScheduled.delete({
@@ -150,7 +150,7 @@ export default new class ScheduledDal extends BaseDal {
         // const { _id } = option;
 
         if (this.db === 'mongodb') {
-            await ScheduledMongo.updateMany(option, { $set: update });
+            await MongoScheduled.updateMany(option, { $set: update });
         }
         // else if (this.db === 'sqldb') {
         //     await SqlScheduled.update({

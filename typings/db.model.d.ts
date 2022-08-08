@@ -13,6 +13,7 @@ interface UserModel {
     // }
     // arr: Array<string>
     test?: string
+    departmentId?: string
     createdAt?: Date
     _updatedAt?: Date
 }
@@ -50,6 +51,27 @@ interface ScheduledTaskModel {
     hitTime: Date
     /** 当前任务标识 */
     type: ScheduledTaskType
+}
+
+interface AddressbookRuleModel {
+    _id: string
+    name: string
+    /** 是否对所有人/部门隐藏，若为true，则下面所有的设置都将被忽略 */
+    hiddenToAll: boolean
+    /** 是否仅可见自己所在部门(及以下)的组织架构，仅为true时对目标数据起作用 */
+    visibleToSelfOrg: boolean
+    /** 要设置可见性的人 */
+    targetUserIds: Array<string>
+    /** 要设置可见性的部门 */
+    targetDepartmentIds: Array<string>
+    /** 对哪些人不可见 */
+    hiddenUserIds: Array<string>
+    /** 对哪些人可见 */
+    visibleUserIds: Array<string>
+    /** 对哪些部门不可见 */
+    hiddenDepartmentIds: Array<string>
+    /** 对哪些部门可见 */
+    visibleDepartmentIds: Array<string>
 }
 
 type progressConfigParams = 'NODE_ENV' | 'SERVER_NAME' | 'TRACE_LOG_LEVEL' | 'DEV_LOG_LEVEL' | 'AUDIT_LOG_LEVEL' | 'JWT_APP_NAME' | 'JWT_APP_ID' | 'JWT_APP_SECERT' | 'REDIS_URL' |

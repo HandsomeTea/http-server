@@ -25,6 +25,7 @@ module.exports = {
         UserModel: 'readonly',
         InstanceModel: 'readonly',
         ScheduledModel: true,
+        AddressbookRuleModel: true,
         ScheduledTaskModel: true,
         ScheduledType: true,
         ScheduledTaskType: true,
