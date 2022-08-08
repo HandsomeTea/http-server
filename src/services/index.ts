@@ -8,6 +8,8 @@ import LDAP from './LDAP';
 import MQ from './MQ';
 import schedule from './schedule';
 import Redis from './Redis';
+import addressbookRule from './addressbookRule';
+import Instance from './instance';
 
 export {
     JWT,
@@ -19,5 +21,7 @@ export {
     LDAP,
     MQ,
     schedule,
-    Redis
+    Redis,
+    addressbookRule,
+    Instance
 };
