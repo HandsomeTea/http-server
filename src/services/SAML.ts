@@ -41,7 +41,7 @@ const vendorAuthPopup = (res: Response, option: {
     const jsSetStorage = `window.localStorage.setItem('${type === 'SAML' ? 'samlLoginToken' : 'oauthLoginToken'}', document.getElementById('token').innerText.trim());`;
 
     const jsHtml = (browserStore ? jsSetStorage : '')
-        + 'document.getElementById("loginCompleted").onclick = () => { window.open("about:blank", "_self"); window.close(); }'
+        + 'document.getElementById("loginCompleted").onclick = () => { window.open("about:blank", "_self"); window.close(); };'
         + (schemaAddr ? `window.location.href = '${schemaAddr}';` : '');
     const tokenHtml = `<div id="token" style="display: none;">${type === 'SAML' ? credentialToken : JSON.stringify({ credentialToken, credentialSecret })}</div>` +
         '<p>    Login completed. <a href="#" id="loginCompleted">Click here</a> to close this window.</p>';
