@@ -41,7 +41,7 @@ export default class MongoBase<CM>{
             }
         }
 
-        const model = mongodb.server.model(this.collectionName, _schema, this.collectionName);
+        const model = mongodb.server.model<CM>(this.collectionName, _schema, this.collectionName);
 
         if (!this.tenantId) {
             return model;
