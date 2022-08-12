@@ -5,7 +5,6 @@ import HTTP from '@/services/HTTP';
 
 // interface OauthAuthorizeArgument {
 //     clientIdKey?: string
-//     clientIdValue?: string
 //     redirectUriKey?: string
 //     responseTypeKey?: string
 //     responseTypeValue?: string
@@ -20,13 +19,11 @@ interface OauthGetTokenArgument {
     grantTypeKey?: string
     grantTypeValue?: string
     clientIdKey?: string
-    clientIdValue?: string
     clientSecretKey?: string
-    clientSecretValue?: string
     codeKey?: string
     stateKey?: string
     redirectUriKey?: string
-    auth?: string
+    auth?: boolean
     key?: string
     value?: string
     position: 'header' | 'query' | 'data' | 'auth'
@@ -65,6 +62,8 @@ interface OauthUserInfoFormation {
 // interface OauthSettingModel {
 //     _id: string
 //     oauthServerURL: string
+//     clientId: string
+//     clientSecret: string
 //     authorizeApi: string
 //     authorizeApiParamsFormationJson: string
 //     authorizeApiResponseFormationJson: string
@@ -89,6 +88,8 @@ export default class OauthService {
     private state: string;
 
     private oauthServerURL: string;
+    private clientId: string;
+    private clientSecret: string;
     private tokenApi: string;
     private tokenApiMethod: 'post' | 'get';
     private tokenApiParamsFormation: Array<OauthGetTokenArgument>;
@@ -106,6 +107,8 @@ export default class OauthService {
         this.oauthServerURL = '';
         log().debug(this.oauthServerURL);
 
+        this.clientId = '';
+        this.clientSecret = '';
         this.tokenApi = '';
         this.tokenApiMethod = 'post';
         this.tokenApiParamsFormation = [{
@@ -114,11 +117,9 @@ export default class OauthService {
             position: 'query'
         }, {
             clientIdKey: 'client_id',
-            clientIdValue: '',
             position: 'query'
         }, {
             clientSecretKey: 'client_secret',
-            clientSecretValue: '',
             position: 'query'
         }, {
             codeKey: 'code',
@@ -149,13 +150,15 @@ export default class OauthService {
         return `${getENV('ROOT_URL')}/api/surpasspub/usermanager/2.0/account/oauth/${this.oauthType}/tenant/${this.tenantId}/callback`;
     }
 
-    async init() {
+    async init(): Promise<void> {
         // const _config = await new _OauthSettings(this.tenantId).findById(this.oauthType) as OauthSettingModel;
 
         // if (!_config) {
         //     throw new Exception('no match oauth config.', errorType.INVALID_ARGUMENTS);
         // }
 
+        // this.clientId = _config.clientId;
+        // this.clientSecret = _config.clientSecret;
         // this.tokenApi = _config.tokenApi;
         // this.tokenApiMethod = _config.tokenApiMethod;
         // this.tokenApiParamsFormation = JSON.parse(_config.tokenApiParamsFormationJson);
@@ -202,25 +205,24 @@ export default class OauthService {
             const result: Record<string, string> = {};
             const { position,
                 grantTypeKey, grantTypeValue,
-                clientIdKey, clientIdValue,
-                clientSecretKey, clientSecretValue,
+                clientIdKey, clientSecretKey,
                 codeKey, stateKey, redirectUriKey,
                 key, value } = arg[s];
 
             if (grantTypeKey && grantTypeValue) {
                 result[grantTypeKey] = grantTypeValue;
-            } else if (clientIdKey && clientIdValue) {
-                result[clientIdKey] = clientIdValue;
-            } else if (clientSecretKey && clientSecretValue) {
-                result[clientSecretKey] = clientSecretValue;
+            } else if (clientIdKey) {
+                result[clientIdKey] = this.clientId;
+            } else if (clientSecretKey) {
+                result[clientSecretKey] = this.clientSecret;
             } else if (codeKey) {
                 result[codeKey] = this.code;
             } else if (stateKey) {
                 result[stateKey] = this.state;
             } else if (redirectUriKey) {
                 result[redirectUriKey] = this.redirectUri;
-            } else if (arg[s].auth) {
-                auth = arg[s].auth as string;
+            } else if (arg[s].auth === true) {
+                auth = `${this.clientId}:${this.clientSecret}`;
             } else if (key && value) {
                 result[key] = value;
             }
@@ -335,6 +337,7 @@ export default class OauthService {
 
             const _obj = {
                 id: userId ? this.formatObjPathData(result, userId) : '',
+                userId: userId ? this.formatObjPathData(result, userId) : '',
                 name: this.formatObjPathData(result, name),
                 username: this.formatObjPathData(result, username),
                 email: this.formatObjPathData(result, email),
@@ -367,6 +370,8 @@ export default class OauthService {
 // export default (setting: {
 //     oauthType: string
 //     oauthServerURL: string
+//     clientId: string
+//     clientSecret: string
 //     authorizeApi: string
 //     authorizeApiParamsFormation: Array<OauthAuthorizeArgument>
 //     authorizeApiResponseFormation: { codeKey: string, stateKey: string }
@@ -382,12 +387,17 @@ export default class OauthService {
 // }): OauthSettingModel => {
 //     const {
 //         oauthType, oauthServerURL,
+//         clientId, clientSecret,
 //         authorizeApi, authorizeApiParamsFormation, authorizeApiResponseFormation,
 //         tokenApi, tokenApiMethod, tokenApiParamsFormation, tokenApiResponseFormation,
 //         userApi, userApiMethod, userApiParamsFormation, userApiResponseFormation,
 //         noDepartmentDeal } = setting;
 
 //     check(oauthType, String, false);
+
+//     if (!clientId || !clientSecret) {
+//         throw new Exception('clientId and clientSecret is required!', errorType.INVALID_ARGUMENTS);
+//     }
 
 //     if (!tokenApi) {
 //         throw new Exception('tokenApi is required!', errorType.INVALID_ARGUMENTS);
@@ -435,16 +445,15 @@ export default class OauthService {
 //         }
 
 //         const {
-//             clientIdKey, clientIdValue,
+//             clientIdKey,
 //             redirectUriKey,
 //             responseTypeKey, responseTypeValue,
 //             scopeKey, scopeValue,
 //             stateKey
 //         } = authorizeApiParamsFormation[s];
 
-//         if (clientIdKey && clientIdValue) {
+//         if (clientIdKey) {
 //             authorizeParams.clientIdKey = clientIdKey;
-//             authorizeParams.clientIdValue = clientIdValue;
 //         } else if (redirectUriKey) {
 //             authorizeParams.redirectUriKey = redirectUriKey;
 //         } else if (responseTypeKey && responseTypeValue) {
@@ -458,8 +467,8 @@ export default class OauthService {
 //         }
 //     }
 
-//     if (!authorizeParams.clientIdKey || !authorizeParams.clientIdValue) {
-//         throw new Exception('clientIdKey, clientIdValue is required in authorize api params!', errorType.INVALID_ARGUMENTS);
+//     if (!authorizeParams.clientIdKey) {
+//         throw new Exception('clientIdKey is required in authorize api params!', errorType.INVALID_ARGUMENTS);
 //     }
 
 //     if (!authorizeParams.redirectUriKey) {
@@ -488,8 +497,7 @@ export default class OauthService {
 //         }
 //         const {
 //             grantTypeKey, grantTypeValue,
-//             clientIdKey, clientIdValue,
-//             clientSecretKey, clientSecretValue,
+//             clientIdKey, clientSecretKey,
 //             codeKey, stateKey, redirectUriKey,
 //             auth, position } = tokenApiParamsFormation[s];
 
@@ -499,12 +507,10 @@ export default class OauthService {
 //         if (grantTypeKey && grantTypeValue) {
 //             tokenParams.grantTypeKey = grantTypeKey;
 //             tokenParams.grantTypeValue = grantTypeValue;
-//         } else if (clientIdKey && clientIdValue) {
+//         } else if (clientIdKey) {
 //             tokenParams.clientIdKey = clientIdKey;
-//             tokenParams.clientIdValue = clientIdValue;
-//         } else if (clientSecretKey && clientSecretValue) {
+//         } else if (clientSecretKey) {
 //             tokenParams.clientSecretKey = clientSecretKey;
-//             tokenParams.clientSecretValue = clientSecretValue;
 //         } else if (codeKey) {
 //             tokenParams.codeKey = codeKey;
 //         } else if (stateKey) {
@@ -512,7 +518,7 @@ export default class OauthService {
 //         } else if (redirectUriKey) {
 //             tokenParams.redirectUriKey = redirectUriKey;
 //         } else if (auth) {
-//             tokenParams.auth = auth;
+//             tokenParams.auth = true;
 //             if (position !== 'auth') {
 //                 throw new Exception(`invalid auth data: ${JSON.stringify(tokenApiParamsFormation[s])}, auth position must be auth!`, errorType.INVALID_ARGUMENTS);
 //             }
@@ -526,7 +532,7 @@ export default class OauthService {
 //         check(tokenParams.auth, String);
 //     }
 
-//     if ((!tokenParams.clientIdKey || !tokenParams.clientIdValue || !tokenParams.clientSecretKey || !tokenParams.clientSecretValue) && !tokenParams.auth) {
+//     if ((!tokenParams.clientIdKey || !tokenParams.clientSecretKey) && !tokenParams.auth) {
 //         throw new Exception('clientId and clientSecret info is required in token api params!', errorType.INVALID_ARGUMENTS);
 //     }
 
@@ -569,6 +575,8 @@ export default class OauthService {
 //     return {
 //         _id: oauthType,
 //         oauthServerURL,
+//         clientId,
+//         clientSecret,
 //         authorizeApi,
 //         authorizeApiParamsFormationJson: JSON.stringify(authorizeApiParamsFormation),
 //         authorizeApiResponseFormationJson: JSON.stringify(authorizeApiResponseFormation),
@@ -589,10 +597,11 @@ export default class OauthService {
  * {
  *      oauthType: '', // 自定义oauth类型
  *      oauthServerURL: '', // oauth服务器地址
+ *      clientId: '', // app id
+ *      clientSecret: '', // app secret
  *      authorizeApi: '', // oauth授权地址
  *      authorizeApiParamsFormation: [{ // oauth授权参数
  *          clientIdKey: '', // 应用id，默认client_id
- *          clientIdValue: '',
  *          redirectUriKey: '', // 回调(会畅)地址参数名称，默认redirect_uri
  *          responseTypeKey: '', // response type，默认response_type
  *          responseTypeValue: '',
@@ -612,13 +621,11 @@ export default class OauthService {
  *          [grantTypeKey]: '', // grant type，默认grant_type
  *          [grantTypeValue]: '', // 默认authorization_code
  *          [clientIdKey]: '', // 应用id，默认client_id
- *          [clientIdValue]: '',
  *          [clientSecretKey]: '', // 应用secret，默认client_secret
- *          [clientSecretValue]: '',
  *          [codeKey]: '', // code参数名称，默认code
  *          [stateKey]: '', // state参数名称，默认state
  *          [redirectUriKey]: '', // 回调(会畅)地址参数名称，默认redirect_uri
- *          [auth]: '', // 应用鉴权信息，该字段也是应用id和secret信息，所以clientIdKey，clientIdValue，clientSecretKey，clientSecretValue和auth二选一
+ *          [auth]: true, // 是否使用auth的鉴权方式，该字段也是应用id和secret信息，所以clientIdKey，clientSecretKey和auth二选一
  *          position: 'header' | 'query' | 'data'| 'auth', // api参数所在http请求的位置，auth字段如果有，则position必须为auth
  *          [key]: '', // 其他参数名称
  *          [value]: '' // 其他参数值
@@ -652,7 +659,7 @@ export default class OauthService {
  *          [location]: '',
  *          [avatar]: ''
  *      },
- *      noDepartmentDeal: 'as-root' | 'refused' | 'create-belong',
+ *      noDepartmentDeal: 'as-root' | 'refused' | 'create-belong'
  * }
  */
 
@@ -667,7 +674,7 @@ export default class OauthService {
 
 //             for (let s = 0; s < authorizeApiParamsFormation.length; s++) {
 //                 const {
-//                     clientIdKey, clientIdValue,
+//                     clientIdKey,
 //                     redirectUriKey,
 //                     responseTypeKey, responseTypeValue,
 //                     scopeKey, scopeValue,
@@ -675,8 +682,8 @@ export default class OauthService {
 //                     key, value
 //                 } = authorizeApiParamsFormation[s];
 
-//                 if (clientIdKey && clientIdValue) {
-//                     authorizeParams.push([clientIdKey, clientIdValue]);
+//                 if (clientIdKey) {
+//                     authorizeParams.push([clientIdKey, i.clientId]);
 //                 } else if (redirectUriKey) {
 //                     authorizeParams.push([redirectUriKey, `${serverConfig.sgAddr}/${serverConfig.namespace}/api/surpasspub/usermanager/2.0/account/oauth/${i._id}/tenant/${tenantId}/callback`]);
 //                 } else if (responseTypeKey && responseTypeValue) {
