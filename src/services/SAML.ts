@@ -7,6 +7,7 @@ import xmlenc from 'xml-encryption';
 import xmlCrypto from 'xml-crypto';
 import { Request, Response } from 'express';
 
+
 // import { _SamlSettingsDal } from '@/dal';
 // import vendorTempService from './vendorTempService';
 import { errorType, log, getENV } from '@/configs';
@@ -652,8 +653,10 @@ const saml = new class SAML {
     }
 };
 
+export { saml as SAMLTool };
+
 /**目前saml登录似乎只用到了 authorize validate 属性函数， logout 还没用到 */
-export default class SamlService {
+export const SAML = class SamlService {
     public request: Request;
     public response: Response;
     public tenantId: string;
@@ -874,7 +877,8 @@ export default class SamlService {
             throw new Exception('saml action/api is not found.', errorType.INVALID_ARGUMENTS);
         }
     }
-}
+};
+
 
 // interface SamlSettingModel {
 //     _id: 'microsoft'
@@ -904,7 +908,18 @@ export default class SamlService {
 //     _temp.saml = {};
 //     samlConfig.map(i => {
 //         if (_temp.saml && i._id) {
-//             _temp.saml[i._id] = `${serverConfig.sgAddr}/${serverConfig.namespace}/api/surpasspub/usermanager/2.0/account/saml/${i._id}/tenant/${tenantId}/token/${spanId}/authorize`;
+//             _temp.saml[i._id] = SAMLTool.getAuthorizeUrl(req, {
+//                 callbackUrl: `${serverConfig.sgAddr}/${serverConfig.namespace}/_saml/validate/${i._id}/${tenantId}`,
+//                 entryPoint: i.entryPoint,
+//                 issuer: i.issuer,
+//                 authnContextComparison: i.authnContextComparison,
+//                 customAuthnContext: i.customAuthnContext,
+//                 idpSLORedirectURL: i.idpSLORedirectURL,
+//                 samlType: i._id,
+//                 privateKey: i.privateKey,
+//                 privateCert: i.publicCert,
+//                 tranceId: spanId
+//             });
 //         }
 //     });
 // }
