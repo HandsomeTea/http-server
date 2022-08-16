@@ -3,7 +3,7 @@ import HTTP from './HTTP';
 import Email from './Email';
 import SMS from './SMS';
 import OAuth from './OAuth';
-import SAML from './SAML';
+import { SAML } from './SAML';
 import LDAP from './LDAP';
 import MQ from './MQ';
 import schedule from './schedule';
