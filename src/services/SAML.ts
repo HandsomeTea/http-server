@@ -311,8 +311,9 @@ const saml = new class SAML {
         return request;
     }
 
-    private requestToUrl(request: string, operation: string, entryPoint: string, idpSLORedirectURL: string, samlType: string, privateKey?: string, privateCert?: string) {
+    private requestToUrl(request: string, operation: string, params: { entryPoint: string, tranceId: string, idpSLORedirectURL: string, samlType: string, privateKey?: string, privateCert?: string }) {
         let deflateResult: null | Buffer = null;
+        const { entryPoint, idpSLORedirectURL, samlType, privateKey, privateCert, tranceId } = params;
 
         try {
             deflateResult = zlib.deflateRawSync(request);
@@ -335,7 +336,7 @@ const saml = new class SAML {
 
         const samlRequest: { SAMLRequest: string, RelayState: string, SigAlg?: string, Signature?: string } = {
             SAMLRequest: base64,
-            RelayState: operation === 'logout' ? `${getENV('ROOT_URL')}` : samlType
+            RelayState: operation === 'logout' ? `${getENV('ROOT_URL')}` : tranceId || samlType
         };
 
         // 用超视云的公钥签名，没有加密
@@ -355,7 +356,14 @@ const saml = new class SAML {
         const request = this.generateAuthorizeRequest(req, params);
 
         log('saml-request-url').debug(request);
-        return this.requestToUrl(request, 'authorize', params.entryPoint, params.idpSLORedirectURL, params.samlType, params.privateKey, params.privateCert);
+        return this.requestToUrl(request, 'authorize', {
+            entryPoint: params.entryPoint,
+            idpSLORedirectURL: params.idpSLORedirectURL,
+            samlType: params.samlType,
+            privateKey: params.privateKey,
+            privateCert: params.privateCert,
+            tranceId: params.tranceId
+        });
     }
 
     private certToPEM(cert: string) {
@@ -830,8 +838,8 @@ export const SAML = class SamlService {
         if (!data) {
             return;
         }
-
-        const credentialToken = data.inResponseToId || data.InResponseTo || this.credentialToken;
+        log('saml-user-data').info(JSON.stringify(data, null, '   '));
+        const credentialToken = data.inResponseToId || data.InResponseTo || this.credentialToken || this.request.body.RelayState;
 
         if (!credentialToken) {
             const samlIdpCredentialToken = randomString();
