@@ -350,11 +350,7 @@ export default class OauthService {
                 location: location ? this.formatObjPathData(result, location) : undefined
             };
 
-            if (!_obj.id || !_obj.username || !_obj.email) {
-                throw new Exception(`can not get id or username or email in value is required in \n${JSON.stringify(result, null, '   ')}\nby formation: \n${JSON.stringify({ userId, username, email }, null, '   ')}`, errorType.GET_OAUTH_IDENTITY_ERROR);
-            }
-
-            log('oauth-user-info-result').info(JSON.stringify(_obj, null, '   '));
+            log('oauth-user-info-result').info(`${JSON.stringify(_obj, null, '   ')} by formation: ${JSON.stringify({ ...this.userApiResponseFormation }, null, '   ')}`);
 
             return _obj;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -363,8 +359,17 @@ export default class OauthService {
         }
     }
 
+    private dealWithResult(result: Omit<OauthUserInfoFormation, 'avatar'> & { id: string, avatarUrl?: string }) {
+        const { id, username, email } = result;
+
+        if (!id || !username || !email) {
+            throw new Exception('id, username, email is required', errorType.GET_OAUTH_IDENTITY_ERROR);
+        }
+        return result;
+    }
+
     async oauthResult() {
-        return await this.getUserInfo(await this.getAccessToken());
+        return this.dealWithResult(await this.getUserInfo(await this.getAccessToken()));
     }
 }
 
