@@ -328,7 +328,7 @@ export default class OauthService {
                 data
             });
 
-            log('oauth-user-response').info(JSON.stringify(result, null, '   '));
+            log('oauth-user-info').info(JSON.stringify(result, null, '   '));
 
             const {
                 userId, name, username, email, phone, departmentName, avatar,
@@ -353,6 +353,8 @@ export default class OauthService {
             if (!_obj.id || !_obj.username || !_obj.email) {
                 throw new Exception(`can not get id or username or email in value is required in \n${JSON.stringify(result, null, '   ')}\nby formation: \n${JSON.stringify({ userId, username, email }, null, '   ')}`, errorType.GET_OAUTH_IDENTITY_ERROR);
             }
+
+            log('oauth-user-info-result').info(JSON.stringify(_obj, null, '   '));
 
             return _obj;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

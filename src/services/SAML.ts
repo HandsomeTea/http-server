@@ -838,7 +838,7 @@ export const SAML = class SamlService {
         if (!data) {
             return;
         }
-        log('saml-user-data').info(JSON.stringify(data, null, '   '));
+        log('saml-user-info').info(JSON.stringify(data, null, '   '));
         const credentialToken = data.inResponseToId || data.InResponseTo || this.credentialToken || this.request.body.RelayState;
 
         if (!credentialToken) {
