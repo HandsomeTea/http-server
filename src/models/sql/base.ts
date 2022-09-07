@@ -2,7 +2,8 @@ import { ModelAttributes, ModelStatic, Model, ModelOptions, CreateOptions, FindO
 import { Types } from 'mongoose';
 import SQL from '@/tools/sql';
 
-export default class SQLBase<TM>{
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default class SQLBase<TM extends Record<string, any>>{
     protected tableName: string;
     private model: ModelStatic<Model<TM>> | undefined;
     private modelIsSync: boolean;
