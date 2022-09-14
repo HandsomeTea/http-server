@@ -15,7 +15,7 @@ export default class SQLBase<TM extends Record<string, any>>{
             ...option,
             createdAt: true,
             updatedAt: true,
-            omitNull: true,
+            omitNull: false,
             freezeTableName: true //默认会给表名加s
         });
         this.modelIsSync = false;
