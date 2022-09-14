@@ -27,7 +27,6 @@ export default new class MySQL {
             port: parseInt(sqlConfig.port),
             database: sqlConfig.pathname.replace('/', ''),
             dialect: getENV('DB_TYPE') === 'postgres' ? 'postgres' : 'mysql',
-            omitNull: true,
             query: { raw: false },
             // timezone: `${(new Date().toTimeString().match(/(GMT)(.?){5}/g) as Array<string>)[0].replace('GMT', '').substring(0, 3)}:00`,
             logging: (...args) => {
