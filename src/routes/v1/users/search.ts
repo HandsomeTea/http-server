@@ -24,7 +24,7 @@ const router = express.Router();
 router.post('/user', asyncHandler(async (_req, res) => {
     const UserTokens = new _UserTokens('11685');
 
-    // await User.find();
+    return res.success({ result: await UserTokens.find({}) });
     // return res.success({
     //     result: await UserTokens.insertLoginToken({
     //         type: 'ws',
@@ -35,7 +35,7 @@ router.post('/user', asyncHandler(async (_req, res) => {
     //     })
     // });
     // console.log(await User.update<UserModel>({ where: { _id: 132 } }, { account: 'newaccount' }));
-    return res.success({ result: await UserTokens.remove({ userId: 'asdasdasdsssssss' }) });
+    // return res.success({ result: await UserTokens.remove({ userId: 'asdasdasdsssssss' }) });
     // throw new Exception(new Error('cuo wu'));
     // throw new Exception(new Exception('cuo wu'));
 }));
