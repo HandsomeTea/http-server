@@ -14,7 +14,8 @@ import { DmType } from './index';
 const DMDBModel: Record<string, DmModel<Record<string, unknown>>> = {};
 
 
-export default class DMBase<TB>{
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default class DMBase<TB extends Record<string, any>>{
     private tableName: string;
     private timestamp: {
         createdAt?: string
@@ -84,6 +85,8 @@ export default class DMBase<TB>{
                     data[key] = `${data[key]}`.trim();
                 }
             } else {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 data[key] = null;
             }
         }
