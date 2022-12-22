@@ -39,7 +39,7 @@
     "express-http-context": "^1.2.4",
     "ioredis": "^5.2.3",
     "js-yaml": "^4.1.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "ldapjs": "^2.3.3",
     "log4js": "^6.7.0",
     "module-alias": "^2.2.2",
