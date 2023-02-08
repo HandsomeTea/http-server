@@ -30,7 +30,7 @@ const choice = (arrayOrString: string | Array<string>): string => {
     const index = Math.floor(fraction() * arrayOrString.length);
 
     if (typeof arrayOrString === 'string') {
-        return arrayOrString.substr(index, 1);
+        return arrayOrString.substring(index, 1);
     } else {
         return arrayOrString[index];
     }
