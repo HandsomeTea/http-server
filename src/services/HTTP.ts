@@ -57,7 +57,7 @@ class Request {
         const zh = config.url?.match(/[\u4e00-\u9fa5]/g);
 
         if (zh) {
-            const _obj = {};
+            const _obj: Record<string, string> = {};
 
             for (let i = 0; i < zh.length; i++) {
                 if (!_obj[zh[i]]) {
@@ -76,7 +76,7 @@ class Request {
         log(`request-to:[(${method}) ${address.origin + address.pathname}]`).info(JSON.stringify({
             headers,
             query: Object.keys(params || {}).length > 0 ? params : (() => {
-                const obj = {};
+                const obj: Record<string, string> = {};
 
                 [...address.searchParams.entries()].map(a => obj[a[0]] = a[1]);
                 return obj;

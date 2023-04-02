@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { _UserTokens } from '@/dal';
+// import { _UserTokens } from '@/dal';
 // import User from '../../../models/_mysql';
 
 const router = express.Router();
@@ -22,9 +22,10 @@ const router = express.Router();
  * @apiUse ErrorApiResult
  */
 router.post('/user', asyncHandler(async (_req, res) => {
-    const UserTokens = new _UserTokens('11685');
+    // const UserTokens = new _UserTokens('11685');
 
-    return res.success({ result: await UserTokens.find({}) });
+    res.success({ result: 'asdasd' });
+    // return res.success({ result: await UserTokens.find({}) });
     // return res.success({
     //     result: await UserTokens.insertLoginToken({
     //         type: 'ws',

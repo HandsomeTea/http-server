@@ -68,7 +68,6 @@
     "listEmittedFiles":true,
     "noEmitOnError":true,
     "pretty":true,
-    "suppressImplicitAnyIndexErrors":true,
     "baseUrl": ".",
     "paths": {
       "@/*": [

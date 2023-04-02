@@ -2,18 +2,20 @@ import mongoose from 'mongoose';
 import { getENV, system } from '@/configs';
 
 const RECONNET_TIME = 5000;
-const mongoconnect = () => {
+const mongoconnect = async () => {
     const mongodbAddress = getENV('DB_URL');
 
     if (!mongodbAddress) {
         return system('mongodb').error(`mongodb connect address is required but get ${mongodbAddress}`);
     }
-    return mongoose.connect(mongodbAddress, {}, error => {
+    try {
+        await mongoose.connect(mongodbAddress);
+    } catch (error) {
         if (error) {
             system('mongodb').error(error);
             setTimeout(mongoconnect, RECONNET_TIME);
         }
-    });
+    }
 };
 
 export default new class MongoDB {

@@ -69,7 +69,7 @@ const developConfig: EnvConfigType = {
     NODE_ENV: 'development',
     SERVER_NAME: 'personal server',
     ROOT_URL: 'http://localhost:3000',
-    PORT: '3003',
+    PORT: '3004',
     LOG_LEVEL: 'all',
     TRACE_LOG_LEVEL: 'all',
     DEV_LOG_LEVEL: 'all',
@@ -77,12 +77,14 @@ const developConfig: EnvConfigType = {
     JWT_APP_NAME: 'my project',
     JWT_APP_ID: 'jwtAppId',
     JWT_APP_SECERT: 'jwtSecret',
-    DB_TYPE: 'mysql',
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    DB_TYPE: 'mongodb',
     // 'mysql://root:root@localhost:3306/test'
     // 'dm://SYSDBA:SYSDBA@localhost:5236?autoCommit=false'
     // 'mongodb://localhost:27017/test'
     // 'postgres://surpass:Bizconf_surpass@ops-dev.bizconf.cn/surpass'
-    DB_URL: 'mysql://root:root@localhost:3306/test',
+    DB_URL: 'mongodb://127.0.0.1:27017/test',
     MQ_URL: '',
     // redis://127.0.0.1:6379
     REDIS_URL: ''

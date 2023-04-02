@@ -15,7 +15,7 @@ export const errorType = {
     USER_NOT_FOUND: 'USER_NOT_FOUND'
 };
 
-export const errorCodeMap = {
+export const errorCodeMap: Record<string, Array<string>> = {
     '400': ['INVALID_', 'BAD_REQUEST', 'INVALID_ARGUMENTS'],
     '401': ['UNAUTHORIZED', 'BE_LOGOUT', 'GET_OAUTH_ACCESS_TOKEN_ERROR', 'GET_OAUTH_IDENTITY_ERROR'],
     '403': ['FORBIDDEN'],
