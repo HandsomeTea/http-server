@@ -64,6 +64,7 @@ interface EnvConfigType {
     DB_TYPE: DBServerType
     DB_URL: string
     MQ_URL: string
+    ES_URL: string
 }
 const developConfig: EnvConfigType = {
     NODE_ENV: 'development',
@@ -87,7 +88,8 @@ const developConfig: EnvConfigType = {
     DB_URL: 'mongodb://127.0.0.1:27017/test',
     MQ_URL: '',
     // redis://127.0.0.1:6379
-    REDIS_URL: ''
+    REDIS_URL: '',
+    ES_URL: 'http://0.0.0.0:9200'
 };
 
 export default <K extends keyof EnvConfigType>(env: K): EnvConfigType[K] => {

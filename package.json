@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/HandsomeTea/personal-server#readme",
   "dependencies": {
+    "@elastic/elasticsearch": "^8.7.0",
     "@godaddy/terminus": "^4.11.2",
     "agentkeepalive": "^4.3.0",
     "ali-sms": "^1.0.3",
