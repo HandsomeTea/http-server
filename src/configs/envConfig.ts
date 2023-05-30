@@ -70,7 +70,7 @@ const developConfig: EnvConfigType = {
     NODE_ENV: 'development',
     SERVER_NAME: 'personal server',
     ROOT_URL: 'http://localhost:3000',
-    PORT: '3004',
+    PORT: '3003',
     LOG_LEVEL: 'all',
     TRACE_LOG_LEVEL: 'all',
     DEV_LOG_LEVEL: 'all',
@@ -83,13 +83,14 @@ const developConfig: EnvConfigType = {
     DB_TYPE: 'mongodb',
     // 'mysql://root:root@localhost:3306/test'
     // 'dm://SYSDBA:SYSDBA@localhost:5236?autoCommit=false'
-    // 'mongodb://localhost:27017/test'
+    // 'mongodb://127.0.0.1:27017/test'
     // 'postgres://surpass:Bizconf_surpass@ops-dev.bizconf.cn/surpass'
     DB_URL: 'mongodb://127.0.0.1:27017/test',
     MQ_URL: '',
     // redis://127.0.0.1:6379
     REDIS_URL: '',
-    ES_URL: 'http://0.0.0.0:9200'
+    // 'http://0.0.0.0:9200'
+    ES_URL: ''
 };
 
 export default <K extends keyof EnvConfigType>(env: K): EnvConfigType[K] => {

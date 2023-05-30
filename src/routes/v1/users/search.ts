@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 // import { _UserTokens } from '@/dal';
 // import User from '../../../models/_mysql';
-import { Test } from '@/models/es';
+// import { Test } from '@/models/es';
 
 
 const router = express.Router();
@@ -41,10 +41,10 @@ router.post('/user', asyncHandler(async (_req, res) => {
     //         }
     //     })
     // });
-    res.success({
-        result: await Test.findById('jIsh8IcBIrfCM5mjicNO')
-    });
-    // res.success({ result: 'asdasd' });
+    // res.success({
+    //     result: await Test.findById('jIsh8IcBIrfCM5mjicNO')
+    // });
+    res.success({ result: 'asdasd-post' });
     // return res.success({ result: await UserTokens.find({}) });
     // return res.success({
     //     result: await UserTokens.insertLoginToken({
@@ -60,7 +60,9 @@ router.post('/user', asyncHandler(async (_req, res) => {
     // throw new Exception(new Error('cuo wu'));
     // throw new Exception(new Exception('cuo wu'));
 }));
-
+router.get('/user', asyncHandler(async (_req, res) => {
+    res.success({ result: 'asdasd-get' });
+}));
 // router.get('/:userId', asyncHandler(async (req, res) => {
 //     const Users = new _Users('11685');
 

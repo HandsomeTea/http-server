@@ -140,6 +140,8 @@ const saml = new class SAML {
                 }]
             }];
 
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             metadata[`${xmlNamespace}:EntityDescriptor`][`${xmlNamespace}:SPSSODescriptor`][`${xmlNamespace}:KeyDescriptor`] = [
                 ...params.privateCert ? KeyDescriptorSigningEle : [],
                 ...params.privateCert ? KeyDescriptorEncryptionEle : []
@@ -877,8 +879,12 @@ export const SAML = class SamlService {
     }
 
     async result(): Promise<void> {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         if (this[this.actionName]) {
             await this.init();
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             return await this[this.actionName]();
         } else {
             log('saml-result').error(`unknown SAML action with ${this.actionName}.`);

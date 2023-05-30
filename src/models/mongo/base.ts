@@ -200,6 +200,8 @@ export default class MongoBase<CM>{
                     const obj: { [key: string]: SortOrder } = {};
 
                     if (sort) {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
                         Object.keys(sort).filter(a => !!sort[a]).map(b => obj[b] = sort[b]);
                     }
                     return obj;

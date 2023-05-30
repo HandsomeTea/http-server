@@ -63,6 +63,8 @@ export function check(param: any, type: CheckType | { [x: string]: CheckType | C
         }
 
         for (const key in type) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             if (type[key] === String || type[key] === Array || type[key] === Object || type[key] === Number || type[key] === Boolean) {
                 /**
                  * example:
@@ -71,7 +73,11 @@ export function check(param: any, type: CheckType | { [x: string]: CheckType | C
                     });
                  */
 
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 if (typeof param[key] !== 'undefined' && param[key].constructor !== type[key]) {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     throw new Exception(`Invalid arguments: require object key "${key}" is ${dealCheckType(type[key])}, but get ${JSON.stringify(param[key])} is ${dealParamType(param[key])}`, errorType.INVALID_ARGUMENTS);
                 }
             } else {
@@ -81,6 +87,8 @@ export function check(param: any, type: CheckType | { [x: string]: CheckType | C
                         key1: { type: String, required: true, notEmpty: true, msg: '', error: 'INVALID_ARGUMENTS' }
                     });
                  */
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 const rule = type[key] as CheckRuleType;
 
                 if (rule.type === String || rule.type === Array || rule.type === Object || rule.type === Number || rule.type === Boolean) {

@@ -7,11 +7,13 @@ export default class EsBase<Doc> {
         this.index = index;
     }
 
-    private getData(document?: SearchResponse<Doc>) {
+    private getData(document?: SearchResponse<Doc>): { total: number, data: Array<{ _id: string } & Doc> } {
         return {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             total: document?.hits.total.value || 0,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             data: document?.hits.hits.map(a => ({ _id: a._id, ...a._source })) || []
         };
     }
@@ -25,9 +27,29 @@ export default class EsBase<Doc> {
     }
 
     // ?
-    async insertMany(document: Array<Doc>) {
+    // async insertMany(document: Array<Doc>) {
 
+    // }
+
+    // async removeOne() {
+
+    // }
+
+    async removeMany(query: QueryDslQueryContainer) {
+        return await ES.server.deleteByQuery({
+            index: this.index,
+            refresh: true,
+            query
+        });
     }
+
+    // async updateOne() {
+
+    // }
+
+    // async updateMany() {
+
+    // }
 
     async find(option: { query?: QueryDslQueryContainer, skip?: number, limit?: number }) {
         return this.getData(await ES.server.search({
@@ -49,13 +71,5 @@ export default class EsBase<Doc> {
             _id: result._id,
             ...result._source
         } as { _id: string } & Doc;
-    }
-
-    async removeMany(query: QueryDslQueryContainer) {
-        return await ES.server.deleteByQuery({
-            index: this.index,
-            refresh: true,
-            query
-        });
     }
 }

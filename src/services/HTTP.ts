@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, Method as AxiosMethod } from 'axios';
+import axios, { AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse, AxiosError, Method as AxiosMethod } from 'axios';
 import httpContext from 'express-http-context';
 import Agent from 'agentkeepalive';
 
@@ -27,11 +27,7 @@ class Request {
         axios.interceptors.response.use(this.receiveSuccessResponse, this.receiveResponseNotSuccess);
     }
 
-    private beforeSendToServer(config: AxiosRequestConfig) {
-        if (!config.headers) {
-            config.headers = {};
-        }
-
+    private beforeSendToServer(config: InternalAxiosRequestConfig) {
         if (config.baseURL && systemService.has(config.baseURL)) {
             if (!config.headers.Authorization) {
                 config.headers.Authorization = JWT.sign();

@@ -53,6 +53,8 @@ export default class SQLBase<TM extends Record<string, any>>{
 
     public async tableIsExist(tableName?: string) {
         const databaseName = SQL.server?.getDatabaseName();
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const tableInfo = (await SQL.server?.showAllSchemas({}))?.find(a => a[`Tables_in_${databaseName}`] === tableName || this.tableName);
 
         return tableInfo ? true : false;
