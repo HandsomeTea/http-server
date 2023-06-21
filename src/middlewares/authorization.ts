@@ -1,26 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
 import { JWT } from '@/services';
-import { errorType, getENV } from '@/configs';
+import { errorType } from '@/configs';
 
 /**
- * 验证json web token
+ * 验证来访服务器身份
  */
-export default (req: Request, res: Response, next: NextFunction): void => {
+export default (req: Request, _res: Response, next: NextFunction): void => {
     if (req.headers.authorization) {
         const [authType, authToken] = req.headers.authorization.split(' ');
 
         if (authType !== 'JWT') {
-            res.status(400).send('Bad request(wrong Authorization)! Refused.');
+            throw new Exception('Bad request(wrong Authorization)! Refused.', errorType.BAD_REQUEST);
         } else {
             JWT.verify(authToken);
             next();
         }
     } else {
-        res.status(400).send({
-            message: 'Bad request(no Authorization)! Refused.',
-            source: [getENV('SERVER_NAME')],
-            code: errorType.BAD_REQUEST,
-            status: 400
-        } as InstanceException);
+        throw new Exception('Bad request(no Authorization)! Refused.', errorType.BAD_REQUEST);
     }
 };

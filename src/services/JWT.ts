@@ -19,7 +19,7 @@ export default new class JWT {
      */
     sign() {
         return 'JWT ' + jwt.sign({ iss: this.app, sub: this.appId }, this.appSecert, {
-            expiresIn: 60, // 有效期 60秒
+            expiresIn: '1m', // 有效期 60秒
             noTimestamp: true,
             header: {
                 alg: 'HS256',
@@ -33,17 +33,13 @@ export default new class JWT {
      */
     verify(jsonWebToken: string) {
         try {
-            const result = jwt.verify(jsonWebToken, this.appSecert, {
+            jwt.verify(jsonWebToken, this.appSecert, {
                 issuer: this.app,
                 subject: this.appId,
                 algorithms: ['HS256']
             });
-
-            if (typeof result !== 'string' && result.exp && result.exp >= Date.now() / 1000 + 60) {
-                throw new Exception('Server Check Failed by JWT, Expired!', errorType.UNAUTHORIZED);
-            }
         } catch (err) {
-            throw new Exception('invalid JWT string!', errorType.UNAUTHORIZED);
+            throw new Exception(err as Error, errorType.UNAUTHORIZED);
         }
     }
 };
