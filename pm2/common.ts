@@ -3,7 +3,7 @@ import path from 'path';
 
 export default {
     name: 'http-server',
-    script: 'server.js',
+    script: 'index.js',
     watch: (() => {
         const _list = ['../src', '../startup', '../websocket.ts', '../index.ts'];
 

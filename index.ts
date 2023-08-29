@@ -135,6 +135,8 @@ server.listen(port, '0.0.0.0', () => {
         if (!await isHealth()) {
             return;
         }
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         global.isServerRunning = true;
         if (process.send) {
             process.send('ready');
@@ -143,3 +145,28 @@ server.listen(port, '0.0.0.0', () => {
         log('STARTUP').info(`api document running on http://127.0.0.1:${port}.`);
     }, 1000);
 });
+
+
+// import cluster from 'cluster';
+
+// if (cluster.isPrimary) {
+//     const count = 4;
+//     let num = 0;
+//     let timer: NodeJS.Timer | null = setInterval(() => {
+//         if (num === count - 1) {
+//             if (timer) {
+//                 clearInterval(timer);
+//             }
+//             timer = null;
+//         }
+//         if (num === 0) {
+//             cluster.fork({ isTimerMark: 'yes', serialNumber: num + 1 });
+//         } else {
+//             cluster.fork({ serialNumber: num + 1 });
+//         }
+//         num += 1;
+//     }, 4 * 1000);
+// } else {
+//     log('cluster').info(`cluster 子进程 ${process.pid}`);
+
+// }
