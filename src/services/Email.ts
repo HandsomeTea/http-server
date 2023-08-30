@@ -4,7 +4,7 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 // import ejs from 'ejs';
 // import path from 'path';
 
-import { log, errorType, getENV } from '@/configs';
+import { log, ErrorCode, getENV } from '@/configs';
 import { randomString, isURL } from '@/utils';
 // import vendorTempService from './vendorCredentialTokenService';
 // import redisService from './redisService';
@@ -91,7 +91,7 @@ class Email {
                 return await this.service?.sendMail({ from: `超视云 <${this.writer}>`, to, subject, html });
             } catch (e) {
                 log('send-email').error(e);
-                throw new Exception(`email send field to ${to}. maybe the email service is not configured correctly.`, errorType.INVALID_EMAIL_SERVER_CONFIG);
+                throw new Exception(`email send field to ${to}. maybe the email service is not configured correctly.`, ErrorCode.INVALID_EMAIL_SERVER_CONFIG);
             }
         }
         return;

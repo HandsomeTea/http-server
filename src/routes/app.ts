@@ -4,7 +4,7 @@ import fs from 'fs';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import httpContext from 'express-http-context';
-import { errorType, getENV } from '@/configs';
+import { ErrorCode, getENV } from '@/configs';
 
 const app = express();
 
@@ -55,7 +55,7 @@ import v1 from './v1';
 
 app.use('/api/v1', v1);
 app.use('*', (req) => {
-    throw new Exception(`url: [{${req.method.toLowerCase()}} => ${req.originalUrl}] not found!`, errorType.URL_NOT_FOUND);
+    throw new Exception(`url: [{${req.method.toLowerCase()}} => ${req.originalUrl}] not found!`, ErrorCode.URL_NOT_FOUND);
 });
 
 /**捕捉路由中throw new Eexception的情况 */

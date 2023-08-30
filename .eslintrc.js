@@ -19,7 +19,7 @@ module.exports = {
         isServerRunning: 'readonly',
         DBServerType: true,
         Exception: 'readonly',
-        InstanceException: 'readonly',
+        ExceptionInstance: 'readonly',
         progressConfigParams: 'readonly',
         httpArgument: 'readonly',
         UserModel: 'readonly',

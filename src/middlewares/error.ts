@@ -6,9 +6,9 @@ import { log, getENV, trace } from '@/configs';
 /**
  * 捕捉路由中未处理的错误，即直接throw new Error的情况
  */
-export default (err: InstanceException, req: Request, res: Response, _next: NextFunction) => { /* eslint-disable-line*/
+export default (err: ExceptionInstance, req: Request, res: Response, _next: NextFunction) => { /* eslint-disable-line*/
     const { status, code, message, reason, source } = err;
-    const result: InstanceException = {
+    const result: ExceptionInstance = {
         message,
         source: source && Array.isArray(source) && !source.includes(getENV('SERVER_NAME') || '') ? source.concat(getENV('SERVER_NAME') || '') : source,
         code: code || 'INTERNAL_SERVER_ERROR',

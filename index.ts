@@ -130,7 +130,7 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 /** 服务开始监听请求 */
-server.listen(port, '0.0.0.0', () => {
+server.listen(port, () => {
     const _check = setInterval(async () => {
         if (!await isHealth()) {
             return;

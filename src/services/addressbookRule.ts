@@ -1,4 +1,4 @@
-import { errorType } from '@/configs';
+import { ErrorCode } from '@/configs';
 import { _Users, _AddressBookRules } from '@/dal';
 import HTTP from './HTTP';
 
@@ -12,7 +12,7 @@ export default new class AddressbookService {
         const user = await Users.findById(userId);
 
         if (!user) {
-            throw new Exception('user is not found.', errorType.USER_NOT_FOUND);
+            throw new Exception('user is not found.', ErrorCode.USER_NOT_FOUND);
         }
 
         /** 用户部门路径，如：/a/b/c => ['a', 'b', 'c'] */

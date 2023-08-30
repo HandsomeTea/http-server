@@ -1,4 +1,4 @@
-// import { errorType } from '@/configs';
+// import { ErrorCode } from '@/configs';
 // import { OAuth } from '@/services';
 // import { check } from '@/utils';
 import express from 'express';

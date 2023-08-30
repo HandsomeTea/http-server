@@ -1,4 +1,4 @@
-import { errorType } from '@/configs';
+import { ErrorCode } from '@/configs';
 import { OAuth } from '@/services';
 import { check } from '@/utils';
 import express from 'express';
@@ -28,7 +28,7 @@ router.get('/:oauthType/tenant/:tenantId/callback', asyncHandler(async (req, res
     const state = req.query.state as undefined | string;
 
     if (!code || !state) {
-        throw new Exception('code and state is required.', errorType.INVALID_ARGUMENTS);
+        throw new Exception('code and state is required.', ErrorCode.INVALID_ARGUMENTS);
     }
     const oauthServer = new OAuth(oauthType, tenantId, { code, state });
 

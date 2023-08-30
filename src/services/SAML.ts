@@ -10,7 +10,7 @@ import { Request, Response } from 'express';
 
 // import { _SamlSettingsDal } from '@/dal';
 // import vendorTempService from './vendorTempService';
-import { errorType, log, getENV } from '@/configs';
+import { ErrorCode, log, getENV } from '@/configs';
 import { randomString } from '@/utils';
 
 const vendorAuthPopup = (res: Response, option: {
@@ -102,7 +102,7 @@ const saml = new class SAML {
 
         if (params.privateKey) {
             if (!params.privateCert) {
-                throw new Exception('Missing decryptionCert while generating metadata for decrypting service provider', errorType.INVALID_ARGUMENTS);
+                throw new Exception('Missing decryptionCert while generating metadata for decrypting service provider', ErrorCode.INVALID_ARGUMENTS);
             }
 
             let surpassPrivateCert = params.privateCert.replace(/-+BEGIN CERTIFICATE-+\r?\n?/, '');
@@ -719,7 +719,7 @@ export const SAML = class SamlService {
         // const service = await new _SamlSettingsDal(this.tenantId).findById(this.samlType) as SamlSettingModel;
 
         // if (!service) {
-        //     throw new Exception('no match saml config.', errorType.INVALID_ARGUMENTS);
+        //     throw new Exception('no match saml config.', ErrorCode.INVALID_ARGUMENTS);
         // }
 
         // this.entryPoint = service.entryPoint;
@@ -888,7 +888,7 @@ export const SAML = class SamlService {
             return await this[this.actionName]();
         } else {
             log('saml-result').error(`unknown SAML action with ${this.actionName}.`);
-            throw new Exception('saml action/api is not found.', errorType.INVALID_ARGUMENTS);
+            throw new Exception('saml action/api is not found.', ErrorCode.INVALID_ARGUMENTS);
         }
     }
 };

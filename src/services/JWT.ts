@@ -1,25 +1,36 @@
-import { errorType, getENV } from '@/configs';
 import jwt from 'jsonwebtoken';
+import { ErrorCode, getENV } from '@/configs';
 
 export default new class JWT {
-    private app: string;
-    private appId: string;
-    private appSecert: string;
     constructor() {
-        this.app = getENV('JWT_APP_NAME') || '';
-        this.appId = getENV('JWT_APP_ID') || '';
-        this.appSecert = getENV('JWT_APP_SECERT') || '';
+        this.init();
     }
 
-    /**
-     * 生成JWT
-     * 一般携带在http请求headers的Authorization字段中
-     * @returns
-     * @memberof JWT
-     */
+    private init() {
+        if (!this.secret) {
+            throw new Exception('JWT secret is required!', ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        if (!this.jwtSubject || !this.jwtIssure) {
+            throw new Exception('JWT source data is required!', ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private get jwtIssure() {
+        return getENV('JWT_ISSURE');
+    }
+
+    private get jwtSubject() {
+        return getENV('JWT_SUBJECT');
+    }
+
+    private get secret() {
+        return getENV('JWT_SECRET') as string;
+    }
+
     sign() {
-        return 'JWT ' + jwt.sign({ iss: this.app, sub: this.appId }, this.appSecert, {
-            expiresIn: '1m', // 有效期 60秒
+        return 'JWT ' + jwt.sign({ iss: this.jwtIssure, sub: this.jwtSubject }, this.secret, {
+            expiresIn: '1h',
             noTimestamp: true,
             header: {
                 alg: 'HS256',
@@ -28,18 +39,16 @@ export default new class JWT {
         });
     }
 
-    /**
-     * 验证JWT
-     */
     verify(jsonWebToken: string) {
         try {
-            jwt.verify(jsonWebToken, this.appSecert, {
-                issuer: this.app,
-                subject: this.appId,
+            jwt.verify(jsonWebToken, this.secret, {
+                issuer: this.jwtIssure,
+                subject: this.jwtSubject,
                 algorithms: ['HS256']
             });
-        } catch (err) {
-            throw new Exception(err as Error, errorType.UNAUTHORIZED);
+            return true;
+        } catch (e) {
+            throw new Exception(e as Error, ErrorCode.SERVER_REQUEST_UNAUTHORIZED);
         }
     }
 };

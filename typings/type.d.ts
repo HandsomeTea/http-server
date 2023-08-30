@@ -4,7 +4,7 @@ declare interface httpArgument {
     headers?: Record<string, string | string[] | undefined>
 }
 
-declare interface InstanceException {
+declare interface ExceptionInstance {
     message: string;
     source: Array<string>;
     code: string;
@@ -13,8 +13,8 @@ declare interface InstanceException {
 }
 
 declare interface ExceptionConstructor {
-    new(messageOrErrorOrException: string | InstanceException | Error, code?: string, reason?: Array<string>): InstanceException;
-    readonly prototype: InstanceException;
+    new(messageOrErrorOrException: string | ExceptionInstance | Error, code?: string, reason?: Array<string>): ExceptionInstance;
+    readonly prototype: ExceptionInstance;
 }
 
 declare const Exception: ExceptionConstructor;

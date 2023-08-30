@@ -1,13 +1,16 @@
-import { errorCodeMap, getENV } from '@/configs';
+import { getENV } from '@/configs';
+import { HttpErrorType } from '@/configs/errorCode';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 global.Exception = class Exception extends Error {
     public message: string;
-    public source: Array<string> = [];
     public code!: string;
     public status!: number;
-    public reason?: Array<string>;
+    public reason?: Record<string, unknown>;
+    public source: Array<string> = [];
 
-    constructor(error?: string | InstanceException | Error, code?: string, reason?: Array<string>) {
+    constructor(error?: string | ExceptionInstance | Error, code?: string, reason?: Record<string, unknown>) {
         super();
 
         // message
@@ -17,9 +20,6 @@ global.Exception = class Exception extends Error {
             this.message = error?.message || 'inner server error!';
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            this.source = Array.from(error.source || '');
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
             this.code = error.code;
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
@@ -27,13 +27,9 @@ global.Exception = class Exception extends Error {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             this.reason = error.reason;
-        }
-
-        // source
-        const serverName = getENV('SERVER_NAME');
-
-        if (serverName && !this.source.includes(serverName)) {
-            this.source.push(serverName);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            this.source = Array.from(error.source || '');
         }
 
         // code
@@ -47,12 +43,9 @@ global.Exception = class Exception extends Error {
 
         // status
         if (!this.status) {
-            for (const code in errorCodeMap) {
-                if (errorCodeMap[code].includes(this.code)) {
-                    this.status = parseInt(code);
-                    break;
-                }
-            }
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            this.status = HttpErrorType[this.code];
 
             if (!this.status) {
                 this.status = 500;
@@ -61,10 +54,20 @@ global.Exception = class Exception extends Error {
 
         // reason
         if (!this.reason) {
-            this.reason = [];
+            this.reason = {};
         }
-        if (reason && reason.length > 0) {
-            this.reason.push(...reason);
+        if (reason && Object.keys(reason).length > 0) {
+            this.reason = {
+                ...this.reason,
+                ...reason
+            };
+        }
+
+        // source
+        const serverName = getENV('SERVER_NAME');
+
+        if (serverName && !this.source.includes(serverName)) {
+            this.source.push(serverName);
         }
     }
 };

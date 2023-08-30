@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse, AxiosError, Method as AxiosMethod } from 'axios';
+import axios, { AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse, AxiosError, Method as AxiosMethod, ResponseType } from 'axios';
 import httpContext from 'express-http-context';
 import Agent from 'agentkeepalive';
 
@@ -143,14 +143,15 @@ class Request {
         throw new Exception(`request to ${target} error : no response.`);
     }
 
-    async send(url: string, method: AxiosMethod, baseURL?: string, options?: httpArgument) {
+    async send(url: string, method: AxiosMethod, baseURL?: string, options?: httpArgument, params?: { timeout?: number, responseType?: ResponseType }) {
         return await axios.request(<AxiosRequestConfig>{
             url,
             method,
             baseURL,
             headers: options?.headers,
             params: options?.params,
-            data: options?.data
+            data: options?.data,
+            ...params
         });
     }
 }

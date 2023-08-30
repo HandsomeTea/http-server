@@ -1,4 +1,4 @@
-// import { errorType } from '@/configs';
+// import { ErrorCode } from '@/configs';
 // import { check, isPhone } from '@/utils';
 import express from 'express';
 // import asyncHandler from 'express-async-handler';
@@ -25,18 +25,18 @@ const router = express.Router();
 //         const { name, account, password, phone } = req.body as AdminUserModel;
 
 //         if (phone && !isPhone(phone)) {
-//             throw new Exception('invalid phone.', errorType.INVALID_PHONE);
+//             throw new Exception('invalid phone.', ErrorCode.INVALID_PHONE);
 //         }
 //         const admin1 = await AdminUsers.find({ account });
 //         const admin2 = !phone ? [] : await AdminUsers.find({ phone });
 
 //         if (admin1.length > 0 || admin2.length > 0) {
-//             throw new Exception('admin user has already exist.', errorType.USER_ALREADY_EXIST);
+//             throw new Exception('admin user has already exist.', ErrorCode.USER_ALREADY_EXIST);
 //         }
 //         const count = await AdminUsers.count();
 
 //         if (count >= 100) {
-//             throw new Exception('the number of admin users exceeds 100.', errorType.NOT_ALLOWED);
+//             throw new Exception('the number of admin users exceeds 100.', ErrorCode.NOT_ALLOWED);
 //         }
 //         await AdminUsers.save({ name, account, password, phone });
 
@@ -61,7 +61,7 @@ const router = express.Router();
 
 // router.route('/administrator/:account').all((req, _res, next) => {
 //     if (!req.params.account) {
-//         throw new Exception('administrator account is required.', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('administrator account is required.', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     next();
@@ -76,7 +76,7 @@ const router = express.Router();
 //         const adminCount = await AdminUsers.count();
 
 //         if (adminCount === 1) {
-//             throw new Exception('there must be one admin user at least.', errorType.NOT_ALLOWED);
+//             throw new Exception('there must be one admin user at least.', ErrorCode.NOT_ALLOWED);
 //         }
 //         res.sendData(await AdminUsers.delete({ account: req.params.account }));
 //     }))
@@ -93,7 +93,7 @@ const router = express.Router();
 //         const { name, password, phone } = req.body as AdminUserModel;
 
 //         if (phone && !isPhone(phone)) {
-//             throw new Exception('invalid phone.', errorType.INVALID_PHONE);
+//             throw new Exception('invalid phone.', ErrorCode.INVALID_PHONE);
 //         }
 
 //         res.sendData(await AdminUsers.update(req.params.account, { name, password, phone }));

@@ -1,4 +1,4 @@
-import { getENV, errorType, log } from '@/configs';
+import { getENV, ErrorCode, log } from '@/configs';
 // import { isURL } from '@/utils';
 // import { _OauthSettings } from '@/dal';
 import HTTP from '@/services/HTTP';
@@ -154,7 +154,7 @@ export default class OauthService {
         // const _config = await new _OauthSettings(this.tenantId).findById(this.oauthType) as OauthSettingModel;
 
         // if (!_config) {
-        //     throw new Exception('no match oauth config.', errorType.INVALID_ARGUMENTS);
+        //     throw new Exception('no match oauth config.', ErrorCode.INVALID_ARGUMENTS);
         // }
 
         // this.clientId = _config.clientId;
@@ -309,7 +309,7 @@ export default class OauthService {
             };
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
-            throw new Exception(error, errorType.GET_OAUTH_ACCESS_TOKEN_ERROR);
+            throw new Exception(error, ErrorCode.GET_OAUTH_ACCESS_TOKEN_ERROR);
         }
     }
 
@@ -355,7 +355,7 @@ export default class OauthService {
             return _obj;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
-            throw new Exception(error, errorType.GET_OAUTH_IDENTITY_ERROR);
+            throw new Exception(error, ErrorCode.GET_OAUTH_IDENTITY_ERROR);
         }
     }
 
@@ -363,7 +363,7 @@ export default class OauthService {
         const { id, username, email } = result;
 
         if (!id || !username || !email) {
-            throw new Exception('id, username, email is required', errorType.GET_OAUTH_IDENTITY_ERROR);
+            throw new Exception('id, username, email is required', ErrorCode.GET_OAUTH_IDENTITY_ERROR);
         }
         return result;
     }
@@ -403,44 +403,44 @@ export default class OauthService {
 //     check(oauthType, String, false);
 
 //     if (!clientId || !clientSecret) {
-//         throw new Exception('clientId and clientSecret is required!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('clientId and clientSecret is required!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!tokenApi) {
-//         throw new Exception('tokenApi is required!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('tokenApi is required!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!userApi) {
-//         throw new Exception('userApi is required!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('userApi is required!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!authorizeApi) {
-//         throw new Exception('authorizeApi is required!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('authorizeApi is required!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!oauthServerURL && (!isURL(tokenApi) || !isURL(userApi) || !isURL(authorizeApi))) {
-//         throw new Exception('oauthServerURL is required!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('oauthServerURL is required!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!tokenApiMethod) {
-//         throw new Exception('tokenApiMethod is required!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('tokenApiMethod is required!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!userApiMethod) {
-//         throw new Exception('userApiMethod is required!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('userApiMethod is required!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 //     const method = new Set(['post', 'get']);
 
 //     if (!method.has(tokenApiMethod)) {
-//         throw new Exception('tokenApiMethod is invalid!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('tokenApiMethod is invalid!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!method.has(userApiMethod)) {
-//         throw new Exception('userApiMethod is invalid!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('userApiMethod is invalid!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!new Set(['as-root', 'refused', 'create-belong']).has(noDepartmentDeal)) {
-//         throw new Exception('noDepartmentDeal is invalid!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('noDepartmentDeal is invalid!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     // 授权链接参数解析
@@ -448,7 +448,7 @@ export default class OauthService {
 
 //     for (let s = 0; s < authorizeApiParamsFormation.length; s++) {
 //         if (Object.keys(authorizeApiParamsFormation[s]).length > 2) {
-//             throw new Exception(`can not set config more than one in ${JSON.stringify(authorizeApiParamsFormation[s])}`, errorType.INVALID_ARGUMENTS);
+//             throw new Exception(`can not set config more than one in ${JSON.stringify(authorizeApiParamsFormation[s])}`, ErrorCode.INVALID_ARGUMENTS);
 //         }
 
 //         const {
@@ -475,23 +475,23 @@ export default class OauthService {
 //     }
 
 //     if (!authorizeParams.clientIdKey) {
-//         throw new Exception('clientIdKey is required in authorize api params!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('clientIdKey is required in authorize api params!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!authorizeParams.redirectUriKey) {
-//         throw new Exception('redirectUriKey is required in authorize api params!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('redirectUriKey is required in authorize api params!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!authorizeParams.responseTypeKey || !authorizeParams.responseTypeValue) {
-//         throw new Exception('responseTypeKey, responseTypeValue is required in authorize api params!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('responseTypeKey, responseTypeValue is required in authorize api params!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!authorizeParams.stateKey) {
-//         throw new Exception('stateKey is required in authorize api params!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('stateKey is required in authorize api params!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!authorizeApiResponseFormation.codeKey || !authorizeApiResponseFormation.stateKey) {
-//         throw new Exception('codeKey, stateKey is required in authorize api response params!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('codeKey, stateKey is required in authorize api response params!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     // 获取token接口参数检查
@@ -500,7 +500,7 @@ export default class OauthService {
 
 //     for (let s = 0; s < tokenApiParamsFormation.length; s++) {
 //         if (Object.keys(tokenApiParamsFormation[s]).length > 3) {
-//             throw new Exception(`can not set config more than one in ${JSON.stringify(tokenApiParamsFormation[s])}`, errorType.INVALID_ARGUMENTS);
+//             throw new Exception(`can not set config more than one in ${JSON.stringify(tokenApiParamsFormation[s])}`, ErrorCode.INVALID_ARGUMENTS);
 //         }
 //         const {
 //             grantTypeKey, grantTypeValue,
@@ -509,7 +509,7 @@ export default class OauthService {
 //             auth, position } = tokenApiParamsFormation[s];
 
 //         if (!positionList1.has(position)) {
-//             throw new Exception(`invalid position in ${JSON.stringify(tokenApiParamsFormation[s])}`, errorType.INVALID_ARGUMENTS);
+//             throw new Exception(`invalid position in ${JSON.stringify(tokenApiParamsFormation[s])}`, ErrorCode.INVALID_ARGUMENTS);
 //         }
 //         if (grantTypeKey && grantTypeValue) {
 //             tokenParams.grantTypeKey = grantTypeKey;
@@ -527,12 +527,12 @@ export default class OauthService {
 //         } else if (auth) {
 //             tokenParams.auth = true;
 //             if (position !== 'auth') {
-//                 throw new Exception(`invalid auth data: ${JSON.stringify(tokenApiParamsFormation[s])}, auth position must be auth!`, errorType.INVALID_ARGUMENTS);
+//                 throw new Exception(`invalid auth data: ${JSON.stringify(tokenApiParamsFormation[s])}, auth position must be auth!`, ErrorCode.INVALID_ARGUMENTS);
 //             }
 //         }
 //     }
 //     if (!tokenParams.grantTypeKey || !tokenParams.grantTypeValue || !tokenParams.codeKey || !tokenParams.stateKey || !tokenParams.redirectUriKey) {
-//         throw new Exception('grantTypeKey, grantTypeValue, codeKey, stateKey, redirectUriKey is required in token api params!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('grantTypeKey, grantTypeValue, codeKey, stateKey, redirectUriKey is required in token api params!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (tokenParams.auth) {
@@ -540,11 +540,11 @@ export default class OauthService {
 //     }
 
 //     if ((!tokenParams.clientIdKey || !tokenParams.clientSecretKey) && !tokenParams.auth) {
-//         throw new Exception('clientId and clientSecret info is required in token api params!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('clientId and clientSecret info is required in token api params!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!tokenApiResponseFormation.accessTokenKey) {
-//         throw new Exception('accessTokenKey info is required!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('accessTokenKey info is required!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     // 获取用户信息接口参数检查
@@ -553,13 +553,13 @@ export default class OauthService {
 
 //     for (let s = 0; s < userApiParamsFormation.length; s++) {
 //         if (Object.keys(userApiParamsFormation[s]).length > 3) {
-//             throw new Exception(`can not set config more than one in ${JSON.stringify(userApiParamsFormation[s])}`, errorType.INVALID_ARGUMENTS);
+//             throw new Exception(`can not set config more than one in ${JSON.stringify(userApiParamsFormation[s])}`, ErrorCode.INVALID_ARGUMENTS);
 //         }
 
 //         const { tokenKey, Authorization, position } = userApiParamsFormation[s];
 
 //         if (!positionList2.has(position)) {
-//             throw new Exception(`invalid position in ${JSON.stringify(userApiParamsFormation[s])}`, errorType.INVALID_ARGUMENTS);
+//             throw new Exception(`invalid position in ${JSON.stringify(userApiParamsFormation[s])}`, ErrorCode.INVALID_ARGUMENTS);
 //         }
 
 //         if (tokenKey) {
@@ -567,16 +567,16 @@ export default class OauthService {
 //         } else if (Authorization) {
 //             userParams.Authorization = Authorization;
 //             if (position !== 'header') {
-//                 throw new Exception(`invalid Authorization data: ${JSON.stringify(userApiParamsFormation[s])}, Authorization position must be header!`, errorType.INVALID_ARGUMENTS);
+//                 throw new Exception(`invalid Authorization data: ${JSON.stringify(userApiParamsFormation[s])}, Authorization position must be header!`, ErrorCode.INVALID_ARGUMENTS);
 //             }
 //         }
 //     }
 //     if (!userParams.tokenKey && !userParams.Authorization) {
-//         throw new Exception('tokenKey info is required in get user info api params!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('tokenKey info is required in get user info api params!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     if (!userApiResponseFormation.email || !userApiResponseFormation.name || !userApiResponseFormation.username) {
-//         throw new Exception('user info: [email, name, username] is required in userApiResponseFormation!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('user info: [email, name, username] is required in userApiResponseFormation!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 
 //     return {
@@ -729,14 +729,14 @@ export default class OauthService {
 //     const oauthConfig = await new _OauthSettingsDal(tenantId).findById(oauthType);
 
 //     if (!oauthConfig) {
-//         throw new Exception('invalid oauth type!', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('invalid oauth type!', ErrorCode.INVALID_ARGUMENTS);
 //     }
 //     const { codeKey, stateKey } = JSON.parse(oauthConfig.authorizeApiResponseFormationJson) as { codeKey: string, stateKey: string };
 //     const code = req.query[codeKey] as undefined | string;
 //     const state = req.query[stateKey] as undefined | string;
 
 //     if (!code || !state) {
-//         throw new Exception('code and state is required.', errorType.INVALID_ARGUMENTS);
+//         throw new Exception('code and state is required.', ErrorCode.INVALID_ARGUMENTS);
 //     }
 //     const oauthServer = new OAuth(oauthType, tenantId, { code, state });
 
