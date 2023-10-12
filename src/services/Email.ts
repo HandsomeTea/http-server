@@ -5,7 +5,8 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 // import path from 'path';
 
 import { log, ErrorCode, getENV } from '@/configs';
-import { randomString, isURL } from '@/utils';
+import { randomString } from '@/utils';
+import { isURL } from '@coco-sheng/js-tools';
 // import vendorTempService from './vendorCredentialTokenService';
 // import redisService from './redisService';
 

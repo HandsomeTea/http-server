@@ -1,5 +1,6 @@
 import { Scheduled } from '@/dal';
-import { fixedNumString, getFormatDateObject } from '@/utils';
+import { getFormatDateObject } from '@/utils';
+import { fixedNumString } from '@coco-sheng/js-tools';
 import { log } from '@/configs';
 
 export default new class ScheduledTaskService {

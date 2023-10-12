@@ -8,7 +8,7 @@ import { log } from '@/configs';
 import SQL from './sql';
 
 import { DmModel, QueryOption, UpdateOption } from 'dm-type';
-import { typeIs } from '@/utils';
+import { typeIs } from '@coco-sheng/js-tools';
 import { DmType } from './index';
 
 const DMDBModel: Record<string, DmModel<Record<string, unknown>>> = {};

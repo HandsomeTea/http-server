@@ -1,4 +1,4 @@
-import { fixedNumString } from './fixedNumStr';
+import { fixedNumString } from '@coco-sheng/js-tools';
 
 /**
  * 生成 yyyy-MM-ddTHH:mm:ss.SSSXXX 格式的UTC时间

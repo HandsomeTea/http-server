@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { typeIs } from '@/utils';
+import { typeIs } from '@coco-sheng/js-tools';
 
 import { QueryOption, SQLOption, UpdateOption, WhereOption } from 'dm-type';
 
@@ -19,6 +19,8 @@ export default new class SQL {
     private getSqlValue(value: any) {
         const type = typeIs(value);
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         if (!new Set(['string', 'number', 'bigint', 'undefined', 'date', 'null']).has(type)) {
             throw new Exception(`SQL does not support storage of this data type: ${type}`);
         }

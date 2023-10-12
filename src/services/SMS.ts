@@ -1,6 +1,7 @@
 import aliSMS from 'ali-sms';
 import { sms } from 'tencentcloud-sdk-nodejs';
-import { randomString, isPhone, getPhone } from '@/utils';
+import { randomString } from '@/utils';
+import { isPhone, getPhone } from '@coco-sheng/js-tools';
 import { log, ErrorCode, getENV } from '@/configs';
 // import redisService from './redisService';
 // import vendorTempService from './vendorCredentialTokenService';
