@@ -1,5 +1,7 @@
+import { trace } from '@/configs';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import httpContext from 'express-http-context';
 // import { _UserTokens } from '@/dal';
 // import User from '../../../models/_mysql';
 // import { Test } from '@/models/es';
@@ -63,6 +65,43 @@ router.post('/user', asyncHandler(async (_req, res) => {
 router.get('/user', asyncHandler(async (_req, res) => {
     res.success({ result: 'asdasd-get' });
 }));
+
+router.get('/sse/test', function (req, res) {
+    res.set({
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'private, no-cache, no-store, must-revalidate, max-age=0, no-transform',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no'
+    });
+    res.flushHeaders();
+    let count = 0;
+
+    const intervalId = setInterval(() => {
+        const data = {
+            time: `Current time is ${new Date().toLocaleTimeString()}`
+        };
+
+        trace({
+            traceId: httpContext.get('traceId'),
+            spanId: httpContext.get('spanId'),
+            parentSpanId: httpContext.get('parentSpanId')
+        }, 'sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(data, null, '   ')}`);
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+        count++;
+        if (count === 5) {
+            const endMark = { streamEnd: true };
+
+            trace({
+                traceId: httpContext.get('traceId'),
+                spanId: httpContext.get('spanId'),
+                parentSpanId: httpContext.get('parentSpanId')
+            }, 'sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(endMark, null, '   ')}`);
+            res.write(`data: ${JSON.stringify(endMark)}\n\n`);
+            res.end();
+            clearInterval(intervalId);
+        }
+    }, 1000);
+});
 // router.get('/:userId', asyncHandler(async (req, res) => {
 //     const Users = new _Users('11685');
 

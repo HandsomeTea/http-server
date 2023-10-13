@@ -26,7 +26,7 @@ const developConfig: EnvConfigType = {
     NODE_ENV: 'development',
     SERVER_NAME: 'personal server',
     ROOT_URL: 'http://localhost:3000',
-    PORT: '3003',
+    PORT: '3004',
     LOG_LEVEL: 'all',
     TRACE_LOG_LEVEL: 'all',
     DEV_LOG_LEVEL: 'all',

@@ -4,7 +4,7 @@ import httpContext from 'express-http-context';
 import { trace } from '@/configs';
 
 /**
- * 服务器成功处理完请求返回
+ * 响应拦截器
  */
 export default (req: Request, res: Response, next: NextFunction): void => {
     res.success = (data?: unknown) => {
