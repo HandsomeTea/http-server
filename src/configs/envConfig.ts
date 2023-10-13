@@ -47,12 +47,12 @@ const developConfig: EnvConfigType = {
     REDIS_URL: '',
     // 'http://0.0.0.0:9200'
     ES_URL: '',
-    TENCENT_SMS_SECRET_ID: 'AKIDb2YwKadcPyHLDpCLFsNlTPAh0QuMbfXD',
-    TENCENT_SMS_SECRET_KEY: 'aBc8e07ze4c0GJ6e2FPSGqMqCLIOHygF',
-    TENCENT_SMS_APP_ID: '1400833824',
-    TENCENT_SMS_SIGN_ID: '537297',
-    TENCENT_OSS_SECRET_ID: 'AKIDb2YwKadcPyHLDpCLFsNlTPAh0QuMbfXD',
-    TENCENT_OSS_SECRET_KEY: 'aBc8e07ze4c0GJ6e2FPSGqMqCLIOHygF'
+    TENCENT_SMS_SECRET_ID: '',
+    TENCENT_SMS_SECRET_KEY: '',
+    TENCENT_SMS_APP_ID: '',
+    TENCENT_SMS_SIGN_ID: '',
+    TENCENT_OSS_SECRET_ID: '',
+    TENCENT_OSS_SECRET_KEY: ''
 };
 
 export default <K extends keyof EnvConfigType>(env: K): EnvConfigType[K] => {
