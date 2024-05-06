@@ -30,7 +30,7 @@ const server = http.createServer(app);
 
 import mongodb from '@/tools/mongodb';
 import sql from '@/tools/sql';
-// import dm from '@/tools/dameng';
+import dm from '@/tools/dameng';
 import redis from '@/tools/redis';
 import mq from '@/tools/mq';
 import es from '@/tools/es';
@@ -45,9 +45,9 @@ const isHealth = async (): Promise<true | void> => {
     if (!sql.isOK) {
         return log('STARTUP').error('sql connection is unusual');
     }
-    // if (!dm.isOK) {
-    //     return log('STARTUP').error('dmdb connection is unusual');
-    // }
+    if (!dm.isOK) {
+        return log('STARTUP').error('dmdb connection is unusual');
+    }
     if (!redis.isOK) {
         return log('STARTUP').error('redis connection is unusual');
     }
@@ -85,7 +85,7 @@ process.on('SIGINT', () => {
 process.on('exit', async () => {
     await mongodb.close();
     await sql.close();
-    // await dm.close();
+    await dm.close();
     await redis.close();
     await mq.close();
     await es.close();
@@ -142,7 +142,7 @@ server.listen(port, () => {
             process.send('ready');
         }
         clearInterval(_check);
-        log('STARTUP').info(`api document running on http://127.0.0.1:${port}.`);
+        log('STARTUP').info(`api document running on port:${port}.`);
     }, 1000);
 });
 

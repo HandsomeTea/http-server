@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import ffmpeg from 'ffmpeg';
+// @ts-ignore
 import { FFCreator, FFScene, FFVideo } from 'ffcreator';
 import { log } from '@/configs';
 
@@ -86,15 +87,18 @@ export const Video = new class VideoServer {
         return await new Promise(resolve => {
             creator.start();
 
+            // @ts-ignore
             creator.on('complete', e => {
                 log('FFCreator-megerVideoWithSource').info(`FFCreator completed: \n USEAGE: ${e.useage} \n PATH: ${e.output} `);
                 resolve({ localPath: e.output });
             });
 
+            // @ts-ignore
             creator.on('progress', e => {
                 log('FFCreator-megerVideoWithSource').info(`FFCreator progress: ${e.percent * 100 >> 0}%`);
             });
 
+            // @ts-ignore
             creator.on('error', e => {
                 log('FFCreator-megerVideoWithSource-error').error(e);
                 throw new Exception('generate video failed!');

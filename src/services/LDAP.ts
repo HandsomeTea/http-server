@@ -339,6 +339,7 @@ export default class LDAP {
     }
 
     extractLdapSearchResult(entry: SearchEntry): LdapSearchResult {
+        // @ts-ignore
         const data = entry.object;
         const result: LdapSearchResult = [];
 

@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  http_server:
+    image: node:20.11.1
+    restart: always
+    container_name: http_server
+    # 不会映射，直接使用主机网络，因此不用设置端口映射规则
+    network_mode: host
+    volumes:
+      - ../:/usr/src/app
+    command:
+      - sh
+      - -c
+      - |
+        cd /usr/src/app
+        [ ! -d "/usr/src/app/node_modules" ] && npm install
+        npm run start

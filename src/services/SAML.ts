@@ -381,6 +381,7 @@ const saml = new class SAML {
 
     private checkXmlSignature(xml: string, cert: string) {
         const doc = new xmldom.DOMParser().parseFromString(xml);
+        // @ts-ignore
         const signature = xmlCrypto.xpath(doc, '//*[local-name(.)=\'Signature\' and namespace-uri(.)=\'http://www.w3.org/2000/09/xmldsig#\']')[0] as string;
         const sig = new xmlCrypto.SignedXml();
         const self = this;

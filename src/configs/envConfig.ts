@@ -41,7 +41,7 @@ const developConfig: EnvConfigType = {
     // 'dm://SYSDBA:SYSDBA@localhost:5236?autoCommit=false'
     // 'mongodb://127.0.0.1:27017/test'
     // 'postgres://surpass:Bizconf_surpass@ops-dev.bizconf.cn/surpass'
-    DB_URL: 'mongodb://127.0.0.1:27017/test',
+    DB_URL: 'mongodb://admin:admin@10.4.48.13:27017/test?authSource=admin',
     MQ_URL: '',
     // redis://127.0.0.1:6379
     REDIS_URL: '',

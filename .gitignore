@@ -58,7 +58,7 @@ jspm_packages/
 .next
 
 
-## custom
+# custom
 dist
 mark.*
 public

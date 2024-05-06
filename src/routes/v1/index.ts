@@ -1,12 +1,12 @@
 import express from 'express';
 import user from './users';
-import vendor from './vendor';
+// import vendor from './vendor';
 
 const router = express.Router();
 
 /** /api/v1/user */
 router.use('/user', user);
-router.use(vendor);
+// router.use(vendor);
 
 export default router;
 

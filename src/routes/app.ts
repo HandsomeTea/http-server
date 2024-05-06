@@ -1,7 +1,8 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+// import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import httpContext from 'express-http-context';
 import { ErrorCode, getENV } from '@/configs';
@@ -18,7 +19,8 @@ const app = express();
 /**常用中间件 */
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
-app.use(cookieParser());
+app.use(helmet());
+// app.use(cookieParser());
 app.use(compression());
 app.use(httpContext.middleware);
 

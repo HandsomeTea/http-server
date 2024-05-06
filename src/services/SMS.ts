@@ -55,7 +55,7 @@ const TencentSmsServer = new class TencentSMS implements SmsService {
         const list = await this.service.DescribeSmsTemplateList({
             International: 0
         });
-        const result = list.DescribeTemplateStatusSet.find(a => a.TemplateName === type);
+        const result = list.DescribeTemplateStatusSet?.find(a => a.TemplateName === type);
 
         if (!result) {
             throw new Exception(`tencent sms template: ${type} is not found.`);
@@ -69,7 +69,10 @@ const TencentSmsServer = new class TencentSMS implements SmsService {
             International: 0
         });
 
-        return DescribeSignListStatusSet[0].SignName || '海湃领客';
+        if (DescribeSignListStatusSet && DescribeSignListStatusSet.length > 0) {
+            return DescribeSignListStatusSet[0].SignName;
+        }
+        return '海湃领客';
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

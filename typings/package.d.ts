@@ -60,3 +60,9 @@ declare module 'dm-type' {
     }
 
 }
+
+declare module 'pinyin' {
+    import pinyin from '@types/pinyin';
+
+    export default pinyin;
+}

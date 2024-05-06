@@ -1,9 +1,9 @@
 import randomString from './randomString';
-// import pinyin from './pinyin';
+import pinyin from './pinyin';
 
 export {
-    randomString
-    // pinyin,
+    randomString,
+    pinyin
 };
 
 export {

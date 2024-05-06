@@ -1,9 +1,10 @@
+// 压力测试
 // import siege from 'siege';
 
 // siege()
-//     .on(3000)
-//     // .get('/tests/test/12312').for(3000).times//这个借口测试30000次
-//     .get('/tests/test/12312').for(20).seconds//这个借口测试20秒
+//     .on(3004)
+//     // .post('/api/v1/user/user').for(3000).times//这个借口测试30000次
+//     .post('/api/v1/user/user', {}).for(20).seconds//这个借口测试20秒
 //     .attack();
 
 import { describe, it } from 'mocha';
@@ -19,9 +20,9 @@ import { describe, it } from 'mocha';
 
 import server from 'supertest';
 
-describe('GET /api/v1/user/user', () => {
+describe('POST /api/v1/user/user', () => {
     it('response with json', done => {
-        server('http://localhost:3000')
+        server('http://localhost:3004')
             .post('/api/v1/user/user')
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)

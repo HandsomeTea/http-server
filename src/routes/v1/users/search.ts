@@ -62,10 +62,8 @@ router.post('/user', asyncHandler(async (_req, res) => {
     // throw new Exception(new Error('cuo wu'));
     // throw new Exception(new Exception('cuo wu'));
 }));
-router.get('/user', asyncHandler(async (_req, res) => {
-    res.success({ result: 'asdasd-get' });
-}));
 
+// get/post都可以
 router.get('/sse/test', function (req, res) {
     res.set({
         'Content-Type': 'text/event-stream',
@@ -98,9 +96,15 @@ router.get('/sse/test', function (req, res) {
             }, 'sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(endMark, null, '   ')}`);
             res.write(`data: ${JSON.stringify(endMark)}\n\n`);
             res.end();
-            clearInterval(intervalId);
         }
     }, 1000);
+
+    req.on('close', () => {
+        // eslint-disable-next-line no-console
+        console.log('客户端断开，停止推送');
+        clearInterval(intervalId);
+        res.end();
+    });
 });
 // router.get('/:userId', asyncHandler(async (req, res) => {
 //     const Users = new _Users('11685');
