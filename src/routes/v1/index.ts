@@ -1,11 +1,15 @@
 import express from 'express';
 import user from './users';
+import feature from './features';
 // import vendor from './vendor';
 
 const router = express.Router();
 
 /** /api/v1/user */
 router.use('/user', user);
+
+/** /api/v1/feature */
+router.use('/feature', feature);
 // router.use(vendor);
 
 export default router;

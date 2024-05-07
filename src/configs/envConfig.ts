@@ -44,7 +44,7 @@ const developConfig: EnvConfigType = {
     DB_URL: 'mongodb://admin:admin@10.4.48.13:27017/test?authSource=admin',
     MQ_URL: '',
     // redis://127.0.0.1:6379
-    REDIS_URL: '',
+    REDIS_URL: 'redis://10.4.48.13:6379',
     // 'http://0.0.0.0:9200'
     ES_URL: '',
     TENCENT_SMS_SECRET_ID: '',

@@ -22,7 +22,7 @@ export default new class MQ {
     }
 
     private get isUseful() {
-        return Boolean(getENV('REDIS_URL'));
+        return Boolean(getENV('MQ_URL'));
     }
 
     public get server() {

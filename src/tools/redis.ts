@@ -26,11 +26,21 @@ export default new class Redis {
         });
 
         this.service.on('connect', () => {
-            system('redis').info(`redis connected on ${getENV('REDIS_URL')} success and ready to use.`);
+            if (process.env.CHILD_PROCESS) {
+                // @ts-ignore
+                process.setReady();
+            } else {
+                system('redis').info(`redis connected on ${getENV('REDIS_URL')} success and ready to use.`);
+            }
         });
 
         this.service.on('error', error => {
-            system('redis').error(error);
+            if (process.env.CHILD_PROCESS) {
+                // @ts-ignore
+                process.setError(error);
+            } else {
+                system('redis').error(error);
+            }
         });
     }
 
