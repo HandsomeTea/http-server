@@ -1,5 +1,3 @@
-import { MyWebSocket, WebSocketServer } from '../websocket';
-
 declare global {
 	var isServerRunning: boolean
 	var Exception: ExceptionConstructor
@@ -8,3 +6,5 @@ declare global {
 	/** instance保活间隔,单位为秒 */
 	var IntervalUpdateInstance: number
 }
+
+export { };

@@ -73,7 +73,6 @@
 		"@types/ldapjs": "^3.0.6",
 		"@types/mocha": "^10.0.6",
 		"@types/module-alias": "^2.0.4",
-		"@types/node": "^20.12.11",
 		"@types/nodemailer": "^6.4.15",
 		"@types/pinyin": "^2.10.2",
 		"@types/siege": "^0.2.5",
