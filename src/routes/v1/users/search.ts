@@ -26,85 +26,85 @@ const router = express.Router();
  * @apiUse ErrorApiResult
  */
 router.post('/user', asyncHandler(async (_req, res) => {
-    // const UserTokens = new _UserTokens('11685');
+	// const UserTokens = new _UserTokens('11685');
 
-    // await Test.insertOne({
-    //     a: +new Date,
-    //     b: true,
-    //     c: 'sadas asda',
-    //     d: {
-    //         test: 1
-    //     }
-    // });
-    // res.success({
-    //     result: await Test.removeMany({
-    //         match: {
-    //             c: 'sadas asda'
-    //         }
-    //     })
-    // });
-    // res.success({
-    //     result: await Test.findById('jIsh8IcBIrfCM5mjicNO')
-    // });
-    res.success({ result: 'asdasd-post' });
-    // return res.success({ result: await UserTokens.find({}) });
-    // return res.success({
-    //     result: await UserTokens.insertLoginToken({
-    //         type: 'ws',
-    //         userId: 'asdasdasdsssssss',
-    //         hashedToken: 'sad23asd345dfgsdsadss123'
-    //         // deviceType: 'BCD',
-    //         // serialNumber: 'ASDDFGFG45645'
-    //     })
-    // });
-    // console.log(await User.update<UserModel>({ where: { _id: 132 } }, { account: 'newaccount' }));
-    // return res.success({ result: await UserTokens.remove({ userId: 'asdasdasdsssssss' }) });
-    // throw new Exception(new Error('cuo wu'));
-    // throw new Exception(new Exception('cuo wu'));
+	// await Test.insertOne({
+	//     a: +new Date,
+	//     b: true,
+	//     c: 'sadas asda',
+	//     d: {
+	//         test: 1
+	//     }
+	// });
+	// res.success({
+	//     result: await Test.removeMany({
+	//         match: {
+	//             c: 'sadas asda'
+	//         }
+	//     })
+	// });
+	// res.success({
+	//     result: await Test.findById('jIsh8IcBIrfCM5mjicNO')
+	// });
+	res.success({ result: 'asdasd-post' });
+	// return res.success({ result: await UserTokens.find({}) });
+	// return res.success({
+	//     result: await UserTokens.insertLoginToken({
+	//         type: 'ws',
+	//         userId: 'asdasdasdsssssss',
+	//         hashedToken: 'sad23asd345dfgsdsadss123'
+	//         // deviceType: 'BCD',
+	//         // serialNumber: 'ASDDFGFG45645'
+	//     })
+	// });
+	// console.log(await User.update<UserModel>({ where: { _id: 132 } }, { account: 'newaccount' }));
+	// return res.success({ result: await UserTokens.remove({ userId: 'asdasdasdsssssss' }) });
+	// throw new Exception(new Error('cuo wu'));
+	// throw new Exception(new Exception('cuo wu'));
 }));
 
-// get/post都可以
+// get/post都可以，但是浏览器原生的EventSource对象只能get请求
 router.get('/sse/test', function (req, res) {
-    res.set({
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'private, no-cache, no-store, must-revalidate, max-age=0, no-transform',
-        'Connection': 'keep-alive',
-        'X-Accel-Buffering': 'no'
-    });
-    res.flushHeaders();
-    let count = 0;
+	res.set({
+		'Content-Type': 'text/event-stream',
+		'Cache-Control': 'private, no-cache, no-store, must-revalidate, max-age=0, no-transform',
+		'Connection': 'keep-alive',
+		'X-Accel-Buffering': 'no'
+	});
+	res.flushHeaders();
+	let count = 0;
 
-    const intervalId = setInterval(() => {
-        const data = {
-            time: `Current time is ${new Date().toLocaleTimeString()}`
-        };
+	const intervalId = setInterval(() => {
+		const data = {
+			time: `Current time is ${new Date().toLocaleTimeString()}`
+		};
 
-        trace({
-            traceId: httpContext.get('traceId'),
-            spanId: httpContext.get('spanId'),
-            parentSpanId: httpContext.get('parentSpanId')
-        }, 'sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(data, null, '   ')}`);
-        res.write(`data: ${JSON.stringify(data)}\n\n`);
-        count++;
-        if (count === 5) {
-            const endMark = { streamEnd: true };
+		trace({
+			traceId: httpContext.get('traceId'),
+			spanId: httpContext.get('spanId'),
+			parentSpanId: httpContext.get('parentSpanId')
+		}, 'sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(data, null, '   ')}`);
+		res.write(`data: ${JSON.stringify(data)}\n\n`);
+		count++;
+		if (count === 5) {
+			const endMark = { streamEnd: true };
 
-            trace({
-                traceId: httpContext.get('traceId'),
-                spanId: httpContext.get('spanId'),
-                parentSpanId: httpContext.get('parentSpanId')
-            }, 'sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(endMark, null, '   ')}`);
-            res.write(`data: ${JSON.stringify(endMark)}\n\n`);
-            res.end();
-        }
-    }, 1000);
+			trace({
+				traceId: httpContext.get('traceId'),
+				spanId: httpContext.get('spanId'),
+				parentSpanId: httpContext.get('parentSpanId')
+			}, 'sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(endMark, null, '   ')}`);
+			res.write(`data: ${JSON.stringify(endMark)}\n\n`);
+			res.end();
+		}
+	}, 1000);
 
-    req.on('close', () => {
-        // eslint-disable-next-line no-console
-        console.log('客户端断开，停止推送');
-        clearInterval(intervalId);
-        res.end();
-    });
+	req.on('close', () => {
+		// eslint-disable-next-line no-console
+		console.log('客户端断开，停止推送');
+		clearInterval(intervalId);
+		res.end();
+	});
 });
 // router.get('/:userId', asyncHandler(async (req, res) => {
 //     const Users = new _Users('11685');

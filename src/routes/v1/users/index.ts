@@ -1,11 +1,11 @@
 import express from 'express';
 import search from './search';
-// import base from './base';
+import base from './base';
 
 const router = express.Router();
 
 /** /api/v1/user */
-router.use(search/*, base*/);
+router.use(search, base);
 
 export default router;
 

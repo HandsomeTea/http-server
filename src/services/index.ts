@@ -11,20 +11,20 @@ import addressbookRule from './addressbookRule';
 import Instance from './instance';
 
 export {
-    JWT,
-    HTTP,
-    Email,
-    OAuth,
-    LDAP,
-    MQ,
-    File,
-    schedule,
-    Redis,
-    addressbookRule,
-    Instance
+	JWT,
+	HTTP,
+	Email,
+	OAuth,
+	LDAP,
+	MQ,
+	File,
+	schedule,
+	Redis,
+	addressbookRule,
+	Instance
 };
 export { AliSMS, TencentSMS } from './SMS';
-export { TencentOSS } from './OSS';
+export { TencentOSS, MinioOSS } from './OSS';
 export { SAML } from './SAML';
 export { Image } from './image';
 export { Video } from './video';

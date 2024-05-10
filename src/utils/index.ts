@@ -1,16 +1,16 @@
 import randomString from './randomString';
-import pinyin from './pinyin';
+// import pinyin from './pinyin';
 
 export {
-    randomString,
-    pinyin
+	randomString
+	// pinyin
 };
 
 export {
-    getUTCTime,
-    getTimeLong,
-    getFormatDateObject,
-    getDayStartDate
+	getUTCTime,
+	getTimeLong,
+	getFormatDateObject,
+	getDayStartDate
 } from './date';
 
 export { check } from './check';
