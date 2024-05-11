@@ -10,14 +10,14 @@ const exitForkProcess = (code: number) => {
 
 process.env.CHILD_PROCESS = '1';
 // @ts-ignore
-process.setReady = () => {
+process.setRedisReady = () => {
 	log('task-redis').info(`redis connected success and ready to use for excute task process.`);
 	if (process.send) {
 		process.send({ error: null, signal: 'ready' });
 	}
 };
 // @ts-ignore
-process.setError = (error) => {
+process.setRedisError = (error) => {
 	log('task-redis').error(`redis connected error and exit for excute task process.`);
 	if (process.send) {
 		process.send({ error, signal: null })
@@ -26,11 +26,11 @@ process.setError = (error) => {
 };
 process.on('uncaughtException', reason => {
 	log('SYSTEM').fatal(reason);
-	exitForkProcess(5)
+	exitForkProcess(6)
 })
 process.on('unhandledRejection', reason => {
 	log('SYSTEM').fatal(reason);
-	exitForkProcess(6)
+	exitForkProcess(7)
 })
 
 import { Client, ConnectConfig } from 'ssh2';
@@ -59,14 +59,14 @@ const execTask = (deviceConfig: ConnectConfig, commands: Array<string>, taskId: 
 		if (process.send) {
 			process.send({ error, signal: null });
 		}
-		exitForkProcess(4)
+		exitForkProcess(5)
 	}).on('timeout', () => {
 		const error = new Error('connect device timeout');
 
 		if (process.send) {
 			process.send({ error, signal: null });
 		}
-		exitForkProcess(3)
+		exitForkProcess(4)
 	}).on('end', async () => {
 		await publishData(`[end]\n`, taskId);
 		if (process.send) {
@@ -134,6 +134,10 @@ process.on('message', async ({ sjgnal, data }) => {
 				exitForkProcess(2)
 			}
 		})
-		execTask(data.device, data.commands, taskId);
+		try {
+			execTask(data.device, data.commands, taskId);
+		} catch (error) {
+			exitForkProcess(3)
+		}
 	}
 });

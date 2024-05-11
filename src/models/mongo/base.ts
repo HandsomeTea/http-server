@@ -1,4 +1,4 @@
-import { Types, SchemaDefinition, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaDefinitionType, Model, AnyKeys, Aggregate, IndexOptions, SortOrder } from 'mongoose';
+import { /*Types, */SchemaDefinition, FilterQuery, UpdateQuery, QueryOptions, UpdateWithAggregationPipeline, SchemaDefinitionType, Model, Aggregate, IndexOptions, SortOrder } from 'mongoose';
 import mongodb from '@/tools/mongodb';
 
 /**
@@ -41,31 +41,31 @@ export default class MongoBase<CM>{
 		return mongodb.server.model<CM>(this.collectionName, _schema, this.collectionName);
 	}
 
-	private id(data: AnyKeys<CM> | Array<AnyKeys<CM>>): Array<AnyKeys<CM & { _id: string }>> {
-		const result: Array<AnyKeys<CM & { _id: string }>> = [];
+	// private id(data: AnyKeys<CM> | Array<AnyKeys<CM>>): Array<AnyKeys<CM & { _id: string }>> {
+	// 	const result: Array<AnyKeys<CM & { _id: string }>> = [];
 
-		if (Array.isArray(data)) {
-			for (let i = 0; i < data.length; i++) {
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				if (typeof data[i]._id !== 'string' || typeof data[i]._id === 'string' && data[i]._id?.trim() === '') {
-					result.push({
-						...data[i],
-						_id: new Types.ObjectId().toString()
-					});
-				}
-			}
-		} else {
-			result.push({
-				...data,
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				_id: data._id || new Types.ObjectId().toString()
-			});
-		}
+	// 	if (Array.isArray(data)) {
+	// 		for (let i = 0; i < data.length; i++) {
+	// 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// 			// @ts-ignore
+	// 			if (typeof data[i]._id !== 'string' || typeof data[i]._id === 'string' && data[i]._id?.trim() === '') {
+	// 				result.push({
+	// 					...data[i],
+	// 					_id: new Types.ObjectId().toString()
+	// 				});
+	// 			}
+	// 		}
+	// 	} else {
+	// 		result.push({
+	// 			...data,
+	// 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// 			// @ts-ignore
+	// 			_id: data._id || new Types.ObjectId().toString()
+	// 		});
+	// 	}
 
-		return result;
-	}
+	// 	return result;
+	// }
 
 	async collectionExist(collectionName?: string) {
 		const allCollections = (await mongodb.server.db?.collections())?.map(a => a.collectionName);
@@ -79,12 +79,16 @@ export default class MongoBase<CM>{
 		// }
 	}
 
-	async insertOne(data: CM): Promise<CM> {
-		return await new this.model(this.id(data)[0]).save() as unknown as CM;
+	// @ts-ignore
+	async insertOne(data: Omit<CM, '_id' | 'createdAt' | 'updatedAt'>): Promise<CM> {
+		// return await new this.model(this.id(data)[0]).save() as unknown as CM;
+		return await new this.model(data).save() as unknown as CM;
 	}
 
-	async insertMany(data: Array<CM>): Promise<Array<CM>> {
-		return await this.model.insertMany(data.map(a => this.id(a)), { lean: true }) as unknown as Array<CM>;
+	// @ts-ignore
+	async insertMany(data: Array<Omit<CM, '_id' | 'createdAt' | 'updatedAt'>>): Promise<Array<CM>> {
+		// return await this.model.insertMany(data.map(a => this.id(a)), { lean: true }) as unknown as Array<CM>;
+		return await this.model.insertMany(data, { lean: true }) as unknown as Array<CM>;
 	}
 
 	async removeOne(query: FilterQuery<CM>): Promise<{ deletedCount: number }> {

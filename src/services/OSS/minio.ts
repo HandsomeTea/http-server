@@ -91,14 +91,23 @@ export default new class MinioOSSService {
 		});
 	}
 
-	private getMinioFileAddr(bucket: Bucket, filePath: string) {
+	private getOssFileAddr(bucket: Bucket, filePath: string) {
 		const minioUrl = getENV('MINIO_URL');
 		const url = new URL(minioUrl);
 
 		return `${url.protocol}//${url.hostname}:${url.port}/${bucket}/${filePath}`;
 	}
 
+	private async createBucket(bucketName: string) {
+		if (!await this.server?.bucketExists(bucketName)) {
+			await this.server?.makeBucket(bucketName)
+		}
+	}
+
 	private async checkBucketAuth(bucketName: string, auth: BucketAuth) {
+		if (Object.keys(auth).length === 0) {
+			return;
+		}
 		const currentPolicy: { Statement: Array<BucketPolicyStatement> } = JSON.parse(await this.server?.getBucketPolicy(bucketName) || '{ "Statement": [] }');
 		const policyActions: Array<BucketPolicyAction> = currentPolicy.Statement.map(item => item.Action).flat();
 		const policy: Array<BucketPolicyStatement> = [];
@@ -129,24 +138,30 @@ export default new class MinioOSSService {
 		}
 	}
 
-	async checkBucket(bucketName: string, option?: { auth?: BucketAuth, expiry?: number }) {
-		if (!await this.server?.bucketExists(bucketName)) {
-			await this.server?.makeBucket(bucketName)
+	private async setBucketExpiry(bucketName: string, expiry: number) {
+		if (expiry <= 0) {
+			return;
 		}
+		await this.server?.setBucketLifecycle(bucketName, {
+			Rule: [{
+				Status: 'Enabled',
+				Filter: { Prefix: '' },
+				// @ts-ignore
+				Expiration: { Days: expiry }
+			}]
+		});
+	}
+
+	async checkBucket(bucketName: string, option?: { auth?: BucketAuth, expiry?: number }) {
+		await this.createBucket(bucketName);
 		const { auth, expiry } = option || {};
 
-		if (auth && Object.keys(auth).length > 0) {
+		if (auth) {
 			await this.checkBucketAuth(bucketName, auth);
 		}
+
 		if (expiry) {
-			await this.server?.setBucketLifecycle(bucketName, {
-				Rule: [{
-					Status: 'Enabled',
-					Filter: { Prefix: '' },
-					// @ts-ignore
-					Expiration: { Days: expiry }
-				}]
-			});
+			await this.setBucketExpiry(bucketName, expiry);
 		}
 	}
 
@@ -167,11 +182,11 @@ export default new class MinioOSSService {
 		return result;
 	}
 
-	async uploadFile(file: { fullPath?: string, stream?: Buffer }, minio: { bucket: Bucket, targetPath: string, fileName: string }) {
+	async uploadFile(file: { fullPath?: string, stream?: Buffer }, oss: { bucket: Bucket, targetPath: string, fileName: string }) {
 		if (!file.fullPath && !file.stream) {
 			return;
 		}
-		const { bucket, targetPath, fileName } = minio;
+		const { bucket, targetPath, fileName } = oss;
 
 		if (!bucket || !targetPath || !fileName) {
 			return;
@@ -184,7 +199,7 @@ export default new class MinioOSSService {
 		} else if (file.stream) {
 			await this.server?.putObject(bucket, minioFilePath, file.stream);
 		}
-		return this.getMinioFileAddr(bucket, minioFilePath);
+		return this.getOssFileAddr(bucket, minioFilePath);
 	}
 
 	async deleteFile(bucket: Bucket, pathInBucket: string) {
