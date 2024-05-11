@@ -98,6 +98,10 @@ export default new class MinioOSSService {
 		return `${url.protocol}//${url.hostname}:${url.port}/${bucket}/${filePath}`;
 	}
 
+	/**
+	 * 如果存在则不做任何操作，否则创建
+	 * @param bucketName
+	 */
 	private async createBucket(bucketName: string) {
 		if (!await this.server?.bucketExists(bucketName)) {
 			await this.server?.makeBucket(bucketName)
@@ -138,6 +142,12 @@ export default new class MinioOSSService {
 		}
 	}
 
+	/**
+	 * 为bucket设置保留时长
+	 * @param bucketName
+	 * @param expiry 保留时长，单位天
+	 * @returns
+	 */
 	private async setBucketExpiry(bucketName: string, expiry: number) {
 		if (expiry <= 0) {
 			return;
@@ -177,7 +187,7 @@ export default new class MinioOSSService {
 		}
 
 		if (bucketName) {
-			return result.filter(item => item.name === bucketName);
+			return result.filter(item => item.name.includes(bucketName));
 		}
 		return result;
 	}

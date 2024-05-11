@@ -61,7 +61,7 @@ router.get('/remote-ssh-task/task', asyncHandler(async (_req, res) => {
 				]
 			}).flat()
 		}
-	} as TestModel;
+	} as TestTaskData;
 
 	const data = await MongoTests.findOne({ type: 'remote-ssh-task-data' });
 
@@ -145,24 +145,57 @@ router.post('/remote-ssh-task/:taskId/exec', asyncHandler(async (req, res) => {
 			const logFileDirPath = path.resolve(__dirname, `../../../../../task-data/${taskId}`);
 
 			fs.mkdirSync(logFileDirPath, { recursive: true });
-			const result = await redis.server?.lrange(`task:${taskId}`, 0, -1);
 			const logFilePath = path.resolve(logFileDirPath, `${new Date().getTime()}.log`);
+			// ================================= 逐条读取和写入 =================================
+			const count = await redis.server?.llen(`task:${taskId}`);
 
-			if (result && result.length > 0) {
-				fs.writeFileSync(logFilePath, result.join(''));
+			if (count) {
+				const writeStream = fs.createWriteStream(logFilePath, { flags: 'a' });
+
+				writeStream.once('open', async () => {
+					for (let i = 0; i < count; i++) {
+						const data = await redis.server?.lindex(`task:${taskId}`, i);
+
+						writeStream.write(data as string);
+					}
+
+					writeStream.end();
+				})
+
+				writeStream.on('close', async () => {
+					await MongoTests.updateOne({
+						'data.taskId': taskId,
+						'data.status': 'running',
+						type: 'remote-ssh-task-record'
+					}, {
+						$set: {
+							'data.status': signal === 'end' ? 'finished' : 'stoped',
+							'data.result': logFilePath
+						}
+					});
+					await redis.server?.ltrim(`task:${taskId}`, 1, 0)
+					log('master-process').info(`任务执行结束，结束状态为: ${signal === 'end' ? '成功' : '被中断'}`);
+				})
 			}
-			await MongoTests.updateOne({
-				'data.taskId': taskId,
-				'data.status': 'running',
-				type: 'remote-ssh-task-record'
-			}, {
-				$set: {
-					'data.status': signal === 'end' ? 'finished' : 'stoped',
-					'data.result': logFilePath
-				}
-			});
-			await redis.server?.ltrim(`task:${taskId}`, 1, 0)
-			log('master-process').info(`任务执行结束，结束状态为: ${signal === 'end' ? '成功' : '被中断'}`);
+
+			// ================================= 整体读取和写入 =================================
+			// const result = await redis.server?.lrange(`task:${taskId}`, 0, -1);
+
+			// if (result && result.length > 0) {
+			// 	fs.writeFileSync(logFilePath, result.join(''));
+			// }
+			// await MongoTests.updateOne({
+			// 	'data.taskId': taskId,
+			// 	'data.status': 'running',
+			// 	type: 'remote-ssh-task-record'
+			// }, {
+			// 	$set: {
+			// 		'data.status': signal === 'end' ? 'finished' : 'stoped',
+			// 		'data.result': logFilePath
+			// 	}
+			// });
+			// await redis.server?.ltrim(`task:${taskId}`, 1, 0)
+			// log('master-process').info(`任务执行结束，结束状态为: ${signal === 'end' ? '成功' : '被中断'}`);
 		}
 	});
 }));

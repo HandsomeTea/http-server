@@ -33,3 +33,4 @@ declare namespace Express {
 
 type KeysOf<T> = { [P in keyof T]?: T[P] | any };
 type PartialOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+type GetOptionals<T> = { [K in keyof T as T[K] extends Required<T>[K] ? never : K]: T[K] };
