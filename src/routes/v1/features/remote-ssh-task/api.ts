@@ -316,20 +316,31 @@ router.get('/remote-ssh-task/:recordId/log', asyncHandler(async (req, res) => {
 				if (message.includes('[ranking]:')) {
 					histroyEndNum = parseInt(message.replace('[ranking]:', ''));
 
-					await redis.server?.lrange(taskChannel, 0, histroyEndNum - 1).then((logs) => {
-						if (logs.length > 0) {
-							trace({
-								traceId: httpContext.get('traceId'),
-								spanId: httpContext.get('spanId'),
-								parentSpanId: httpContext.get('parentSpanId')
-							}, 'sse-response-histroy').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(logs, null, '   ')}`);
+					for (let s = 0; s < histroyEndNum; s++) {
+						const log = await redis.server?.lindex(taskChannel, s);
 
-							for (let s = 0; s < logs.length; s++) {
-								res.write(`data: ${logs[s]}\n\n`);
-							}
-						}
-						isGetHistroy = true;
-					});
+						trace({
+							traceId: httpContext.get('traceId'),
+							spanId: httpContext.get('spanId'),
+							parentSpanId: httpContext.get('parentSpanId')
+						}, 'sse-response-histroy').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(log, null, '   ')}`);
+
+						res.write(`data: ${log}\n\n`);
+					}
+					// const logs = await redis.server?.lrange(taskChannel, 0, histroyEndNum - 1);
+
+					// if (logs && logs.length > 0) {
+					// 	trace({
+					// 		traceId: httpContext.get('traceId'),
+					// 		spanId: httpContext.get('spanId'),
+					// 		parentSpanId: httpContext.get('parentSpanId')
+					// 	}, 'sse-response-histroy').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(logs, null, '   ')}`);
+
+					// 	for (let s = 0; s < logs.length; s++) {
+					// 		res.write(`data: ${logs[s]}\n\n`);
+					// 	}
+					// }
+					isGetHistroy = true;
 				}
 			} else if (!message.includes('[ranking]:')) {
 				waitData.push(message);
