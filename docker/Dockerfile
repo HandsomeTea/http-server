@@ -1,5 +1,5 @@
 #指定使用最新版本的node基础镜像
-FROM node:latest
+FROM node:20.11.1
 
 #在容器内执行命令
 RUN mkdir -p /usr/local/develop
@@ -15,7 +15,9 @@ ENV ADDRESS_BOOK_ADDR=my_addressbook
 ENV CORE_ADDR=my_core
 
 #将宿主机某目录的内容复制到镜像目录中
-COPY . /usr/local/develop
+COPY ./build /usr/local/develop
+COPY package.json /usr/local/develop/package.json
+COPY package-lock.json /usr/local/develop/package-lock.json
 
 #安装nodejs应用的依赖(WORKDIR那一步已经将进入/usr/local/develop目录)
 RUN npm install

@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse, AxiosError, Method as AxiosMethod, ResponseType } from 'axios';
+import axios, { AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse, AxiosError, Method as AxiosMethod, ResponseType, AxiosInstance } from 'axios';
 import httpContext from 'express-http-context';
 import Agent from 'agentkeepalive';
 
@@ -9,161 +9,161 @@ const systemService: Set<string> = new Set([
 
 ]);
 
-class Request {
-    constructor() {
-        axios.defaults.timeout = 10000;
-        axios.defaults.httpAgent = new Agent({
-            keepAlive: true,
-            maxSockets: 100,
-            maxFreeSockets: 10,
-            timeout: 60000, // active socket keepalive for 60 seconds
-            freeSocketTimeout: 30000 // free socket keepalive for 30 seconds
-        });
+export abstract class BaseRequest {
+	abstract server: AxiosInstance;
+	constructor() {
+		//
+	}
 
-        // 请求拦截器
-        axios.interceptors.request.use(this.beforeSendToServer, this.beforeSendToServerButError);
+	beforeSendToServer(config: InternalAxiosRequestConfig) {
+		if (config.baseURL && systemService.has(config.baseURL)) {
+			if (!config.headers.Authorization) {
+				config.headers.Authorization = JWT.sign();
+			}
 
-        // 响应拦截器
-        axios.interceptors.response.use(this.receiveSuccessResponse, this.receiveResponseNotSuccess);
-    }
+			if (!config.headers['x-b3-spanid']) {
+				config.headers['x-b3-spanid'] = traceId();
+			}
 
-    private beforeSendToServer(config: InternalAxiosRequestConfig) {
-        if (config.baseURL && systemService.has(config.baseURL)) {
-            if (!config.headers.Authorization) {
-                config.headers.Authorization = JWT.sign();
-            }
+			if (!config.headers['x-b3-traceid']) {
+				config.headers['x-b3-traceid'] = httpContext.get('traceId') || traceId();
+			}
 
-            if (!config.headers['x-b3-spanid']) {
-                config.headers['x-b3-spanid'] = traceId();
-            }
+			if (!config.headers['x-b3-parentspanid']) {
+				config.headers['x-b3-parentspanid'] = httpContext.get('spanId');
+			}
 
-            if (!config.headers['x-b3-traceid']) {
-                config.headers['x-b3-traceid'] = httpContext.get('traceId') || traceId();
-            }
+			if (!config.headers['x-tenantId']) {
+				config.headers['x-tenantId'] = httpContext.get('tenantId') || '';
+			}
+		}
 
-            if (!config.headers['x-b3-parentspanid']) {
-                config.headers['x-b3-parentspanid'] = httpContext.get('spanId');
-            }
+		const zh = config.url?.match(/[\u4e00-\u9fa5]/g);
 
-            if (!config.headers['x-tenantId']) {
-                config.headers['x-tenantId'] = httpContext.get('tenantId') || '';
-            }
-        }
+		if (zh) {
+			const _obj: Record<string, string> = {};
 
-        const zh = config.url?.match(/[\u4e00-\u9fa5]/g);
+			for (let i = 0; i < zh.length; i++) {
+				if (!_obj[zh[i]]) {
+					_obj[zh[i]] = encodeURIComponent(zh[i]);
+				}
+			}
 
-        if (zh) {
-            const _obj: Record<string, string> = {};
+			for (const key in _obj) {
+				config.url = config.url?.replace(new RegExp(key, 'g'), _obj[key]);
+			}
+		}
 
-            for (let i = 0; i < zh.length; i++) {
-                if (!_obj[zh[i]]) {
-                    _obj[zh[i]] = encodeURIComponent(zh[i]);
-                }
-            }
+		const { url, baseURL, method, params, data, headers } = config;
+		const address = new URL(`${baseURL ? baseURL + url : url}`);
 
-            for (const key in _obj) {
-                config.url = config.url?.replace(new RegExp(key, 'g'), _obj[key]);
-            }
-        }
+		log(`request-to:[(${method}) ${address.origin + address.pathname}]`).info(JSON.stringify({
+			headers,
+			query: Object.keys(params || {}).length > 0 ? params : (() => {
+				const obj: Record<string, string> = {};
 
-        const { url, baseURL, method, params, data, headers } = config;
-        const address = new URL(`${baseURL ? baseURL + url : url}`);
+				[...address.searchParams.entries()].map(a => obj[a[0]] = a[1]);
+				return obj;
+			})(),
+			body: data || {}
+		}, null, '   '));
 
-        log(`request-to:[(${method}) ${address.origin + address.pathname}]`).info(JSON.stringify({
-            headers,
-            query: Object.keys(params || {}).length > 0 ? params : (() => {
-                const obj: Record<string, string> = {};
+		return config;
+	}
 
-                [...address.searchParams.entries()].map(a => obj[a[0]] = a[1]);
-                return obj;
-            })(),
-            body: data || {}
-        }, null, '   '));
+	beforeSendToServerButError(error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+		log('request-to-other-server').error(error);
+		throw new Exception(error);
+	}
 
-        return config;
-    }
+	async receiveSuccessResponse(response: AxiosResponse) {
+		// 这里只处理 response.status >= 200 && response.status <= 207 的情况
+		const { data, config: { method, baseURL, url }/*, headers, request, status, statusText*/ } = response;
+		const address = new URL(`${baseURL ? baseURL + url : url}`);
 
-    private beforeSendToServerButError(error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-        log('request-to-other-server').error(error);
-        throw new Exception(error);
-    }
+		log(`response-from:[(${method}) ${address.origin + address.pathname}]`).info(JSON.stringify(data, null, '   '));
+		return Promise.resolve(data);
+	}
 
-    private async receiveSuccessResponse(response: AxiosResponse) {
-        // 这里只处理 response.status >= 200 && response.status <= 207 的情况
-        const { data, config: { method, baseURL, url }/*, headers, request, status, statusText*/ } = response;
-        const address = new URL(`${baseURL ? baseURL + url : url}`);
+	receiveResponseNotSuccess(error: AxiosError) {
+		const { response, config, request } = error;
 
-        log(`response-from:[(${method}) ${address.origin + address.pathname}]`).info(JSON.stringify(data, null, '   '));
-        if (baseURL && systemService.has(baseURL)) {
-            return Promise.resolve(data);
-        } else {
-            return Promise.resolve(response);
-        }
-    }
+		let target = null;
 
-    private receiveResponseNotSuccess(error: AxiosError) {
-        const { response, config, request } = error;
+		if (config) {
+			const { url, baseURL, method } = config;
 
-        let target = null;
+			target = `(${method}): ${baseURL ? baseURL + url : url}`;
+		} else if (request) {
+			target = request.responseURL;
+		} else {
+			log('response-from-other-server-error').error(error);
+			throw new Exception(error);
+		}
+		const address = new URL(config ? `${config.baseURL ? config.baseURL + config.url : config.url}` : `${target}`);
+		const _target = config ? `(${config.method}) ${address.origin + address.pathname}` : address.origin + address.pathname;
 
-        if (config) {
-            const { url, baseURL, method } = config;
+		if (response) {
+			const { status, statusText, data } = response;
+			const redirectCode = new Set([301, 302, 303, 307, 308]);
 
-            target = `(${method}): ${baseURL ? baseURL + url : url}`;
-        } else if (request) {
-            target = request.responseURL;
-        } else {
-            log('response-from-other-server-error').error(error);
-            throw new Exception(error);
-        }
-        const address = new URL(config ? `${config.baseURL ? config.baseURL + config.url : config.url}` : `${target}`);
-        const _target = config ? `(${config.method}) ${address.origin + address.pathname}` : address.origin + address.pathname;
+			if (!redirectCode.has(status)) {
+				log(`response-from:[${_target}]`).error({
+					status,
+					statusText,
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					// @ts-ignore
+					...typeof data === 'string' ? { msg: data } : data
+				});
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				throw new Exception(data);
+			} else {
+				return response;
+			}
+		}
 
-        if (response) {
-            const { status, statusText, data } = response;
-            const redirectCode = new Set([301, 302, 303, 307, 308]);
+		log(`response-from:[${_target}]`).error(error);
+		throw new Exception(`request to ${target} error : no response.`);
+	}
 
-            if (!redirectCode.has(status)) {
-                log(`response-from:[${_target}]`).error({
-                    status,
-                    statusText,
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    ...typeof data === 'string' ? { msg: data } : data
-                });
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                throw new Exception(data);
-            } else {
-                return response;
-            }
-        }
-
-        log(`response-from:[${_target}]`).error(error);
-        throw new Exception(`request to ${target} error : no response.`);
-    }
-
-    async send(url: string, method: AxiosMethod, baseURL?: string, options?: httpArgument, params?: { timeout?: number, responseType?: ResponseType }) {
-        return await axios.request(<AxiosRequestConfig>{
-            url,
-            method,
-            baseURL,
-            headers: options?.headers,
-            params: options?.params,
-            data: options?.data,
-            ...params
-        });
-    }
+	async send(url: string, method: AxiosMethod, baseURL?: string, options?: httpArgument, params?: { timeout?: number, responseType?: ResponseType }) {
+		return await this.server.request(<AxiosRequestConfig>{
+			url,
+			method,
+			baseURL,
+			headers: options?.headers,
+			params: options?.params,
+			data: options?.data,
+			...params
+		});
+	}
 }
 
-class VendorRequest extends Request {
-    constructor() {
-        super();
-    }
+class VendorRequest extends BaseRequest {
+	server = axios.create({
+		timeout: 10000,
+		httpAgent: new Agent({
+			keepAlive: true,
+			maxSockets: 100,
+			maxFreeSockets: 10,
+			timeout: 60000, // active socket keepalive for 60 seconds
+			freeSocketTimeout: 30000 // free socket keepalive for 30 seconds
+		})
+	});
 
-    async sendBaidu(method: AxiosMethod, url: string, options?: httpArgument) {
-        return await this.send(url, method, 'www.baidu.com', options);
-    }
+	constructor() {
+		super();
+		// 请求拦截器
+		this.server.interceptors.request.use(this.beforeSendToServer, this.beforeSendToServerButError);
+
+		// 响应拦截器
+		this.server.interceptors.response.use(this.receiveSuccessResponse, this.receiveResponseNotSuccess);
+	}
+
+	async sendBaidu(method: AxiosMethod, url: string, options?: httpArgument) {
+		return await this.send(url, method, 'www.baidu.com', options);
+	}
 }
 
 // import zlib from 'zlib';
@@ -252,77 +252,77 @@ class VendorRequest extends Request {
 // ZxKctA==
 // -----END CERTIFICATE-----`;
 
-export default new class HTTP extends VendorRequest {
-    constructor() {
-        super();
-        // this.init();
-    }
+export const HTTP = new class _HTTP extends VendorRequest {
+	constructor() {
+		super();
+		// this.init();
+	}
 
-    // private async init() {
-    //     const entrypointUrl = new URL('https://alphamain11684.bizvideo.cn/saml/login?from=desktop&zm-cid=dFugGYcxp9/95YnXnDfhpnIdVaX8fqJ2p31FWDxqSWc=');
-    //     const xmlReqResult = await this.send(entrypointUrl.pathname + entrypointUrl.search, 'GET', entrypointUrl.origin);
-    //     const SAMLRequestParam = new URL(xmlReqResult.request.res.responseUrl).searchParams.get('SAMLRequest') as string;
-    //     const samlReqXml = zlib.inflateRawSync(Buffer.from(decodeURIComponent(SAMLRequestParam), 'base64')).toString('utf8');
-    //     const samlReqXmlDoc = new xmldom.DOMParser().parseFromString(samlReqXml, 'text/xml');
+	// private async init() {
+	//     const entrypointUrl = new URL('https://alphamain11684.bizvideo.cn/saml/login?from=desktop&zm-cid=dFugGYcxp9/95YnXnDfhpnIdVaX8fqJ2p31FWDxqSWc=');
+	//     const xmlReqResult = await this.send(entrypointUrl.pathname + entrypointUrl.search, 'GET', entrypointUrl.origin);
+	//     const SAMLRequestParam = new URL(xmlReqResult.request.res.responseUrl).searchParams.get('SAMLRequest') as string;
+	//     const samlReqXml = zlib.inflateRawSync(Buffer.from(decodeURIComponent(SAMLRequestParam), 'base64')).toString('utf8');
+	//     const samlReqXmlDoc = new xmldom.DOMParser().parseFromString(samlReqXml, 'text/xml');
 
-    //     const authnRequest = samlReqXmlDoc.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:protocol', 'AuthnRequest')[0];
-    //     // const issuer = authnRequest.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:assertion', 'Issuer')[0].textContent;
-    //     const samlResponseUrl = authnRequest.getAttribute('AssertionConsumerServiceURL') as string;
-    //     const businessTraceId = authnRequest.getAttribute('ID') as string;
-    //     const samlResponse = xmlGenerate(businessTraceId);
-    //     const signdSamlResponse = (await this.send('http://10.184.102.110:8080/api/surpassmgr/plfadaptor/1.0/confresource/document/sign', 'post', undefined, {
-    //         data: {
-    //             context: samlResponse,
-    //             privateKey: privateKey.replace('-----BEGIN PRIVATE KEY-----', '').replace('-----END PRIVATE KEY-----', '').replace(/\n/g, ''),
-    //             certificate
-    //         }
-    //     })).data.data;
-    //     const SAMLResponse = base64(signdSamlResponse);
-    //     const data1 = await axios.request({
-    //         url: samlResponseUrl,
-    //         maxRedirects: 0,
-    //         method: 'post',
-    //         headers: {
-    //             'x-zm-trackingId': `WEB_${randomString()}`,
-    //             'content-type': 'application/x-www-form-urlencoded',
-    //             cookie: `_zm_mtk_guid=${randomString()};_zm_sf=desktop;_zm_rf_sp=true`
-    //         },
-    //         data: {
-    //             SAMLResponse
-    //         },
-    //         transformRequest: [function (data) {
-    //             let ret = '';
+	//     const authnRequest = samlReqXmlDoc.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:protocol', 'AuthnRequest')[0];
+	//     // const issuer = authnRequest.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:assertion', 'Issuer')[0].textContent;
+	//     const samlResponseUrl = authnRequest.getAttribute('AssertionConsumerServiceURL') as string;
+	//     const businessTraceId = authnRequest.getAttribute('ID') as string;
+	//     const samlResponse = xmlGenerate(businessTraceId);
+	//     const signdSamlResponse = (await this.send('http://10.184.102.110:8080/api/surpassmgr/plfadaptor/1.0/confresource/document/sign', 'post', undefined, {
+	//         data: {
+	//             context: samlResponse,
+	//             privateKey: privateKey.replace('-----BEGIN PRIVATE KEY-----', '').replace('-----END PRIVATE KEY-----', '').replace(/\n/g, ''),
+	//             certificate
+	//         }
+	//     })).data.data;
+	//     const SAMLResponse = base64(signdSamlResponse);
+	//     const data1 = await axios.request({
+	//         url: samlResponseUrl,
+	//         maxRedirects: 0,
+	//         method: 'post',
+	//         headers: {
+	//             'x-zm-trackingId': `WEB_${randomString()}`,
+	//             'content-type': 'application/x-www-form-urlencoded',
+	//             cookie: `_zm_mtk_guid=${randomString()};_zm_sf=desktop;_zm_rf_sp=true`
+	//         },
+	//         data: {
+	//             SAMLResponse
+	//         },
+	//         transformRequest: [function (data) {
+	//             let ret = '';
 
-    //             for (const it in data) {
-    //                 ret += `${encodeURIComponent(it)}=${encodeURIComponent(data[it])}`;
-    //             }
-    //             return ret;
-    //         }]
-    //     });
-    //     const setCookie = data1.headers['set-cookie'];
-    //     const ssid = setCookie?.find(a => a.includes('_zm_ssid='))?.split(';')[0];
-    //     const clusterData = setCookie?.find(a => a.includes('zm_cluster='))?.split(';')[0];
-    //     const aid = setCookie?.find(a => a.includes('zm_aid='))?.split(';')[0];
-    //     const haid = setCookie?.find(a => a.includes('zm_haid='))?.split(';')[0];
+	//             for (const it in data) {
+	//                 ret += `${encodeURIComponent(it)}=${encodeURIComponent(data[it])}`;
+	//             }
+	//             return ret;
+	//         }]
+	//     });
+	//     const setCookie = data1.headers['set-cookie'];
+	//     const ssid = setCookie?.find(a => a.includes('_zm_ssid='))?.split(';')[0];
+	//     const clusterData = setCookie?.find(a => a.includes('zm_cluster='))?.split(';')[0];
+	//     const aid = setCookie?.find(a => a.includes('zm_aid='))?.split(';')[0];
+	//     const haid = setCookie?.find(a => a.includes('zm_haid='))?.split(';')[0];
 
-    //     const resultRedirectUrl = new URL(data1.headers.location);
-    //     const reqCookieData = (data1.config.headers?.cookie as string).split(';');
+	//     const resultRedirectUrl = new URL(data1.headers.location);
+	//     const reqCookieData = (data1.config.headers?.cookie as string).split(';');
 
-    //     const resultDoc = await this.send(resultRedirectUrl.pathname + resultRedirectUrl.search, 'GET', resultRedirectUrl.origin, {
-    //         headers: {
-    //             cookie: `${reqCookieData[0]};${reqCookieData[2]};${ssid};${clusterData};${aid};${haid}`
-    //         }
-    //     });
-    //     const docu = new xmldom.DOMParser().parseFromString(resultDoc.data as unknown as string, 'text/html');
-    //     const launchUrl = docu.getElementById('sso-button')?.getAttribute('href') as string;
-    //     const loginToken = new URL(launchUrl).searchParams.get('token');
+	//     const resultDoc = await this.send(resultRedirectUrl.pathname + resultRedirectUrl.search, 'GET', resultRedirectUrl.origin, {
+	//         headers: {
+	//             cookie: `${reqCookieData[0]};${reqCookieData[2]};${ssid};${clusterData};${aid};${haid}`
+	//         }
+	//     });
+	//     const docu = new xmldom.DOMParser().parseFromString(resultDoc.data as unknown as string, 'text/html');
+	//     const launchUrl = docu.getElementById('sso-button')?.getAttribute('href') as string;
+	//     const loginToken = new URL(launchUrl).searchParams.get('token');
 
-    //     if (launchUrl) {
-    //         console.log(loginToken);
-    //     }
-    // }
+	//     if (launchUrl) {
+	//         console.log(loginToken);
+	//     }
+	// }
 
-    async search() {
-        return await this.sendBaidu('post', '/search', { params: { s: 'test' } });
-    }
+	async search() {
+		return await this.sendBaidu('post', '/search', { params: { s: 'test' } });
+	}
 };

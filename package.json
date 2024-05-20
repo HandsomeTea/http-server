@@ -28,6 +28,7 @@
 	"dependencies": {
 		"@coco-sheng/js-tools": "^1.0.1",
 		"@elastic/elasticsearch": "^8.13.1",
+		"@gitbeaker/rest": "^40.0.3",
 		"@godaddy/terminus": "^4.12.1",
 		"agentkeepalive": "^4.5.0",
 		"ali-sms": "^1.0.3",

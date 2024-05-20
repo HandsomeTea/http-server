@@ -1,7 +1,7 @@
 import { getENV, ErrorCode, log } from '@/configs';
 // import { isURL } from '@/utils';
 // import { _OauthSettings } from '@/dal';
-import HTTP from '@/services/HTTP';
+import { HTTP } from './HTTP';
 
 // interface OauthAuthorizeArgument {
 //     clientIdKey?: string
@@ -16,47 +16,47 @@ import HTTP from '@/services/HTTP';
 // }
 
 interface OauthGetTokenArgument {
-    grantTypeKey?: string
-    grantTypeValue?: string
-    clientIdKey?: string
-    clientSecretKey?: string
-    codeKey?: string
-    stateKey?: string
-    redirectUriKey?: string
-    auth?: boolean
-    key?: string
-    value?: string
-    position: 'header' | 'query' | 'data' | 'auth'
+	grantTypeKey?: string
+	grantTypeValue?: string
+	clientIdKey?: string
+	clientSecretKey?: string
+	codeKey?: string
+	stateKey?: string
+	redirectUriKey?: string
+	auth?: boolean
+	key?: string
+	value?: string
+	position: 'header' | 'query' | 'data' | 'auth'
 }
 
 interface OauthGetUserArgument {
-    tokenKey?: string
-    refreshTokenKey?: string
-    tokenExpiresKey?: string
-    Authorization?: string
-    key?: string
-    value?: string
-    position: 'header' | 'query' | 'data'
+	tokenKey?: string
+	refreshTokenKey?: string
+	tokenExpiresKey?: string
+	Authorization?: string
+	key?: string
+	value?: string
+	position: 'header' | 'query' | 'data'
 }
 
 interface AccessTokenInfo {
-    accessToken: string
-    refreshToken?: string
-    expiresIn?: number
+	accessToken: string
+	refreshToken?: string
+	expiresIn?: number
 }
 
 interface OauthUserInfoFormation {
-    name: string
-    username: string
-    email: string
-    userId?: string
-    phone?: string
-    departmentName?: string
-    avatar?: string
-    firstName?: string
-    lastName?: string
-    position?: string
-    location?: string
+	name: string
+	username: string
+	email: string
+	userId?: string
+	phone?: string
+	departmentName?: string
+	avatar?: string
+	firstName?: string
+	lastName?: string
+	position?: string
+	location?: string
 }
 
 // interface OauthSettingModel {
@@ -82,295 +82,295 @@ interface OauthUserInfoFormation {
 
 
 export default class OauthService {
-    public oauthType: string;
-    public tenantId: string;
-    private code: string;
-    private state: string;
+	public oauthType: string;
+	public tenantId: string;
+	private code: string;
+	private state: string;
 
-    private oauthServerURL: string;
-    private clientId: string;
-    private clientSecret: string;
-    private tokenApi: string;
-    private tokenApiMethod: 'post' | 'get';
-    private tokenApiParamsFormation: Array<OauthGetTokenArgument>;
-    private tokenApiResponseFormation: { accessTokenKey: string, refreshTokenKey?: string, expiresKey?: string };
-    private userApi: string;
-    private userApiMethod: 'post' | 'get';
-    private userApiParamsFormation: Array<OauthGetUserArgument>;
-    private userApiResponseFormation: OauthUserInfoFormation;
-    constructor(oauthType: string, tenantId: string, query: { code: string, state: string }) {
-        this.oauthType = oauthType;
-        this.tenantId = tenantId;
-        this.code = query.code;
-        this.state = query.state;
+	private oauthServerURL: string;
+	private clientId: string;
+	private clientSecret: string;
+	private tokenApi: string;
+	private tokenApiMethod: 'post' | 'get';
+	private tokenApiParamsFormation: Array<OauthGetTokenArgument>;
+	private tokenApiResponseFormation: { accessTokenKey: string, refreshTokenKey?: string, expiresKey?: string };
+	private userApi: string;
+	private userApiMethod: 'post' | 'get';
+	private userApiParamsFormation: Array<OauthGetUserArgument>;
+	private userApiResponseFormation: OauthUserInfoFormation;
+	constructor(oauthType: string, tenantId: string, query: { code: string, state: string }) {
+		this.oauthType = oauthType;
+		this.tenantId = tenantId;
+		this.code = query.code;
+		this.state = query.state;
 
-        this.oauthServerURL = '';
-        log().debug(this.oauthServerURL);
+		this.oauthServerURL = '';
+		log().debug(this.oauthServerURL);
 
-        this.clientId = '';
-        this.clientSecret = '';
-        this.tokenApi = '';
-        this.tokenApiMethod = 'post';
-        this.tokenApiParamsFormation = [{
-            grantTypeKey: 'grant_type',
-            grantTypeValue: 'authorization_code',
-            position: 'query'
-        }, {
-            clientIdKey: 'client_id',
-            position: 'query'
-        }, {
-            clientSecretKey: 'client_secret',
-            position: 'query'
-        }, {
-            codeKey: 'code',
-            position: 'query'
-        }, {
-            stateKey: 'state',
-            position: 'query'
-        }, {
-            redirectUriKey: 'redirect_uri',
-            position: 'query'
-        }];
-        this.tokenApiResponseFormation = {
-            accessTokenKey: 'access_token',
-            refreshTokenKey: 'refresh_token',
-            expiresKey: 'expires_in'
-        };
-        this.userApi = '';
-        this.userApiMethod = 'get';
-        this.userApiParamsFormation = [{ tokenKey: 'access_token', position: 'query' }];
-        this.userApiResponseFormation = {
-            name: '',
-            username: '',
-            email: ''
-        };
-    }
+		this.clientId = '';
+		this.clientSecret = '';
+		this.tokenApi = '';
+		this.tokenApiMethod = 'post';
+		this.tokenApiParamsFormation = [{
+			grantTypeKey: 'grant_type',
+			grantTypeValue: 'authorization_code',
+			position: 'query'
+		}, {
+			clientIdKey: 'client_id',
+			position: 'query'
+		}, {
+			clientSecretKey: 'client_secret',
+			position: 'query'
+		}, {
+			codeKey: 'code',
+			position: 'query'
+		}, {
+			stateKey: 'state',
+			position: 'query'
+		}, {
+			redirectUriKey: 'redirect_uri',
+			position: 'query'
+		}];
+		this.tokenApiResponseFormation = {
+			accessTokenKey: 'access_token',
+			refreshTokenKey: 'refresh_token',
+			expiresKey: 'expires_in'
+		};
+		this.userApi = '';
+		this.userApiMethod = 'get';
+		this.userApiParamsFormation = [{ tokenKey: 'access_token', position: 'query' }];
+		this.userApiResponseFormation = {
+			name: '',
+			username: '',
+			email: ''
+		};
+	}
 
-    get redirectUri(): string {
-        return `${getENV('ROOT_URL')}/api/surpasspub/usermanager/2.0/account/oauth/${this.oauthType}/tenant/${this.tenantId}/callback`;
-    }
+	get redirectUri(): string {
+		return `${getENV('ROOT_URL')}/api/surpasspub/usermanager/2.0/account/oauth/${this.oauthType}/tenant/${this.tenantId}/callback`;
+	}
 
-    async init(): Promise<void> {
-        // const _config = await new _OauthSettings(this.tenantId).findById(this.oauthType) as OauthSettingModel;
+	async init(): Promise<void> {
+		// const _config = await new _OauthSettings(this.tenantId).findById(this.oauthType) as OauthSettingModel;
 
-        // if (!_config) {
-        //     throw new Exception('no match oauth config.', ErrorCode.INVALID_ARGUMENTS);
-        // }
+		// if (!_config) {
+		//     throw new Exception('no match oauth config.', ErrorCode.INVALID_ARGUMENTS);
+		// }
 
-        // this.clientId = _config.clientId;
-        // this.clientSecret = _config.clientSecret;
-        // this.tokenApi = _config.tokenApi;
-        // this.tokenApiMethod = _config.tokenApiMethod;
-        // this.tokenApiParamsFormation = JSON.parse(_config.tokenApiParamsFormationJson);
-        // this.tokenApiResponseFormation = JSON.parse(_config.tokenApiResponseFormationJson);
-        // this.userApi = _config.userApi;
-        // this.userApiMethod = _config.userApiMethod;
-        // this.userApiParamsFormation = JSON.parse(_config.userApiParamsFormationJson);
-        // this.userApiResponseFormation = JSON.parse(_config.userApiResponseFormationJson);
-        // if (_config.oauthServerURL) {
-        //     this.oauthServerURL = _config.oauthServerURL;
-        // }
+		// this.clientId = _config.clientId;
+		// this.clientSecret = _config.clientSecret;
+		// this.tokenApi = _config.tokenApi;
+		// this.tokenApiMethod = _config.tokenApiMethod;
+		// this.tokenApiParamsFormation = JSON.parse(_config.tokenApiParamsFormationJson);
+		// this.tokenApiResponseFormation = JSON.parse(_config.tokenApiResponseFormationJson);
+		// this.userApi = _config.userApi;
+		// this.userApiMethod = _config.userApiMethod;
+		// this.userApiParamsFormation = JSON.parse(_config.userApiParamsFormationJson);
+		// this.userApiResponseFormation = JSON.parse(_config.userApiResponseFormationJson);
+		// if (_config.oauthServerURL) {
+		//     this.oauthServerURL = _config.oauthServerURL;
+		// }
 
-        // if (!isURL(this.userApi)) {
-        //     this.userApi = `${this.oauthServerURL}${this.userApi}`;
-        // }
+		// if (!isURL(this.userApi)) {
+		//     this.userApi = `${this.oauthServerURL}${this.userApi}`;
+		// }
 
-        // if (!isURL(this.tokenApi)) {
-        //     this.tokenApi = `${this.oauthServerURL}${this.tokenApi}`;
-        // }
-    }
+		// if (!isURL(this.tokenApi)) {
+		//     this.tokenApi = `${this.oauthServerURL}${this.tokenApi}`;
+		// }
+	}
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private formatObjPathData(obj: Record<string, any>, path: string): any {
-        const keyPath = path.split(',');
-        let result = { ...obj };
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private formatObjPathData(obj: Record<string, any>, path: string): any {
+		const keyPath = path.split(',');
+		let result = { ...obj };
 
-        for (let s = 0; s < keyPath.length; s++) {
-            if (!result[keyPath[s]]) {
-                return null;
-            }
-            result = result[keyPath[s]];
-        }
-        return result;
-    }
+		for (let s = 0; s < keyPath.length; s++) {
+			if (!result[keyPath[s]]) {
+				return null;
+			}
+			result = result[keyPath[s]];
+		}
+		return result;
+	}
 
-    private formatTokenApiParams() {
-        const arg = [...this.tokenApiParamsFormation];
-        let params: Record<string, string> = {};
-        let data: Record<string, string> = {};
-        let headers: Record<string, string> = {};
-        let auth: null | string = null;
+	private formatTokenApiParams() {
+		const arg = [...this.tokenApiParamsFormation];
+		let params: Record<string, string> = {};
+		let data: Record<string, string> = {};
+		let headers: Record<string, string> = {};
+		let auth: null | string = null;
 
-        for (let s = 0; s < arg.length; s++) {
-            const result: Record<string, string> = {};
-            const { position,
-                grantTypeKey, grantTypeValue,
-                clientIdKey, clientSecretKey,
-                codeKey, stateKey, redirectUriKey,
-                key, value } = arg[s];
+		for (let s = 0; s < arg.length; s++) {
+			const result: Record<string, string> = {};
+			const { position,
+				grantTypeKey, grantTypeValue,
+				clientIdKey, clientSecretKey,
+				codeKey, stateKey, redirectUriKey,
+				key, value } = arg[s];
 
-            if (grantTypeKey && grantTypeValue) {
-                result[grantTypeKey] = grantTypeValue;
-            } else if (clientIdKey) {
-                result[clientIdKey] = this.clientId;
-            } else if (clientSecretKey) {
-                result[clientSecretKey] = this.clientSecret;
-            } else if (codeKey) {
-                result[codeKey] = this.code;
-            } else if (stateKey) {
-                result[stateKey] = this.state;
-            } else if (redirectUriKey) {
-                result[redirectUriKey] = this.redirectUri;
-            } else if (arg[s].auth === true) {
-                auth = `${this.clientId}:${this.clientSecret}`;
-            } else if (key && value) {
-                result[key] = value;
-            }
+			if (grantTypeKey && grantTypeValue) {
+				result[grantTypeKey] = grantTypeValue;
+			} else if (clientIdKey) {
+				result[clientIdKey] = this.clientId;
+			} else if (clientSecretKey) {
+				result[clientSecretKey] = this.clientSecret;
+			} else if (codeKey) {
+				result[codeKey] = this.code;
+			} else if (stateKey) {
+				result[stateKey] = this.state;
+			} else if (redirectUriKey) {
+				result[redirectUriKey] = this.redirectUri;
+			} else if (arg[s].auth === true) {
+				auth = `${this.clientId}:${this.clientSecret}`;
+			} else if (key && value) {
+				result[key] = value;
+			}
 
-            switch (position) {
-                case 'data':
-                    data = { ...data, ...result };
-                    break;
-                case 'header':
-                    headers = { ...headers, ...result };
-                    break;
-                default:
-                    params = { ...params, ...result };
-            }
-        }
+			switch (position) {
+				case 'data':
+					data = { ...data, ...result };
+					break;
+				case 'header':
+					headers = { ...headers, ...result };
+					break;
+				default:
+					params = { ...params, ...result };
+			}
+		}
 
-        return { params, data, headers, auth };
-    }
+		return { params, data, headers, auth };
+	}
 
-    private formatUserApiParams(token: AccessTokenInfo) {
-        const arg = [...this.userApiParamsFormation];
-        let params: Record<string, string> = {};
-        let data: Record<string, string> = {};
-        let headers: Record<string, string> = {};
+	private formatUserApiParams(token: AccessTokenInfo) {
+		const arg = [...this.userApiParamsFormation];
+		let params: Record<string, string> = {};
+		let data: Record<string, string> = {};
+		let headers: Record<string, string> = {};
 
-        for (let s = 0; s < arg.length; s++) {
-            const result: Record<string, string> = {};
-            const { position,
-                tokenKey, refreshTokenKey, tokenExpiresKey,
-                Authorization,
-                key, value } = arg[s];
+		for (let s = 0; s < arg.length; s++) {
+			const result: Record<string, string> = {};
+			const { position,
+				tokenKey, refreshTokenKey, tokenExpiresKey,
+				Authorization,
+				key, value } = arg[s];
 
-            if (tokenKey) {
-                result[tokenKey] = token.accessToken;
-            } else if (refreshTokenKey && token.refreshToken) {
-                result[refreshTokenKey] = token.refreshToken;
-            } else if (tokenExpiresKey && token.expiresIn) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                result[tokenExpiresKey] = token.expiresIn;
-            } else if (Authorization) {
-                result['Authorization'] = 'has';
-            } else if (key && value) {
-                result[key] = value;
-            }
+			if (tokenKey) {
+				result[tokenKey] = token.accessToken;
+			} else if (refreshTokenKey && token.refreshToken) {
+				result[refreshTokenKey] = token.refreshToken;
+			} else if (tokenExpiresKey && token.expiresIn) {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				result[tokenExpiresKey] = token.expiresIn;
+			} else if (Authorization) {
+				result['Authorization'] = 'has';
+			} else if (key && value) {
+				result[key] = value;
+			}
 
-            switch (position) {
-                case 'data':
-                    data = { ...data, ...result };
-                    break;
-                case 'header':
-                    headers = { ...headers, ...result };
-                    break;
-                default:
-                    params = { ...params, ...result };
-            }
-        }
+			switch (position) {
+				case 'data':
+					data = { ...data, ...result };
+					break;
+				case 'header':
+					headers = { ...headers, ...result };
+					break;
+				default:
+					params = { ...params, ...result };
+			}
+		}
 
-        return { params, data, headers };
-    }
+		return { params, data, headers };
+	}
 
-    private async getAccessToken() {
-        try {
-            const { params, data, headers, auth } = this.formatTokenApiParams();
-            const result = await HTTP.send(this.tokenApi, this.tokenApiMethod, undefined, {
-                headers: {
-                    'User-Agent': 'Surpass',
-                    Accept: 'application/json',
-                    ...headers
-                },
-                params,
-                data,
-                ...auth ? { auth } : {}
-            });
+	private async getAccessToken() {
+		try {
+			const { params, data, headers, auth } = this.formatTokenApiParams();
+			const result = await HTTP.send(this.tokenApi, this.tokenApiMethod, undefined, {
+				headers: {
+					'User-Agent': 'Surpass',
+					Accept: 'application/json',
+					...headers
+				},
+				params,
+				data,
+				...auth ? { auth } : {}
+			});
 
-            log('oauth-access-token-response').info(JSON.stringify(result, null, '   '));
+			log('oauth-access-token-response').info(JSON.stringify(result, null, '   '));
 
-            const { accessTokenKey, refreshTokenKey, expiresKey } = this.tokenApiResponseFormation;
+			const { accessTokenKey, refreshTokenKey, expiresKey } = this.tokenApiResponseFormation;
 
-            return {
-                accessToken: this.formatObjPathData(result.data, accessTokenKey) as string,
-                ...refreshTokenKey ? { refreshToken: this.formatObjPathData(result.data, refreshTokenKey) as string } : {},
-                ...expiresKey ? { expiresIn: parseInt(this.formatObjPathData(result.data, expiresKey)) || 0 } : {}
-            };
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            throw new Exception(error, ErrorCode.GET_OAUTH_ACCESS_TOKEN_ERROR);
-        }
-    }
+			return {
+				accessToken: this.formatObjPathData(result.data, accessTokenKey) as string,
+				...refreshTokenKey ? { refreshToken: this.formatObjPathData(result.data, refreshTokenKey) as string } : {},
+				...expiresKey ? { expiresIn: parseInt(this.formatObjPathData(result.data, expiresKey)) || 0 } : {}
+			};
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (error: any) {
+			throw new Exception(error, ErrorCode.GET_OAUTH_ACCESS_TOKEN_ERROR);
+		}
+	}
 
-    private async getUserInfo(tokenInfo: AccessTokenInfo) {
-        const { params, data, headers } = this.formatUserApiParams(tokenInfo);
+	private async getUserInfo(tokenInfo: AccessTokenInfo) {
+		const { params, data, headers } = this.formatUserApiParams(tokenInfo);
 
-        try {
-            const result = await HTTP.send(this.userApi, this.userApiMethod, undefined, {
-                headers: {
-                    'User-Agent': 'Surpass',
-                    Accept: 'application/json',
-                    ...headers,
-                    ...headers.Authorization ? { Authorization: `Bearer ${tokenInfo.accessToken}` } : {}
-                },
-                params,
-                data
-            });
+		try {
+			const result = await HTTP.send(this.userApi, this.userApiMethod, undefined, {
+				headers: {
+					'User-Agent': 'Surpass',
+					Accept: 'application/json',
+					...headers,
+					...headers.Authorization ? { Authorization: `Bearer ${tokenInfo.accessToken}` } : {}
+				},
+				params,
+				data
+			});
 
-            log('oauth-user-info').info(JSON.stringify(result, null, '   '));
+			log('oauth-user-info').info(JSON.stringify(result, null, '   '));
 
-            const {
-                userId, name, username, email, phone, departmentName, avatar,
-                firstName, lastName, position, location
-            } = { ...this.userApiResponseFormation };
+			const {
+				userId, name, username, email, phone, departmentName, avatar,
+				firstName, lastName, position, location
+			} = { ...this.userApiResponseFormation };
 
-            const _obj = {
-                id: userId ? this.formatObjPathData(result, userId) : '',
-                userId: userId ? this.formatObjPathData(result, userId) : '',
-                name: this.formatObjPathData(result, name),
-                username: this.formatObjPathData(result, username),
-                email: this.formatObjPathData(result, email),
-                phone: phone ? this.formatObjPathData(result, phone) : undefined,
-                departmentName: departmentName ? this.formatObjPathData(result, departmentName) : undefined,
-                avatarUrl: avatar ? this.formatObjPathData(result, avatar) : undefined,
-                firstName: firstName ? this.formatObjPathData(result, firstName) : undefined,
-                lastName: lastName ? this.formatObjPathData(result, lastName) : undefined,
-                position: position ? this.formatObjPathData(result, position) : undefined,
-                location: location ? this.formatObjPathData(result, location) : undefined
-            };
+			const _obj = {
+				id: userId ? this.formatObjPathData(result, userId) : '',
+				userId: userId ? this.formatObjPathData(result, userId) : '',
+				name: this.formatObjPathData(result, name),
+				username: this.formatObjPathData(result, username),
+				email: this.formatObjPathData(result, email),
+				phone: phone ? this.formatObjPathData(result, phone) : undefined,
+				departmentName: departmentName ? this.formatObjPathData(result, departmentName) : undefined,
+				avatarUrl: avatar ? this.formatObjPathData(result, avatar) : undefined,
+				firstName: firstName ? this.formatObjPathData(result, firstName) : undefined,
+				lastName: lastName ? this.formatObjPathData(result, lastName) : undefined,
+				position: position ? this.formatObjPathData(result, position) : undefined,
+				location: location ? this.formatObjPathData(result, location) : undefined
+			};
 
-            log('oauth-user-info-result').info(`${JSON.stringify(_obj, null, '   ')} by formation: ${JSON.stringify({ ...this.userApiResponseFormation }, null, '   ')}`);
+			log('oauth-user-info-result').info(`${JSON.stringify(_obj, null, '   ')} by formation: ${JSON.stringify({ ...this.userApiResponseFormation }, null, '   ')}`);
 
-            return _obj;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            throw new Exception(error, ErrorCode.GET_OAUTH_IDENTITY_ERROR);
-        }
-    }
+			return _obj;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (error: any) {
+			throw new Exception(error, ErrorCode.GET_OAUTH_IDENTITY_ERROR);
+		}
+	}
 
-    private dealWithResult(result: Omit<OauthUserInfoFormation, 'avatar'> & { id: string, avatarUrl?: string }) {
-        const { id, username, email } = result;
+	private dealWithResult(result: Omit<OauthUserInfoFormation, 'avatar'> & { id: string, avatarUrl?: string }) {
+		const { id, username, email } = result;
 
-        if (!id || !username || !email) {
-            throw new Exception('id, username, email is required', ErrorCode.GET_OAUTH_IDENTITY_ERROR);
-        }
-        return result;
-    }
+		if (!id || !username || !email) {
+			throw new Exception('id, username, email is required', ErrorCode.GET_OAUTH_IDENTITY_ERROR);
+		}
+		return result;
+	}
 
-    async oauthResult() {
-        return this.dealWithResult(await this.getUserInfo(await this.getAccessToken()));
-    }
+	async oauthResult() {
+		return this.dealWithResult(await this.getUserInfo(await this.getAccessToken()));
+	}
 }
 
 
