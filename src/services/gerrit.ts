@@ -3,7 +3,7 @@ import Agent from 'agentkeepalive';
 import { BaseRequest } from './HTTP';
 
 const GerritServer = new class _Gerrit extends BaseRequest {
-	server = axios.create({
+	public server = axios.create({
 		timeout: 10000,
 		httpAgent: new Agent({
 			keepAlive: true,
@@ -55,6 +55,25 @@ interface GerritProject extends GerritBaseProject {
 	}>
 }
 
+interface GerritBranch {
+	web_links?: [{ name: string, url: string }]
+	ref: `refs/heads/${string}`
+	/** is also commit id */
+	revision: string
+}
+
+interface GerritCommit {
+	commit: string
+	parents: Array<{
+		commit: string
+		subject: string
+	}>
+	author: { name: string, email: string }
+	committer: { name: string, email: string }
+	subject: string
+	message: string
+}
+
 interface GerritChange {
 	id: string
 	project: string
@@ -77,10 +96,16 @@ export default new class GitlabService {
 		//
 	}
 
-	async getAllProjects() {
+	async projects() {
 		const res = await GerritServer.sendGerrit('get', '/projects/');
 
 		return GerritServer.getResponse(res) as Record<string, GerritBaseProject>;
+	}
+
+	async getProject(projectName: string) {
+		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}`);
+
+		return GerritServer.getResponse(res) as GerritProject;
 	}
 
 	async seachProjects(option: { projectName?: string }) {
@@ -100,10 +125,52 @@ export default new class GitlabService {
 		return GerritServer.getResponse(res) as Array<Omit<GerritProject, 'labels'>>;
 	}
 
-	async getProjectByName(projectName: string) {
-		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}`);
+	async getBranches(projectName: string) {
+		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/branches/`);
 
-		return GerritServer.getResponse(res) as GerritProject;
+		return GerritServer.getResponse(res) as Array<GerritBranch>;
+	}
+
+	async getBranche(projectName: string, branchName: string) {
+		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/branches/${branchName}`);
+
+		return GerritServer.getResponse(res) as GerritBranch;
+	}
+
+	async getTags(projectName: string) {
+		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/tags/`);
+
+		return GerritServer.getResponse(res) as Array<GerritBranch>;
+	}
+
+	async getTag(projectName: string, tagName: string) {
+		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/tags/${tagName}`);
+
+		return GerritServer.getResponse(res) as GerritBranch;
+	}
+
+	async getCommit(projectName: string, commitId: string) {
+		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/commits/${commitId}`);
+
+		return GerritServer.getResponse(res) as GerritCommit;
+	}
+
+	async getBranchLatestFile(projectName: string, branchName: string, filePath: string) {
+		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/branches/${branchName}/files/${filePath}/content`);
+
+		return Buffer.from(res as unknown as string, 'base64').toString('utf-8');
+	}
+
+	// async getTagLatestFile(projectName: string, tagName: string, filePath: string) {
+	// 	const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/tags/${tagName}/files/${filePath}/content`);
+
+	// 	return Buffer.from(res as unknown as string, 'base64').toString('utf-8');
+	// }
+
+	async getCommitFile(projectName: string, commitId: string, filePath: string) {
+		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/commits/${commitId}/files/${filePath}/content`);
+
+		return Buffer.from(res as unknown as string, 'base64').toString('utf-8');
 	}
 
 	async getChangeById(changeId: string) {
