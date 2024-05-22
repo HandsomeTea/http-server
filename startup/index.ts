@@ -1,3 +1,4 @@
+process.env.INSTANCEID = 'sadasd';
 global.IntervalCleanUnusedInstance = 30;
 global.IntervalUpdateInstance = 10;
 

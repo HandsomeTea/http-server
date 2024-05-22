@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import { BucketItem, BucketItemStat, Client } from 'minio'
 import { getENV } from '@/configs';
 
@@ -192,8 +193,8 @@ export default new class MinioOSSService {
 		return result;
 	}
 
-	async uploadFile(file: { fullPath?: string, stream?: Buffer }, oss: { bucket: Bucket, targetPath: string, fileName: string }) {
-		if (!file.fullPath && !file.stream) {
+	async uploadFile(file: { fullPath?: string, readStream?: fs.ReadStream }, oss: { bucket: Bucket, targetPath: string, fileName: string }) {
+		if (!file.fullPath && !file.readStream) {
 			return;
 		}
 		const { bucket, targetPath, fileName } = oss;
@@ -206,8 +207,8 @@ export default new class MinioOSSService {
 
 		if (file.fullPath) {
 			await this.server?.fPutObject(bucket, minioFilePath, file.fullPath);
-		} else if (file.stream) {
-			await this.server?.putObject(bucket, minioFilePath, file.stream);
+		} else if (file.readStream) {
+			await this.server?.putObject(bucket, minioFilePath, file.readStream);
 		}
 		return this.getOssFileAddr(bucket, minioFilePath);
 	}

@@ -38,7 +38,7 @@ import es from '@/tools/es';
 /**
  * 健康检查
  */
-const isHealth = async (): Promise<true | void> => {
+const isHealth = async () => {
 	if (!mongodb.isOK) {
 		return log('STARTUP').error('mongodb connection is unusual');
 	}

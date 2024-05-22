@@ -15,7 +15,7 @@ const router = express.Router();
 
 // router.get('/remote-ssh-task/tasks', asyncHandler(async (_req, res) => {
 // 	// const aa = await MinioOSS.uploadFile({
-// 	// 	fullPath: '/usr/src/app/build/task-data/663c42d935eb9177c7b484e1/1715225607016.log'
+// 	// 	readStream: fs.createReadStream('/usr/src/app/build/task-data/663c42d935eb9177c7b484e1/1715225607016.log'),
 // 	// }, {
 // 	// 	bucket: 'test',
 // 	// 	targetPath: '/ssh-task/log',
