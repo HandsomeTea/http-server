@@ -18,7 +18,7 @@ export abstract class BaseRequest {
 	beforeSendToServer(config: InternalAxiosRequestConfig) {
 		if (config.baseURL && systemService.has(config.baseURL)) {
 			// if (!config.headers.Authorization) {
-			// 	config.headers.Authorization = JWT.sign();
+			// 	config.headers.Authorization = `Bearer ${JWT.sign()}`;
 			// }
 
 			if (!config.headers['x-b3-spanid']) {
