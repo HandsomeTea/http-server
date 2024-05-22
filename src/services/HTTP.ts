@@ -3,7 +3,7 @@ import httpContext from 'express-http-context';
 import Agent from 'agentkeepalive';
 
 import { traceId, log } from '@/configs';
-import JWT from './JWT';
+// import JWT from './JWT';
 
 const systemService: Set<string> = new Set([
 
@@ -17,9 +17,9 @@ export abstract class BaseRequest {
 
 	beforeSendToServer(config: InternalAxiosRequestConfig) {
 		if (config.baseURL && systemService.has(config.baseURL)) {
-			if (!config.headers.Authorization) {
-				config.headers.Authorization = JWT.sign();
-			}
+			// if (!config.headers.Authorization) {
+			// 	config.headers.Authorization = JWT.sign();
+			// }
 
 			if (!config.headers['x-b3-spanid']) {
 				config.headers['x-b3-spanid'] = traceId();
