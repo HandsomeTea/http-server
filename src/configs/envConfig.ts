@@ -7,8 +7,6 @@ interface EnvConfigType {
 	TRACE_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
 	DEV_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
 	AUDIT_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
-	JWT_ISSURE: string
-	JWT_SUBJECT: string
 	JWT_SECRET: string
 	REDIS_URL: string
 	DB_TYPE: DBServerType
@@ -34,8 +32,6 @@ const developConfig: EnvConfigType = {
 	TRACE_LOG_LEVEL: 'all',
 	DEV_LOG_LEVEL: 'all',
 	AUDIT_LOG_LEVEL: 'all',
-	JWT_ISSURE: 'my project',
-	JWT_SUBJECT: 'jwtAppId',
 	JWT_SECRET: 'jwtSecret',
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
