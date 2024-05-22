@@ -62,6 +62,19 @@ interface GerritBranch {
 	revision: string
 }
 
+interface GerritTag {
+	object?: string
+	message?: string
+	tagger?: {
+		name: string
+		email: string
+	}
+	created: string
+	web_links: [{ name: string, url: string }]
+	ref: `refs/tags/${string}`
+	revision: string
+}
+
 interface GerritCommit {
 	commit: string
 	parents: Array<{
@@ -140,13 +153,13 @@ export default new class GitlabService {
 	async getTags(projectName: string) {
 		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/tags/`);
 
-		return GerritServer.getResponse(res) as Array<GerritBranch>;
+		return GerritServer.getResponse(res) as Array<GerritTag>;
 	}
 
 	async getTag(projectName: string, tagName: string) {
 		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/tags/${tagName}`);
 
-		return GerritServer.getResponse(res) as GerritBranch;
+		return GerritServer.getResponse(res) as GerritTag;
 	}
 
 	async getCommit(projectName: string, commitId: string) {
@@ -162,6 +175,7 @@ export default new class GitlabService {
 	}
 
 	// async getTagLatestFile(projectName: string, tagName: string, filePath: string) {
+	// 	// 没有这个接口
 	// 	const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/tags/${tagName}/files/${filePath}/content`);
 
 	// 	return Buffer.from(res as unknown as string, 'base64').toString('utf-8');

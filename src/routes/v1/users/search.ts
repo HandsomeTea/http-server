@@ -5,6 +5,7 @@ import httpContext from 'express-http-context';
 // import { _UserTokens } from '@/dal';
 // import User from '../../../models/_mysql';
 // import { Test } from '@/models/es';
+// import { Gerrit } from '@/services';
 
 
 const router = express.Router();
@@ -47,6 +48,7 @@ router.post('/user', asyncHandler(async (_req, res) => {
 	//     result: await Test.findById('jIsh8IcBIrfCM5mjicNO')
 	// });
 	res.success({ result: 'asdasd-post' });
+	// const tag = await Gerrit.getTag('st_mobile_android', 'effects_v4.5.1');
 	// return res.success({ result: await UserTokens.find({}) });
 	// return res.success({
 	//     result: await UserTokens.insertLoginToken({

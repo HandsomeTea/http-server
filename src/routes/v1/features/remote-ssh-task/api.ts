@@ -94,28 +94,11 @@ router.post('/remote-ssh-task/:taskId/exec', asyncHandler(async (req, res) => {
 	}
 
 	let child: childProcess.ChildProcess | null = childProcess.fork(path.join(__dirname, 'task.js'))
-	let timer: NodeJS.Timeout | null = setTimeout(() => {
-		try {
-			child?.kill();
-			child = null;
-		} catch (e) { }
-		clearTimeout(timer as NodeJS.Timeout);
-		timer = null;
-		throw new Exception('task excute timeout!');
-	}, 10 * 1000);
 
 	child.on('exit', () => {
-		if (timer) {
-			clearTimeout(timer);
-			timer = null;
-		}
 		child = null;
 	});
 	child.on('message', async (data: { error?: Error, signal?: 'ready' | 'start' | 'end' | 'stoped' }) => {
-		if (timer) {
-			clearTimeout(timer);
-			timer = null;
-		}
 		const { error, signal } = data;
 		log('master-process').debug(`master process get message from child process for task: \n${JSON.stringify(data, null, '   ')}`);
 		if (error) {
