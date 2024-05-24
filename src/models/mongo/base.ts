@@ -30,7 +30,7 @@ export default class MongoBase<CM> {
 	}
 
 	private get model(): Model<CM> {
-		const _schema = new mongodb.schema(this.schemaModel, { /*_id: false, */versionKey: false, timestamps: { createdAt: true, updatedAt: 'updatedAt' } });
+		const _schema = new mongodb.schema(this.schemaModel, { versionKey: false, timestamps: { createdAt: true, updatedAt: 'updatedAt' } });
 
 		if (this.index) {
 			for (const key in this.index) {
