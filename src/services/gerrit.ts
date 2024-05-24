@@ -1,6 +1,7 @@
 import axios, { Method as AxiosMethod, AxiosResponse } from 'axios';
 import Agent from 'agentkeepalive';
 import { BaseRequest } from './HTTP';
+import { Encryption } from './rsa';
 
 const GerritServer = new class _Gerrit extends BaseRequest {
 	public server = axios.create({
@@ -104,9 +105,54 @@ interface GerritChange {
 	}
 }
 
-export default new class GitlabService {
+interface GerritAccount {
+	_account_id: number
+	name: string
+	email: string
+	username: string
+}
+
+interface GerritSSHKey {
+	seq: number
+	ssh_public_key: string
+	encoded_key: string
+	algorithm: string
+	comment: string
+	valid: boolean
+}
+
+export default new class GerritService {
 	constructor() {
 		//
+	}
+
+	async getCurrentAccount() {
+		const res = await GerritServer.sendGerrit('get', '/accounts/self/');
+
+		return GerritServer.getResponse(res) as GerritAccount;
+	}
+
+	async addSSHKey() {
+		const user = await this.getCurrentAccount();
+		const { privateKey, publicKey } = await Encryption.gererateGitSSHKey(user.email);
+		const res = await GerritServer.sendGerrit('post', '/accounts/self/sshkeys', {
+			// @ts-ignore
+			data: publicKey.replace('\n', ''),
+			headers: {
+				'Content-Type': 'text/plain'
+			}
+		});
+		const sshKey = GerritServer.getResponse(res) as GerritSSHKey;
+
+		return {
+			privateKey,
+			publicKey,
+			sshKeyId: sshKey.seq
+		};
+	}
+
+	async deleteSSHKey(keyId: number) {
+		await GerritServer.sendGerrit('delete', `/accounts/self/sshkeys/${keyId}`);
 	}
 
 	async projects() {
@@ -174,12 +220,11 @@ export default new class GitlabService {
 		return Buffer.from(res as unknown as string, 'base64').toString('utf-8');
 	}
 
-	// async getTagLatestFile(projectName: string, tagName: string, filePath: string) {
-	// 	// 没有这个接口
-	// 	const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/tags/${tagName}/files/${filePath}/content`);
+	async getTagLatestFile(projectName: string, tagName: string, filePath: string) {
+		const commit = await this.getTag(projectName, tagName);
 
-	// 	return Buffer.from(res as unknown as string, 'base64').toString('utf-8');
-	// }
+		return await this.getCommitFile(projectName, commit.revision, filePath);
+	}
 
 	async getCommitFile(projectName: string, commitId: string, filePath: string) {
 		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/commits/${commitId}/files/${filePath}/content`);

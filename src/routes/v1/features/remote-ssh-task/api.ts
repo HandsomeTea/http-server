@@ -73,7 +73,7 @@ router.get('/remote-ssh-task/task', asyncHandler(async (_req, res) => {
 }));
 
 /**
- * @api {post} /api/v1/feature/remote-ssh-task/:taskId/exec 执行任务
+ * @api {post} /api/v1/feature/remote-ssh-task/:taskId/exec 执行任务(子线程)
  * @apiName exec-remote-ssh-task
  * @apiGroup SSH
  * @apiVersion 1.0.0
@@ -81,6 +81,30 @@ router.get('/remote-ssh-task/task', asyncHandler(async (_req, res) => {
  * @apiUse ErrorApiResult
  */
 router.post('/remote-ssh-task/:taskId/exec', asyncHandler(async (req, res) => {
+
+}));
+
+/**
+ * @api {post} /api/v1/feature/remote-ssh-task/:taskId/exec/queue 执行任务(队列)
+ * @apiName exec-remote-ssh-task-with-queue
+ * @apiGroup SSH
+ * @apiVersion 1.0.0
+ * @apiParam (params) {String} taskId 任务id
+ * @apiUse ErrorApiResult
+ */
+router.post('/remote-ssh-task/:taskId/exec/queue', asyncHandler(async (req, res) => {
+
+}));
+
+/**
+ * @api {post} /api/v1/feature/remote-ssh-task/:taskId/exec/process 执行任务(子进程)
+ * @apiName exec-remote-ssh-task-with-process
+ * @apiGroup SSH
+ * @apiVersion 1.0.0
+ * @apiParam (params) {String} taskId 任务id
+ * @apiUse ErrorApiResult
+ */
+router.post('/remote-ssh-task/:taskId/exec/process', asyncHandler(async (req, res) => {
 	const taskId = req.params.taskId;
 	const latestRunningRecord = await MongoTests.findOne({
 		type: 'remote-ssh-task-record',
@@ -93,7 +117,7 @@ router.post('/remote-ssh-task/:taskId/exec', asyncHandler(async (req, res) => {
 		return;
 	}
 
-	let child: childProcess.ChildProcess | null = childProcess.fork(path.join(__dirname, 'task.js'))
+	let child: childProcess.ChildProcess | null = childProcess.fork(path.join(__dirname, 'task-process.js'))
 
 	child.on('exit', () => {
 		child = null;
@@ -108,7 +132,7 @@ router.post('/remote-ssh-task/:taskId/exec', asyncHandler(async (req, res) => {
 			const task = await MongoTests.findById(taskId) as TestTaskData;
 
 			child?.send({
-				sjgnal: 'exec_task',
+				signal: 'exec_task',
 				data: {
 					taskId,
 					device: task.data.device,

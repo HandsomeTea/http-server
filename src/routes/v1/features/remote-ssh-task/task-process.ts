@@ -125,9 +125,9 @@ const execTask = (deviceConfig: ConnectConfig, commands: Array<string>, taskId: 
 	});
 };
 
-process.on('message', async ({ sjgnal, data }) => {
-	log('task-process').debug(`child process for task get message from master process: \n${JSON.stringify({ sjgnal, data }, null, '   ')}`);
-	if (sjgnal === 'exec_task') {
+process.on('message', async ({ signal, data }) => {
+	log('task-process').debug(`child process for task get message from master process: \n${JSON.stringify({ signal, data }, null, '   ')}`);
+	if (signal === 'exec_task') {
 		const taskId = data.taskId;
 		const subServer = redis.server?.duplicate();
 

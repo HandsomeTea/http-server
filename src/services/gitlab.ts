@@ -1,4 +1,5 @@
 import { Gitlab } from '@gitbeaker/rest';
+import { Encryption } from './rsa';
 
 
 export default new class GitlabService {
@@ -9,6 +10,26 @@ export default new class GitlabService {
 			host: 'https://gitlab.bj.sensetime.com/',
 			token: ''
 		});
+	}
+
+	async getCurrentAccount() {
+		return await this.gitlab.Users.showCurrentUser();
+	}
+
+	async addSSHKey() {
+		const user = await this.getCurrentAccount();
+		const { privateKey, publicKey } = await Encryption.gererateGitSSHKey(user.email);
+		const sshKey = await this.gitlab.UserSSHKeys.add('temp-ssh-key', publicKey);
+
+		return {
+			privateKey,
+			publicKey,
+			sshKeyId: sshKey.id
+		};
+	}
+
+	async deleteSSHKey(keyId: number) {
+		return await this.gitlab.UserSSHKeys.remove(keyId);
 	}
 
 	public async getProject(projectName: string) {

@@ -32,3 +32,4 @@ export { Image } from './image';
 export { Video } from './video';
 export { SD } from './sd';
 export { HTTP } from './HTTP';
+export { Encryption } from './rsa';
