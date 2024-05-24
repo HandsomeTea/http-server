@@ -8,7 +8,7 @@ import mongodb from '@/tools/mongodb';
  *      await db.dropCollection(`${tenantId}_users`);
  *      await db.deleteModel(`${tenantId}_users`);
  */
-export default class MongoBase<CM>{
+export default class MongoBase<CM> {
 	protected tenantId: string | undefined;
 	protected collectionName: string;
 	private schemaModel: SchemaDefinition<SchemaDefinitionType<CM>>;
@@ -176,6 +176,13 @@ export default class MongoBase<CM>{
 	async findById(_id: string, options?: QueryOptions<CM>) {
 		if (await this.collectionExist()) {
 			return await this.model.findById(_id, null, options).lean();
+		}
+		return null;
+	}
+
+	async findOneAndUpdate(query: FilterQuery<CM>, update: UpdateQuery<CM>, options?: QueryOptions<CM>) {
+		if (await this.collectionExist()) {
+			return await this.model.findOneAndUpdate(query, update, options);
 		}
 		return null;
 	}

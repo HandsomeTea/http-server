@@ -19,7 +19,7 @@ export default new class GitlabService {
 	async addSSHKey() {
 		const user = await this.getCurrentAccount();
 		const { privateKey, publicKey } = await Encryption.gererateGitSSHKey(user.email);
-		const sshKey = await this.gitlab.UserSSHKeys.add('temp-ssh-key', publicKey);
+		const sshKey = await this.gitlab.UserSSHKeys.add(`temp-sshkey-${new Date().getTime()}`, publicKey);
 
 		return {
 			privateKey,

@@ -101,7 +101,7 @@ interface TestTaskResult {
 	updatedAt: Date
 	type: 'remote-ssh-task-record'
 	data: {
-		status: 'finished' | 'running' | 'stoped'
+		status: 'waiting' | 'handling' | 'running' | 'stoped' | 'finished'
 		taskId: string
 		result: string
 	}

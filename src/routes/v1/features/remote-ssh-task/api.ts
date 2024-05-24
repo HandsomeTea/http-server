@@ -46,7 +46,9 @@ router.get('/remote-ssh-task/task', asyncHandler(async (_req, res) => {
 			name: '在远程机器执行命令',
 			device: {
 				host: '10.4.48.13',
-				port: 22
+				port: 22,
+				username: 'liuhaifeng',
+				password: ''
 			},
 			// commands: [
 			// 	'find /home/SENSETIME/liuhaifeng -name "ssh-test"',
@@ -72,28 +74,23 @@ router.get('/remote-ssh-task/task', asyncHandler(async (_req, res) => {
 	}
 }));
 
+import { generateTaskRecord/*, addTask*/ } from './lib';
+
 /**
- * @api {post} /api/v1/feature/remote-ssh-task/:taskId/exec 执行任务(子线程)
+ * @api {post} /api/v1/feature/remote-ssh-task/task/:taskId/exec 执行任务
  * @apiName exec-remote-ssh-task
  * @apiGroup SSH
  * @apiVersion 1.0.0
  * @apiParam (params) {String} taskId 任务id
  * @apiUse ErrorApiResult
  */
-router.post('/remote-ssh-task/:taskId/exec', asyncHandler(async (req, res) => {
+router.post('/remote-ssh-task/task/:taskId/exec', asyncHandler(async (req, res) => {
+	const taskId = req.params.taskId;
+	const taskRecord = await generateTaskRecord(taskId);
 
-}));
-
-/**
- * @api {post} /api/v1/feature/remote-ssh-task/:taskId/exec/queue 执行任务(队列)
- * @apiName exec-remote-ssh-task-with-queue
- * @apiGroup SSH
- * @apiVersion 1.0.0
- * @apiParam (params) {String} taskId 任务id
- * @apiUse ErrorApiResult
- */
-router.post('/remote-ssh-task/:taskId/exec/queue', asyncHandler(async (req, res) => {
-
+	res.success(taskRecord._id);
+	// 如果使用任务调度框架，这里需要将任务记录插入到任务调度框架中
+	// addTask(taskRecord._id);
 }));
 
 /**
@@ -208,14 +205,14 @@ router.post('/remote-ssh-task/:taskId/exec/process', asyncHandler(async (req, re
 }));
 
 /**
- * @api {put} /api/v1/feature/remote-ssh-task/:recordId/stop 中断任务
+ * @api {put} /api/v1/feature/remote-ssh-task/record/:recordId/stop 中断任务
  * @apiName stop-remote-ssh-task
  * @apiGroup SSH
  * @apiVersion 1.0.0
  * @apiParam (params) {String} recordId 中断任务的执行记录id
  * @apiUse ErrorApiResult
  */
-router.put('/remote-ssh-task/:recordId/stop', asyncHandler(async (req, res) => {
+router.put('/remote-ssh-task/record/:recordId/stop', asyncHandler(async (req, res) => {
 	const recordId = req.params.recordId;
 	const taskRecord = await MongoTests.findById(recordId) as TestTaskResult;
 
@@ -232,14 +229,14 @@ router.put('/remote-ssh-task/:recordId/stop', asyncHandler(async (req, res) => {
 }));
 
 /**
- * @api {get} /api/v1/feature/remote-ssh-task/:recordId/log 获取任务执行日志
+ * @api {get} /api/v1/feature/remote-ssh-task/record/:recordId/log 获取任务执行日志
  * @apiName get-remote-ssh-task-log
  * @apiGroup SSH
  * @apiVersion 1.0.0
  * @apiParam (params) {String} recordId 中断任务的执行记录id
  * @apiUse ErrorApiResult
  */
-router.get('/remote-ssh-task/:recordId/log', asyncHandler(async (req, res) => {
+router.get('/remote-ssh-task/record/:recordId/log', asyncHandler(async (req, res) => {
 	const recordId = req.params.recordId;
 	const taskRecord = await MongoTests.findById(recordId) as TestTaskResult | null;
 
