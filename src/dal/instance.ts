@@ -16,7 +16,7 @@ class InstanceDAL extends BaseDal {
 		}
 	} | null> {
 		if (this.db === 'mongodb') {
-			return await MongoInstances.findOne({ instance: instanceId }, { projection: { assignPasswordShouldBeResetedNoticeData: 1 } });
+			return await MongoInstances.findOne({ instance: instanceId });
 		}
 		// else if (this.db === 'sqldb' || this.db === 'dmdb') {
 		//     const data = this.db === 'sqldb' ?

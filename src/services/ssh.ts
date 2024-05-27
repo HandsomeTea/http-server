@@ -29,19 +29,17 @@ export const SSH = class SSHService {
 		this.connection = null;
 	}
 
-	async exec(command: string): Promise<ClientChannel | void> {
+	exec(command: string, callback: (stream?: ClientChannel) => void) {
 		const conn = this.connection;
 
 		if (!conn) {
 			return;
 		}
-		return await new Promise((resolve, reject) => {
-			conn.exec(command, (err, stream) => {
-				if (err) {
-					return reject(err);
-				}
-				resolve(stream);
-			});
+		conn.exec(command, (err, stream) => {
+			if (err) {
+				return callback();
+			}
+			callback(stream);
 		});
 	}
 };

@@ -95,7 +95,7 @@ interface TestTaskData {
 	}
 }
 
-interface TestTaskResult {
+interface TestTaskRecord {
 	_id: string
 	createdAt: Date
 	updatedAt: Date
@@ -104,7 +104,8 @@ interface TestTaskResult {
 		status: 'waiting' | 'handling' | 'running' | 'stoped' | 'finished'
 		taskId: string
 		result: string
+		instance?: string
 	}
 }
 
-type TestModel = TestTaskData | TestTaskResult
+type TestModel = TestTaskData | TestTaskRecord

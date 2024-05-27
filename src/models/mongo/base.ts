@@ -182,7 +182,7 @@ export default class MongoBase<CM> {
 
 	async findOneAndUpdate(query: FilterQuery<CM>, update: UpdateQuery<CM>, options?: QueryOptions<CM>) {
 		if (await this.collectionExist()) {
-			return await this.model.findOneAndUpdate(query, update, options);
+			return await this.model.findOneAndUpdate(query, update, { ...options, new: true }).lean();
 		}
 		return null;
 	}

@@ -74,7 +74,7 @@ router.get('/remote-ssh-task/task', asyncHandler(async (_req, res) => {
 	}
 }));
 
-import { generateTaskRecord/*, addTask*/ } from './lib';
+import { RemoteSSHTask/*, RemoteSSHFrame*/ } from './lib';
 
 /**
  * @api {post} /api/v1/feature/remote-ssh-task/task/:taskId/exec 执行任务
@@ -86,22 +86,22 @@ import { generateTaskRecord/*, addTask*/ } from './lib';
  */
 router.post('/remote-ssh-task/task/:taskId/exec', asyncHandler(async (req, res) => {
 	const taskId = req.params.taskId;
-	const taskRecord = await generateTaskRecord(taskId);
+	const taskRecord = await RemoteSSHTask.generateTaskRecord(taskId);
 
 	res.success(taskRecord._id);
 	// 如果使用任务调度框架，这里需要将任务记录插入到任务调度框架中
-	// addTask(taskRecord._id);
+	// RemoteSSHFrame.addTask(taskRecord);
 }));
 
 /**
- * @api {post} /api/v1/feature/remote-ssh-task/:taskId/exec/process 执行任务(子进程)
+ * @api {post} /api/v1/feature/remote-ssh-task/task/:taskId/exec/process 执行任务(子进程)
  * @apiName exec-remote-ssh-task-with-process
  * @apiGroup SSH
  * @apiVersion 1.0.0
  * @apiParam (params) {String} taskId 任务id
  * @apiUse ErrorApiResult
  */
-router.post('/remote-ssh-task/:taskId/exec/process', asyncHandler(async (req, res) => {
+router.post('/remote-ssh-task/task/:taskId/exec/process', asyncHandler(async (req, res) => {
 	const taskId = req.params.taskId;
 	const latestRunningRecord = await MongoTests.findOne({
 		type: 'remote-ssh-task-record',
@@ -119,6 +119,15 @@ router.post('/remote-ssh-task/:taskId/exec/process', asyncHandler(async (req, re
 	child.on('exit', () => {
 		child = null;
 	});
+	const task = await MongoTests.findById(taskId) as TestTaskData;
+	const taskRecord = await MongoTests.insertOne({
+		type: 'remote-ssh-task-record',
+		data: {
+			status: 'waiting',
+			taskId
+		}
+	} as TestModel);
+
 	child.on('message', async (data: { error?: Error, signal?: 'ready' | 'start' | 'end' | 'stoped' }) => {
 		const { error, signal } = data;
 		log('master-process').debug(`master process get message from child process for task: \n${JSON.stringify(data, null, '   ')}`);
@@ -126,24 +135,20 @@ router.post('/remote-ssh-task/:taskId/exec/process', asyncHandler(async (req, re
 			throw new Exception(error);
 		}
 		if (signal === 'ready') {
-			const task = await MongoTests.findById(taskId) as TestTaskData;
-
 			child?.send({
 				signal: 'exec_task',
 				data: {
-					taskId,
+					recordId: taskRecord._id.toString(),
 					device: task.data.device,
 					commands: task.data.commands
 				}
 			});
 		} else if (signal === 'start') {
-			const taskRecord = await MongoTests.insertOne({
-				type: 'remote-ssh-task-record',
-				data: {
-					status: 'running',
-					taskId
+			await MongoTests.updateOne({ _id: taskRecord._id }, {
+				$set: {
+					'data.status': 'running'
 				}
-			} as TestModel);
+			});
 			res.success(taskRecord._id);
 		} else if (signal === 'end' || signal === 'stoped') {
 			const logFileDirPath = path.resolve(__dirname, `../../../../../task-data/${taskId}`);
@@ -151,14 +156,14 @@ router.post('/remote-ssh-task/:taskId/exec/process', asyncHandler(async (req, re
 			fs.mkdirSync(logFileDirPath, { recursive: true });
 			const logFilePath = path.resolve(logFileDirPath, `${new Date().getTime()}.log`);
 			// ================================= 逐条读取和写入 =================================
-			const count = await redis.server?.llen(`task:${taskId}`);
+			const count = await redis.server?.llen(`task:record:${taskRecord._id}`);
 
 			if (count) {
 				const writeStream = fs.createWriteStream(logFilePath, { flags: 'a' });
 
 				writeStream.once('open', async () => {
 					for (let i = 0; i < count; i++) {
-						const data = await redis.server?.lindex(`task:${taskId}`, i);
+						const data = await redis.server?.lindex(`task:record:${taskRecord._id}`, i);
 
 						writeStream.write(data as string);
 					}
@@ -177,13 +182,13 @@ router.post('/remote-ssh-task/:taskId/exec/process', asyncHandler(async (req, re
 							'data.result': logFilePath
 						}
 					});
-					await redis.server?.ltrim(`task:${taskId}`, 1, 0)
+					await redis.server?.ltrim(`task:record:${taskRecord._id}`, 1, 0)
 					log('master-process').info(`任务执行结束，结束状态为: ${signal === 'end' ? '成功' : '被中断'}`);
 				})
 			}
 
 			// ================================= 整体读取和写入 =================================
-			// const result = await redis.server?.lrange(`task:${taskId}`, 0, -1);
+			// const result = await redis.server?.lrange(`task:record:${taskRecord._id}`, 0, -1);
 
 			// if (result && result.length > 0) {
 			// 	fs.writeFileSync(logFilePath, result.join(''));
@@ -198,7 +203,7 @@ router.post('/remote-ssh-task/:taskId/exec/process', asyncHandler(async (req, re
 			// 		'data.result': logFilePath
 			// 	}
 			// });
-			// await redis.server?.ltrim(`task:${taskId}`, 1, 0)
+			// await redis.server?.ltrim(`task:record:${taskRecord._id}`, 1, 0)
 			// log('master-process').info(`任务执行结束，结束状态为: ${signal === 'end' ? '成功' : '被中断'}`);
 		}
 	});
@@ -214,7 +219,7 @@ router.post('/remote-ssh-task/:taskId/exec/process', asyncHandler(async (req, re
  */
 router.put('/remote-ssh-task/record/:recordId/stop', asyncHandler(async (req, res) => {
 	const recordId = req.params.recordId;
-	const taskRecord = await MongoTests.findById(recordId) as TestTaskResult;
+	const taskRecord = await MongoTests.findById(recordId) as TestTaskRecord;
 
 	if (!taskRecord) {
 		throw new Exception('task record not found!');
@@ -222,7 +227,7 @@ router.put('/remote-ssh-task/record/:recordId/stop', asyncHandler(async (req, re
 	if (taskRecord.data.status !== 'running') {
 		throw new Exception('task is not running!');
 	}
-	const taskChannel = `task:${taskRecord.data.taskId}`;
+	const taskChannel = `task:record:${recordId}:sub`;
 
 	await redis.server?.publish(taskChannel, '[stop]');
 	res.success();
@@ -238,7 +243,7 @@ router.put('/remote-ssh-task/record/:recordId/stop', asyncHandler(async (req, re
  */
 router.get('/remote-ssh-task/record/:recordId/log', asyncHandler(async (req, res) => {
 	const recordId = req.params.recordId;
-	const taskRecord = await MongoTests.findById(recordId) as TestTaskResult | null;
+	const taskRecord = await MongoTests.findById(recordId) as TestTaskRecord | null;
 
 	if (!taskRecord) {
 		throw new Exception('task record not found!');
@@ -254,7 +259,6 @@ router.get('/remote-ssh-task/record/:recordId/log', asyncHandler(async (req, res
 	let subServer: null | undefined | Redis = redis.server?.duplicate();
 
 	req.on('close', () => {
-		res.end();
 		subServer?.quit();
 		subServer = null;
 		trace({
@@ -264,7 +268,7 @@ router.get('/remote-ssh-task/record/:recordId/log', asyncHandler(async (req, res
 		}, 'sse-response').info(`${req.method}: ${req.originalUrl} => \n${'SSE响应结束！'}`);
 		return;
 	})
-	const taskChannel = `task:${taskRecord.data.taskId}`;
+	const taskChannel = `task:record:${taskRecord._id}:sub`;
 
 	if (taskRecord.data.status === 'finished' || taskRecord.data.status === 'stoped') {
 		const readStream = fs.createReadStream(taskRecord.data.result, {
@@ -319,9 +323,10 @@ router.get('/remote-ssh-task/record/:recordId/log', asyncHandler(async (req, res
 			if (!histroyEndNum) {
 				if (message.includes('[ranking]:')) {
 					histroyEndNum = parseInt(message.replace('[ranking]:', ''));
+					const redisKey = `task:record:${taskRecord._id}`;
 
 					for (let s = 0; s < histroyEndNum; s++) {
-						const log = await redis.server?.lindex(taskChannel, s);
+						const log = await redis.server?.lindex(redisKey, s);
 
 						trace({
 							traceId: httpContext.get('traceId'),
