@@ -36,6 +36,7 @@
 		"amqplib": "^0.10.4",
 		"apidoc": "^1.2.0",
 		"axios": "^1.7.1",
+		"bull": "^4.12.9",
 		"compression": "^1.7.4",
 		"cos-nodejs-sdk-v5": "^2.13.5",
 		"dmdb": "^1.0.24984",

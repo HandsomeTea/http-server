@@ -74,7 +74,7 @@ router.get('/remote-ssh-task/task', asyncHandler(async (_req, res) => {
 	}
 }));
 
-import { RemoteSSHTask/*, RemoteSSHFrame*/ } from './lib';
+import { RemoteSSHTaskService, TaskScheduleService } from './service';
 
 /**
  * @api {post} /api/v1/feature/remote-ssh-task/task/:taskId/exec 执行任务
@@ -86,11 +86,11 @@ import { RemoteSSHTask/*, RemoteSSHFrame*/ } from './lib';
  */
 router.post('/remote-ssh-task/task/:taskId/exec', asyncHandler(async (req, res) => {
 	const taskId = req.params.taskId;
-	const taskRecord = await RemoteSSHTask.generateTaskRecord(taskId);
+	const taskRecord = await RemoteSSHTaskService.generateTaskRecord(taskId);
 
 	res.success(taskRecord._id);
 	// 如果使用任务调度框架，这里需要将任务记录插入到任务调度框架中
-	// RemoteSSHFrame.addTask(taskRecord);
+	TaskScheduleService.addTask(taskRecord);
 }));
 
 /**
