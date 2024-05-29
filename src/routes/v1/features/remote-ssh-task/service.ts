@@ -80,12 +80,13 @@ export const RemoteSSHTaskService = new class SSHTask {
 		const subKey = subChannelKey(recordId);
 
 		await redis.server?.rpush(redisKey, log);
-		await redis.server?.publish(subKey, `[ranking]:${this.taskTempData[`record:${recordId}`].ranking}`)
-		await redis.server?.publish(subKey, log);
-		this.taskTempData[`record:${recordId}`].ranking++;
 
 		if (log.includes('[stop]')) {
 			this.taskTempData[`record:${recordId}`].isStop = true;
+		} else {
+			await redis.server?.publish(subKey, `[ranking]:${this.taskTempData[`record:${recordId}`].ranking}`)
+			await redis.server?.publish(subKey, log);
+			this.taskTempData[`record:${recordId}`].ranking++;
 		}
 	}
 
@@ -378,6 +379,7 @@ export const TaskScheduleService = new class SSHFrame {
 
 		const dealEnd = async (resove?: (v: unknown) => void) => {
 			ssh.close();
+			await RemoteSSHTaskService.publishLog(`[end]\n`, recordId);
 			await RemoteSSHTaskService.dealTaskResult(recordId, record.data.taskId);
 			if (resove) {
 				resove(true);
@@ -431,6 +433,7 @@ export const TaskScheduleService = new class SSHFrame {
 		const command = commands.shift();
 
 		if (command) {
+			await RemoteSSHTaskService.publishLog(`[start]\n`, recordId);
 			await loop(command);
 		}
 	}
