@@ -49,6 +49,9 @@ router.post('/user', asyncHandler(async (_req, res) => {
 	// });
 	res.success({ result: 'asdasd-post' });
 	// const tag = await Gerrit.getTag('st_mobile_android', 'effects_v4.5.1');
+	// res.success(await Gerrit.getCommitBranchsAndTags('sdk_face', '379659e456851911d97ea3d82844dce0a9323d69'))
+	// res.success(await Gitlab.getCommitBranch('47472', '8090e84398dba7bef122d89e7a50635497c06ecb'));
+	// res.success(await Gitlab.getProject('devmgr_web'))
 	// return res.success({ result: await UserTokens.find({}) });
 	// return res.success({
 	//     result: await UserTokens.insertLoginToken({

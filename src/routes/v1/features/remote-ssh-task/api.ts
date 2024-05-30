@@ -88,9 +88,8 @@ router.post('/remote-ssh-task/task/:taskId/exec', asyncHandler(async (req, res) 
 	const taskId = req.params.taskId;
 	const taskRecord = await RemoteSSHTaskService.generateTaskRecord(taskId);
 
+	await TaskScheduleService.addTask(taskRecord);
 	res.success(taskRecord._id);
-	// 如果使用任务调度框架，这里需要将任务记录插入到任务调度框架中
-	TaskScheduleService.addTask(taskRecord);
 }));
 
 /**

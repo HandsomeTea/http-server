@@ -147,6 +147,20 @@ export const RemoteSSHTaskService = new class SSHTask {
 			})
 			return;
 		}
+		const ssh = new SSH();
+
+		try {
+			await ssh.connect(device);
+		} catch (e) {
+			await MongoTests.findOneAndUpdate({ _id: recordId }, {
+				$set: {
+					'data.status': 'waiting',
+					'data.instance': ''
+				}
+			});
+			throw new Exception(e as Error);
+		}
+
 		if (!this.taskTempData[`record:${recordId}`]) {
 			this.taskTempData[`record:${recordId}`] = {
 				ranking: 0,
@@ -159,9 +173,6 @@ export const RemoteSSHTaskService = new class SSHTask {
 			type: 'remote-ssh-task-data',
 			_id: taskRecord.data.taskId
 		}) as TestTaskData).data.commands;
-		const ssh = new SSH();
-
-		await ssh.connect(device);
 
 		await MongoTests.findOneAndUpdate({ _id: recordId }, {
 			$set: {
@@ -173,6 +184,7 @@ export const RemoteSSHTaskService = new class SSHTask {
 
 		const dealEnd = async (resove?: (v: unknown) => void) => {
 			ssh.close();
+			await this.publishLog(`[end]\n`, recordId);
 			await this.dealTaskResult(recordId, taskRecord.data.taskId);
 			if (resove) {
 				resove(true);
@@ -226,6 +238,7 @@ export const RemoteSSHTaskService = new class SSHTask {
 		const command = commands.shift();
 
 		if (command) {
+			await this.publishLog(`[start]\n`, recordId);
 			await loop(command);
 		}
 	}
@@ -358,6 +371,14 @@ export const TaskScheduleService = new class SSHFrame {
 	}
 
 	private async executeCommands(_commands: Array<string>, device: Device, recordId: string) {
+		const ssh = new SSH();
+
+		try {
+			await ssh.connect(device);
+		} catch (e) {
+			throw new Exception(e as Error);
+		}
+
 		if (!RemoteSSHTaskService.taskTempData[`record:${recordId}`]) {
 			RemoteSSHTaskService.taskTempData[`record:${recordId}`] = {
 				ranking: 0,
@@ -365,9 +386,6 @@ export const TaskScheduleService = new class SSHFrame {
 			};
 		}
 		const commands = _commands;
-		const ssh = new SSH();
-
-		await ssh.connect(device);
 
 		const record = await MongoTests.findOneAndUpdate({ _id: recordId }, {
 			$set: {

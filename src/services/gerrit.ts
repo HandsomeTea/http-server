@@ -4,7 +4,7 @@ import { BaseRequest } from './HTTP';
 import { Encryption } from './rsa';
 
 const GerritServer = new class _Gerrit extends BaseRequest {
-	public server = axios.create({
+	server = axios.create({
 		timeout: 10000,
 		httpAgent: new Agent({
 			keepAlive: true,
@@ -24,7 +24,7 @@ const GerritServer = new class _Gerrit extends BaseRequest {
 		this.server.interceptors.response.use(this.receiveSuccessResponse, this.receiveResponseNotSuccess);
 	}
 
-	async sendGerrit(method: AxiosMethod, url: string, options?: httpArgument) {
+	async sendToGerrit(method: AxiosMethod, url: string, options?: httpArgument) {
 		const user = '';
 		const password = '';
 		return await this.send(url, method, 'https://gerrit.bj.sensetime.com/a', {
@@ -73,6 +73,7 @@ interface GerritTag {
 	created: string
 	web_links: [{ name: string, url: string }]
 	ref: `refs/tags/${string}`
+	/** is also commit id */
 	revision: string
 }
 
@@ -87,6 +88,18 @@ interface GerritCommit {
 	subject: string
 	message: string
 }
+
+// interface GerritRefLog {
+// 	old_id: string
+// 	new_id: string
+// 	who: {
+// 		name: string
+// 		email: string
+// 		date: string
+// 		tz: number
+// 	}
+// 	comment: string
+// }
 
 interface GerritChange {
 	id: string
@@ -127,7 +140,7 @@ export default new class GerritService {
 	}
 
 	async getCurrentAccount() {
-		const res = await GerritServer.sendGerrit('get', '/accounts/self/');
+		const res = await GerritServer.sendToGerrit('get', '/accounts/self/');
 
 		return GerritServer.getResponse(res) as GerritAccount;
 	}
@@ -135,7 +148,7 @@ export default new class GerritService {
 	async addSSHKey() {
 		const user = await this.getCurrentAccount();
 		const { privateKey, publicKey } = await Encryption.gererateGitSSHKey(user.email);
-		const res = await GerritServer.sendGerrit('post', '/accounts/self/sshkeys', {
+		const res = await GerritServer.sendToGerrit('post', '/accounts/self/sshkeys', {
 			// @ts-ignore
 			data: publicKey.replace('\n', ''),
 			headers: {
@@ -152,70 +165,85 @@ export default new class GerritService {
 	}
 
 	async deleteSSHKey(keyId: number) {
-		await GerritServer.sendGerrit('delete', `/accounts/self/sshkeys/${keyId}`);
+		await GerritServer.sendToGerrit('delete', `/accounts/self/sshkeys/${keyId}`);
 	}
 
 	async projects() {
-		const res = await GerritServer.sendGerrit('get', '/projects/');
+		const res = await GerritServer.sendToGerrit('get', '/projects/');
 
-		return GerritServer.getResponse(res) as Record<string, GerritBaseProject>;
+		return Object.values(GerritServer.getResponse(res)) as Array<GerritBaseProject>;
 	}
 
 	async getProject(projectName: string) {
-		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}`);
+		const res = await GerritServer.sendToGerrit('get', '/projects/', {
+			params: {
+				query: `name:${projectName}`
+			}
+		});
 
-		return GerritServer.getResponse(res) as GerritProject;
+		return GerritServer.getResponse(res) as Array<GerritProject>;
 	}
 
-	async seachProjects(option: { projectName?: string }) {
-		const query: Array<string> = [];
-
-		if (option.projectName) {
-			query.push(`name:${option.projectName}`)
-		}
-		if (query.length === 0) {
-			return [];
-		}
-		const res = await GerritServer.sendGerrit('get', '/projects/', {
+	async pageProjects(skip = 0, limit = 10) {
+		const res = await GerritServer.sendToGerrit('get', '/projects/', {
 			params: {
-				query: query.join('+')
+				limit,
+				start: skip
 			}
-		})
-		return GerritServer.getResponse(res) as Array<Omit<GerritProject, 'labels'>>;
+		});
+		const total = (await this.projects()).length
+
+		return {
+			list: Object.values(GerritServer.getResponse(res)) as Array<GerritBaseProject>,
+			total
+		}
 	}
 
 	async getBranches(projectName: string) {
-		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/branches/`);
+		const res = await GerritServer.sendToGerrit('get', `/projects/${projectName}/branches/`);
 
 		return GerritServer.getResponse(res) as Array<GerritBranch>;
 	}
 
 	async getBranche(projectName: string, branchName: string) {
-		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/branches/${branchName}`);
+		const res = await GerritServer.sendToGerrit('get', `/projects/${projectName}/branches/${branchName}`);
 
 		return GerritServer.getResponse(res) as GerritBranch;
 	}
 
+	// 需要owner权限
+	// async getBranchRefLog(projectName: string, branchName: string) {
+	// 	const res = await GerritServer.sendToGerrit('get', `/projects/${projectName}/branches/${branchName}/reflog`);
+
+	// 	return GerritServer.getResponse(res) as Array<GerritRefLog>;
+	// }
+
 	async getTags(projectName: string) {
-		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/tags/`);
+		const res = await GerritServer.sendToGerrit('get', `/projects/${projectName}/tags/`);
 
 		return GerritServer.getResponse(res) as Array<GerritTag>;
 	}
 
 	async getTag(projectName: string, tagName: string) {
-		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/tags/${tagName}`);
+		const res = await GerritServer.sendToGerrit('get', `/projects/${projectName}/tags/${tagName}`);
 
 		return GerritServer.getResponse(res) as GerritTag;
 	}
 
 	async getCommit(projectName: string, commitId: string) {
-		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/commits/${commitId}`);
+		const res = await GerritServer.sendToGerrit('get', `/projects/${projectName}/commits/${commitId}`);
 
 		return GerritServer.getResponse(res) as GerritCommit;
 	}
 
+	async getCommitBranchsAndTags(projectName: string, commitId: string) {
+		const res = await GerritServer.sendToGerrit('get', `/projects/${projectName}/commits/${commitId}/in`);
+
+		return GerritServer.getResponse(res) as { branches: Array<string>, tags: Array<string> };
+	}
+
 	async getBranchLatestFile(projectName: string, branchName: string, filePath: string) {
-		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/branches/${branchName}/files/${filePath}/content`);
+		const res = await GerritServer.sendToGerrit('get', `/projects/${projectName}/branches/${branchName}/files/${filePath}/content`);
 
 		return Buffer.from(res as unknown as string, 'base64').toString('utf-8');
 	}
@@ -227,13 +255,13 @@ export default new class GerritService {
 	}
 
 	async getCommitFile(projectName: string, commitId: string, filePath: string) {
-		const res = await GerritServer.sendGerrit('get', `/projects/${projectName}/commits/${commitId}/files/${filePath}/content`);
+		const res = await GerritServer.sendToGerrit('get', `/projects/${projectName}/commits/${commitId}/files/${filePath}/content`);
 
 		return Buffer.from(res as unknown as string, 'base64').toString('utf-8');
 	}
 
 	async getChangeById(changeId: string) {
-		const res = await GerritServer.sendGerrit('get', `/changes/${changeId}`);
+		const res = await GerritServer.sendToGerrit('get', `/changes/${changeId}`);
 
 		return GerritServer.getResponse(res) as GerritChange;
 	}
@@ -250,7 +278,7 @@ export default new class GerritService {
 		if (query.length === 0) {
 			return [];
 		}
-		const res = await GerritServer.sendGerrit('get', `/changes/`, {
+		const res = await GerritServer.sendToGerrit('get', `/changes/`, {
 			params: {
 				q: query.join('+')
 			}
