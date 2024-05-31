@@ -8,13 +8,8 @@ export const SSH = class SSHService {
 	}
 
 	async connect(target: ConnectConfig): Promise<boolean> {
-		const conn = this.connection;
-
-		if (!conn) {
-			return false;
-		}
 		return await new Promise((resolve, reject) => {
-			conn.connect(target).on('error', (error) => {
+			this.connection?.connect(target).on('error', (error) => {
 				return reject(error);
 			}).on('timeout', () => {
 				return reject('timeout');
@@ -30,16 +25,30 @@ export const SSH = class SSHService {
 	}
 
 	exec(command: string, callback: (stream?: ClientChannel) => void) {
-		const conn = this.connection;
-
-		if (!conn) {
-			return;
-		}
-		conn.exec(command, (err, stream) => {
+		this.connection?.exec(command, (err, stream) => {
 			if (err) {
 				return callback();
 			}
 			callback(stream);
+		});
+	}
+
+	async execute(command: string): Promise<Array<{ stdout: string } | { stderr: string }>> {
+		return new Promise((resolve, reject) => {
+			const output: Array<{ stdout: string } | { stderr: string }> = [];
+
+			this.connection?.exec(command, (err, stream) => {
+				if (err) {
+					return reject(err);
+				}
+				stream.on('close', () => {
+					return resolve(output);
+				}).on('data', (data: Buffer) => {
+					output.push({ stdout: data.toString() });
+				}).stderr.on('data', (data: Buffer) => {
+					output.push({ stderr: data.toString() });
+				});
+			});
 		});
 	}
 };

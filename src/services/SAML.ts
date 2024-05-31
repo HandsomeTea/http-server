@@ -655,7 +655,7 @@ const saml = new class SAML {
         return { data: profile };
     }
 
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+     
     normalizeCert(customCert: any): any { // eslint-disable-line @typescript-eslint/no-explicit-any
         if (typeof customCert === 'string') {
             return customCert.replace('-----BEGIN CERTIFICATE-----', '').replace('-----END CERTIFICATE-----', '').trim();

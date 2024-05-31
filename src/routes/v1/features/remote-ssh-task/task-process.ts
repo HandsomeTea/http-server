@@ -23,6 +23,7 @@ setTimeout(() => {
 }, 1 * 60 * 60 * 1000);
 
 process.env.CHILD_PROCESS = '1';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 process.setRedisReady = () => {
 	log('task-redis').info(`redis connected success and ready to use for excute task process.`);
@@ -30,6 +31,7 @@ process.setRedisReady = () => {
 		process.send({ error: null, signal: 'ready' });
 	}
 };
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 process.setRedisError = (error) => {
 	log('task-redis').error(`redis connected error and exit for excute task process.`);
@@ -107,7 +109,9 @@ const execTask = (deviceConfig: ConnectConfig, commands: Array<string>, recordId
 		const loop = async (cmd: string) => {
 			await publishData(`[command]:${cmd}\n`, recordId);
 			conn.exec(cmd, (err, stream) => {
-				if (err) throw err;
+				if (err) {
+					throw err;
+				}
 
 				stream.on('close', async () => {
 					if (commands.length === 0) {
@@ -161,6 +165,7 @@ process.on('message', async ({ signal, data }) => {
 		try {
 			execTask(data.device, data.commands, recordId);
 		} catch (error) {
+			log('task-process').error(error);
 			exitForkProcess('task-error')
 		}
 	}

@@ -47,7 +47,7 @@ const generateDeletePolicyStatement = (bucket: string): BucketPolicyStatement =>
 	Action: ['s3:DeleteObject'],
 	Resource: [`arn:aws:s3:::${bucket}/*`]
 });
-const generateGetPolicyStatement = (bucket: string): Array<BucketPolicyStatement> => ([{
+const generateGetPolicyStatement = (bucket: string): Array<BucketPolicyStatement> => [{
 	Effect: 'Allow',
 	Principal: { AWS: ['*'] },
 	Action: ['s3:GetObject'],
@@ -57,8 +57,8 @@ const generateGetPolicyStatement = (bucket: string): Array<BucketPolicyStatement
 	Principal: { AWS: ['*'] },
 	Action: ['s3:GetBucketLocation'],
 	Resource: [`arn:aws:s3:::${bucket}`]
-}]);
-const generateListPolicyStatement = (bucket: string): Array<BucketPolicyStatement> => ([{
+}];
+const generateListPolicyStatement = (bucket: string): Array<BucketPolicyStatement> => [{
 	Effect: 'Allow',
 	Principal: { AWS: ['*'] },
 	Action: ['s3:ListBucket', 's3:ListBucketMultipartUploads'],
@@ -68,7 +68,7 @@ const generateListPolicyStatement = (bucket: string): Array<BucketPolicyStatemen
 	Principal: { AWS: ['*'] },
 	Action: ['s3:ListMultipartUploadParts'],
 	Resource: [`arn:aws:s3:::${bucket}/*`]
-}]);
+}];
 
 export default new class MinioOSSService {
 	private server: Client | null = null;
