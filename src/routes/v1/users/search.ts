@@ -1,3 +1,4 @@
+// import fs from 'fs';
 import { trace } from '@/configs';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
@@ -48,6 +49,26 @@ router.post('/user', asyncHandler(async (_req, res) => {
 	//     result: await Test.findById('jIsh8IcBIrfCM5mjicNO')
 	// });
 	res.success({ result: 'asdasd-post' });
+	// res.success(await Gitlab.getPipelineJobs(47472, 1094869))
+	// res.success(await Gitlab.getJob(47472, 6533817))
+	// res.success(await Gitlab.retryJob(47472, 6533817))
+	// res.success(await Gitlab.getJobLog(47472, 6533817));
+	// res.success(await Gitlab.getProjectVariables(16714));
+	// 选定未执行需要手动执行的job 6711806
+
+	// 不执行，直接retry，测试未执行的job可否retry(结果是不可以retry,forbidden)，观察是否生成新的job(无)
+	// 指定变量执行 runJob IMAGE_REGISTRY:registry.sensetime.com/ai-service_resource/cpp_build_123web，观察是否生成新的job(不生成，返回的是原来的jobid，也没有新的job记录，变量生效)
+	// retry看是否使用默认设置的变量(没有使用默认变量，使用了上一步的自定义变量)，观察是否生成新的job(生成了新的job，返回新的jobid 6807625，有新的job记录)
+	// 不指定变量，runJob看是否使用默认设置的变量，观察是否生成新的job (job无法运行，unplayed，尝试retry)
+	// 尝试retry 6711806，看是否使用默认设置的变量，观察是否生成新的job (job无法运行，not retryed)
+	// 尝试retry 6807625，看是否使用默认设置的变量(使用的是第二步的自定义变量)，观察是否生成新的job  (生成了新的job，返回新的jobid 6807828，有新的job记录)
+	// 再次尝试runjob 6807625 看是否使用默认设置的变量，观察是否生成新的job (job无法运行，unplayed，尝试retry)
+	// 再次尝试retry 6807828，看是否使用默认设置的变量(使用的是第二步的自定义变量)，观察是否生成新的job(生成了新的job，返回旧的jobid 6807828，有新的job记录id为6807867)
+	// res.success(await Gitlab.retryJob(48313, 6807227));
+	// res.success(await Gitlab.runJob(48313, 6721207));
+	// res.success(await Gitlab.getProjectVariables(48313))
+	// res.success(await Gitlab.pageProjects())
+	// res.success(await Gitlab.downloadJobArtifacts(47472, 6533817, './job.log'));
 	// const tag = await Gerrit.getTag('st_mobile_android', 'effects_v4.5.1');
 	// res.success(await Gerrit.getCommitBranchsAndTags('sdk_face', '379659e456851911d97ea3d82844dce0a9323d69'))
 	// res.success(await Gitlab.getCommitBranch('47472', '8090e84398dba7bef122d89e7a50635497c06ecb'));
