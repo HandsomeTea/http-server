@@ -1,4 +1,4 @@
-import { Gitlab } from '@gitbeaker/rest';
+import { BranchSchema, Gitlab, PackageSchema, PipelineSchema, ProjectSchema, TagSchema } from '@gitbeaker/rest';
 // import axios, { Method as AxiosMethod, AxiosResponse } from 'axios';
 // import Agent from 'agentkeepalive';
 // import { BaseRequest } from './HTTP';
@@ -49,54 +49,36 @@ const gitlabToken = '';
 // 	}
 // }
 
-interface GitlabProject {
-	id: number
-	description: string
-	name: string
-	name_with_namespace: string
-	path: string
-	path_with_namespace: string
-	created_at: string
-	default_branch: string
-	tag_list: Array<string>
-	topics: Array<string>
-	ssh_url_to_repo: string
-	http_url_to_repo: string
-	web_url: string
-	readme_url?: string
-	forks_count: number
-	avatar_url?: string
-	star_count: number
-	last_activity_at: string
-	namespace: {
-		id: number
-		name: string
-		path: string
-		kind: 'user'
-		full_path: string
-		parent_id?: string
-		avatar_url: string
-		web_url: string
-	}
-}
+/**
+ * @param {string} ref 分支名称，tag名称，commitid
+ */
+class GitlabBase {
+	public gitlab: InstanceType<typeof Gitlab>;
 
-
-export default new class GitlabService {
-	private gitlab: InstanceType<typeof Gitlab>;
-
-	constructor() {
+	protected constructor() {
 		this.gitlab = new Gitlab({
 			host: gitlabHost,
 			token: gitlabToken
 		});
 	}
+}
+const Account = new class GitlabAccount extends GitlabBase {
+	constructor() {
+		super();
+	}
 
 	async getCurrentAccount() {
 		return await this.gitlab.Users.showCurrentUser();
 	}
+}
+
+const SSHKey = new class GitlabSSHKey extends GitlabBase {
+	constructor() {
+		super();
+	}
 
 	async addSSHKey() {
-		const user = await this.getCurrentAccount();
+		const user = await Account.getCurrentAccount();
 		const { privateKey, publicKey } = await Encryption.gererateGitSSHKey(user.email);
 		const sshKey = await this.gitlab.UserSSHKeys.add(`temp-sshkey-${new Date().getTime()}`, publicKey);
 
@@ -109,6 +91,12 @@ export default new class GitlabService {
 
 	async deleteSSHKey(keyId: number) {
 		return await this.gitlab.UserSSHKeys.remove(keyId);
+	}
+};
+
+const Project = new class GitlabProject extends GitlabBase {
+	constructor() {
+		super();
 	}
 
 	async getProject(projectName: string) {
@@ -125,31 +113,72 @@ export default new class GitlabService {
 		});
 		const total = parseInt(headers['x-total'] as string);
 
-		return { list: body as unknown as Array<GitlabProject>, total };
+		return { list: body as unknown as Array<ProjectSchema>, total };
 	}
 
-	async getBranches(projectId: string | number) {
-		return await this.gitlab.Branches.all(projectId);
+	async getProjectVariables(projectId: string | number) {
+		return await this.gitlab.ProjectVariables.all(projectId);
+	}
+}
+
+const Branch = new class GitlabBranch extends GitlabBase {
+	constructor() {
+		super();
 	}
 
 	async getBranch(projectId: string | number, branchName: string) {
 		return await this.gitlab.Branches.show(projectId, branchName);
 	}
 
-	async getTags(projectId: string | number) {
-		return await this.gitlab.Tags.all(projectId);
+	async pageBranches(projectId: string | number, pagination?: { limit?: number, skip?: number }) {
+		const { skip = 0, limit = 10 } = pagination || {};
+		const { body, headers } = await this.gitlab.Branches.requester.get(`/api/v4/projects/${projectId}/repository/branches`, {
+			searchParams: {
+				per_page: limit,
+				page: skip / limit + 1
+			}
+		});
+		const total = parseInt(headers['x-total'] as string);
+
+		return { list: body as unknown as Array<BranchSchema>, total };
+	}
+}
+
+const Tag = new class GitlabTag extends GitlabBase {
+	constructor() {
+		super();
 	}
 
 	async getTag(projectId: string | number, tagName: string) {
 		return await this.gitlab.Tags.show(projectId, tagName);
 	}
 
-	async getCommits(projectId: string | number, option?: { branchName?: string }, pagination?: { limit?: number, skip?: number }) {
-		const { branchName } = option || {};
+	async pageTags(projectId: string | number, pagination?: { limit?: number, skip?: number }) {
+		const { skip = 0, limit = 10 } = pagination || {};
+		const { body, headers } = await this.gitlab.Tags.requester.get(`/api/v4/projects/${projectId}/repository/tags`, {
+			searchParams: {
+				per_page: limit,
+				page: skip / limit + 1
+			}
+		});
+		const total = parseInt(headers['x-total'] as string);
+
+		return { list: body as unknown as Array<TagSchema>, total };
+	}
+}
+
+const Commit = new class GitlabCommit extends GitlabBase {
+	constructor() {
+		super();
+	}
+
+	async getCommits(projectId: string | number, option?: { ref?: string }, pagination?: { limit?: number, skip?: number }) {
+		const { ref } = option || {};
 		const { skip = 0, limit = 10 } = pagination || {};
 
+		// commit使用requester获取也不返回total
 		return await this.gitlab.Commits.all(projectId, {
-			refName: branchName,
+			refName: ref,
 			...!limit ? { all: true } : {
 				pagination: 'offset',
 				perPage: limit,
@@ -161,26 +190,41 @@ export default new class GitlabService {
 	async getCommit(projectId: string | number, commitId: string) {
 		return await this.gitlab.Commits.show(projectId, commitId);
 	}
+}
 
-	async getCommitBranch(projectId: string | number, commitId: string) {
-		// @ts-ignore
-		return (await this.getCommit(projectId, commitId)).last_pipeline.ref
+const Piepeline = new class GitlabPipeline extends GitlabBase {
+	constructor() {
+		super();
 	}
 
-	async getBranchLatestFile(projectId: string | number, branchName: string, filePath: string) {
-		const fileContent = (await this.gitlab.RepositoryFiles.show(projectId, filePath, branchName)).content;
-
-		return Buffer.from(fileContent, 'base64').toString('utf-8');
+	/**
+	 * 返回新的pipeline信息
+	 * @param projectId
+	 * @param ref
+	 * @param variables 传入的变量值会覆盖新的pipeline中所有job里使用到的原本的变量值
+	 * @returns
+	 */
+	async createPipeline(projectId: string | number, ref: string, variables?: Array<{ key: string, value: string }>) {
+		return await this.gitlab.Pipelines.create(projectId, ref, { variables });
 	}
 
-	async getTagLatestFile(projectName: string, tagName: string, filePath: string) {
-		const fileContent = (await this.gitlab.RepositoryFiles.show(projectName, filePath, tagName)).content;
+	async getProjectPiepelines(projectId: string | number, pagination?: { limit?: number, skip?: number }) {
+		const { skip = 0, limit = 10 } = pagination || {};
+		const { body, headers } = await this.gitlab.Pipelines.requester.get(`/api/v4/projects/${projectId}/pipelines`, {
+			searchParams: {
+				per_page: limit,
+				page: skip / limit + 1
+			}
+		});
+		const total = parseInt(headers['x-total'] as string);
 
-		return Buffer.from(fileContent, 'base64').toString('utf-8');
+		return { list: body as unknown as Array<PipelineSchema>, total };
 	}
+}
 
-	async getCommitFile(projectId: string | number, commitId: string, filePath: string) {
-		return await this.gitlab.RepositoryFiles.showRaw(projectId, filePath, commitId);
+const Job = new class GitlabJob extends GitlabBase {
+	constructor() {
+		super();
 	}
 
 	async getPipelineJobs(projectId: string | number, pipelineId: number) {
@@ -193,11 +237,15 @@ export default new class GitlabService {
 
 	/**
 	 * 没有执行过的job不可以被retry
-	 * retry会生成新的job
-	 * retry过的job，不可以再次retry
+	 * retry会生成新的job，返回新的job id
+	 * retry过的job，不可以再次retry，生成的新的job可以retry
 	 */
 	async retryJob(projectId: string | number, jobId: number) {
 		return await this.gitlab.Jobs.retry(projectId, jobId);
+	}
+
+	async retryPipelineJobs(projectId: string | number, pipelineId: number) {
+		return await this.gitlab.Pipelines.retry(projectId, pipelineId);
 	}
 
 	/** 正在执行的job也可以获取其日志 */
@@ -207,7 +255,8 @@ export default new class GitlabService {
 
 	// ?
 	async downloadJobArtifacts(projectId: string | number, jobId: number, artifactPath: string) {
-		return await this.gitlab.Jobs.requester.get(`/api/v4/projects/${projectId}/jobs/${jobId}/artifacts/${artifactPath}`);
+		return await this.gitlab.JobArtifacts.downloadArchive(projectId, { jobId, artifactPath });
+		// return await this.gitlab.Jobs.requester.get(`/api/v4/projects/${projectId}/jobs/${jobId}/artifacts/${artifactPath}`);
 	}
 
 	/**
@@ -219,9 +268,62 @@ export default new class GitlabService {
 			jobVariablesAttributes: variables && variables.length > 0 ? variables : []
 		});
 	}
+}
 
-	async getProjectVariables(projectId: string | number) {
-		return await this.gitlab.ProjectVariables.all(projectId);
+const Package = new class GitlabPackage extends GitlabBase {
+	constructor() {
+		super();
+	}
+
+	/**
+	 * 也可以在cicd的yaml中使用指令上传
+	 * https://docs.gitlab.com/ee/user/packages/generic_packages/#publish-a-generic-package-by-using-cicd
+	 * @param projectId
+	 * @param packageInfo
+	 * @returns
+	 */
+	async publishPackageToProject(projectId: string | number, packageInfo: { name: string, version: string, file: { content: Buffer, name: string } }) {
+		const { name, version, file } = packageInfo;
+
+		return await this.gitlab.PackageRegistry.publish(projectId, name, version, { filename: file.name, content: new Blob([file.content]) });
+	}
+
+	async pageProjectPackages(projectId: string | number, pagination?: { limit?: number, skip?: number }) {
+		const { skip = 0, limit = 10 } = pagination || {};
+		const { body, headers } = await this.gitlab.Packages.requester.get(`/api/v4/projects/${projectId}/packages`, {
+			searchParams: {
+				per_page: limit,
+				page: skip / limit + 1
+			}
+		});
+		const total = parseInt(headers['x-total'] as string);
+
+		return { list: body as unknown as Array<PackageSchema>, total };
+	}
+
+	async downloadPackage(projectId: string | number, packageInfo: { name: string, version: string, filename: string }, blob?: boolean) {
+		const { name, version, filename } = packageInfo;
+		const blobData = await this.gitlab.PackageRegistry.download(projectId, name, version, filename) as unknown as Blob;
+
+		if (blob) {
+			return blobData;
+		}
+		const arrBuf = await blobData.arrayBuffer();
+
+		return Buffer.from(arrBuf);
+	}
+}
+
+const File = new class GitlabFile extends GitlabBase {
+	constructor() {
+		super();
+	}
+
+	async getRefFile(projectId: string | number, ref: string, filePath: string) {
+		return await this.gitlab.RepositoryFiles.showRaw(projectId, filePath, ref);
+		// const fileContent = (await this.gitlab.RepositoryFiles.show(projectId, filePath, ref)).content;
+
+		// return Buffer.from(fileContent, 'base64').toString('utf-8');
 	}
 
 	/**
@@ -231,4 +333,26 @@ export default new class GitlabService {
 	async uploadFileUseForDescription(projectId: string | number, file: { content: Blob, filename: string }) {
 		return await this.gitlab.Projects.uploadForReference(projectId, file);
 	}
+
+	/**
+	 * @param {string} [option.pathInProject] 是指在项目根路径下的路径,不以/开头,有文件夹的路径会自动创建文件夹，取值如：文件test.txt或文件夹test/test.txt等
+	 */
+	async uploadFileToProject(projectId: string | number, option: { pathInProject: string, branch: string, fileContent: string, describtion: string }) {
+		const { pathInProject, branch, fileContent, describtion } = option;
+
+		return await this.gitlab.RepositoryFiles.create(projectId, pathInProject, branch, fileContent, describtion)
+	}
+}
+
+export default {
+	Account,
+	SSHKey,
+	Project,
+	Branch,
+	Tag,
+	Commit,
+	Piepeline,
+	Job,
+	Package,
+	File
 }
