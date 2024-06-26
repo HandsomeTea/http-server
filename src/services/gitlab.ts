@@ -1,6 +1,8 @@
+import child_process from 'child_process';
 import { BranchSchema, Gitlab, PackageSchema, PipelineSchema, ProjectSchema, TagSchema } from '@gitbeaker/rest';
 // import axios, { Method as AxiosMethod, AxiosResponse } from 'axios';
 // import Agent from 'agentkeepalive';
+// import { fileFromPath } from 'formdata-node/file-from-path'
 // import { BaseRequest } from './HTTP';
 import { Encryption } from './rsa';
 // import { log } from '@/configs';
@@ -43,7 +45,8 @@ const gitlabToken = '';
 // 			...options,
 // 			headers: {
 // 				...options?.headers,
-// 				'x-private-token': gitlabToken
+// 				// 'x-private-token': gitlabToken
+// 				Authorization: `Bearer ${gitlabToken}`
 // 			}
 // 		});
 // 	}
@@ -253,10 +256,21 @@ const Job = new class GitlabJob extends GitlabBase {
 		return await this.gitlab.Jobs.requester.get(`/api/v4/projects/${projectId}/jobs/${jobId}/trace`);
 	}
 
-	// ?
-	async downloadJobArtifacts(projectId: string | number, jobId: number, artifactPath: string) {
-		return await this.gitlab.JobArtifacts.downloadArchive(projectId, { jobId, artifactPath });
-		// return await this.gitlab.Jobs.requester.get(`/api/v4/projects/${projectId}/jobs/${jobId}/artifacts/${artifactPath}`);
+	/**
+	 * 下载某个job的artifacts
+	 * @param projectId
+	 * @param jobId
+	 * @param artifactPath 该路径相对于项目根路径的路径，如某个job定义了artifacts输出为项目跟路劲下的test.txt,则artifactPath为test.txt即可
+	 * @returns
+	 */
+	async downloadJobArtifacts(projectId: string | number, jobId: number, artifactPath: string, blob?: boolean) {
+		const blobData = await this.gitlab.JobArtifacts.downloadArchive(projectId, { jobId, artifactPath });
+		if (blob) {
+			return blobData;
+		}
+		const arrBuf = await blobData.arrayBuffer();
+
+		return Buffer.from(arrBuf);
 	}
 
 	/**
@@ -276,16 +290,60 @@ const Package = new class GitlabPackage extends GitlabBase {
 	}
 
 	/**
+	 * 文件如果不是压缩包，则会在文件内容前写入请求头信息，所以最好上传一个压缩包，如果使用curl命令则没有这个问题
 	 * 也可以在cicd的yaml中使用指令上传
 	 * https://docs.gitlab.com/ee/user/packages/generic_packages/#publish-a-generic-package-by-using-cicd
 	 * @param projectId
 	 * @param packageInfo
 	 * @returns
 	 */
-	async publishPackageToProject(projectId: string | number, packageInfo: { name: string, version: string, file: { content: Buffer, name: string } }) {
+	async publishPackageToProject(projectId: string | number, packageInfo: { name: string, version: string, file: { path: string, content: Buffer, name: string } }, hidden?: boolean) {
 		const { name, version, file } = packageInfo;
 
-		return await this.gitlab.PackageRegistry.publish(projectId, name, version, { filename: file.name, content: new Blob([file.content]) });
+		const data = child_process.execSync(`curl --user "user:${gitlabToken}" --upload-file ${file.path} "${gitlabHost}/api/v4/projects/${projectId}/packages/generic/${name}/${version}/${file.name}?select=package_file&status=${hidden ? 'hidden' : 'default'}"`)
+
+		return JSON.parse(data.toString());
+		// 不会返回创建信息
+		// return await this.gitlab.PackageRegistry.publish(projectId, name, version,
+		// 	{
+		// 		filename: file.name,
+		// 		content: new Blob([file.content])
+		// 	},
+		// 	{
+		// 		status: hidden ? 'hidden' : 'default',
+		// 		select: 'package_file'
+		// 	}
+		// );
+
+		// 会返回创建信息
+		// return await this.gitlab.PackageRegistry.requester.put(`/api/v4/projects/${projectId}/packages/generic/${name}/${version}/${file.name}`, {
+		// 	searchParams: {
+		// 		status: hidden ? 'hidden' : 'default',
+		// 		select: 'package_file'
+		// 	},
+		// 	body: await (async () => {
+		// 		const form = new FormData();
+
+		// 		form.append('upload_file', await fileFromPath(file.path));
+		// 		return form;
+		// 	})()
+		// })
+
+		// 使用原生的方法依然会导致上传的文件，内容前写入请求头信息
+		// const form = new FormData();
+
+		// form.append('upload_file', await fileFromPath(file.path));
+		// return (await GitlabServer.server.put(`/api/v4/projects/${projectId}/packages/generic/${name}/${version}/${file.name}`, form, {
+		// 	params: {
+		// 		status: hidden ? 'hidden' : 'default',
+		// 		select: 'package_file'
+		// 	},
+		// 	baseURL: gitlabHost,
+		// 	headers: {
+		// 		'Content-Type': 'application/octet-stream',
+		// 		Authorization: `Bearer ${gitlabToken}`
+		// 	}
+		// })).data;
 	}
 
 	async pageProjectPackages(projectId: string | number, pagination?: { limit?: number, skip?: number }) {
@@ -311,6 +369,18 @@ const Package = new class GitlabPackage extends GitlabBase {
 		const arrBuf = await blobData.arrayBuffer();
 
 		return Buffer.from(arrBuf);
+	}
+
+	async deletePackage(projectId: string | number, packageId: number) {
+		return await this.gitlab.Packages.remove(projectId, packageId)
+	}
+
+	async listPackageFiles(projectId: string | number, packageId: number) {
+		return await this.gitlab.Packages.allFiles(projectId, packageId)
+	}
+
+	async deletePackageFile(projectId: string | number, packageId: number, fileId: number) {
+		return await this.gitlab.Packages.removeFile(projectId, packageId, fileId);
 	}
 }
 

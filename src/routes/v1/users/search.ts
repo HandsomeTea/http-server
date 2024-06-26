@@ -49,9 +49,40 @@ router.post('/user', asyncHandler(async (_req, res) => {
 	//     result: await Test.findById('jIsh8IcBIrfCM5mjicNO')
 	// });
 	res.success({ result: 'asdasd-post' });
+	// res.success(await Gitlab.Job.runJob(48313, 6820980))
+	// 6820978 6820979 6820980
+	// res.success(await Gitlab.Package.publishPackageToProject(48313, {
+	// 	name: 'use-commit-id',
+	// 	version: '1.0.0',
+	// 	file: {
+	// 		name: 'var.yaml',
+	// 		content: fs.readFileSync('/usr/src/app/var.yaml'),
+	// 		path: '/usr/src/app/var.yaml'
+	// 	}
+	// }));
+	// fs.writeFileSync('/usr/src/app/varss.yaml', await Gitlab.Package.downloadPackage(48313, {
+	// 	name: 'use-commit-id',
+	// 	version: '1.0.0',
+	// 	filename: 'var.yaml'
+	// }) as Buffer)
+	// const blob = await Gitlab.Job.downloadJobArtifacts(48313, 6820978, 'var.yaml');
+
+	// console.log(blob);
+	// res.success();
+	// res.success(await Gitlab.Package.listPackageFiles(48313, 57));
+	// res.success(await Gitlab.Package.deletePackage(48313, 57));
+	// res.success(await Gitlab.Package.deletePackageFile(48313, 57, 116));
+
+	// res.success(await Gitlab.getCommits(48313, { branchName: 'develop' }))
 	// res.success(await Gitlab.getPipelineJobs(47472, 1094869))
-	// res.success(await Gitlab.getJob(47472, 6533817))
-	// res.success(await Gitlab.retryJob(47472, 6533817))
+
+	// 6808689 retry-> 6812036
+	// 6808689 retry-> forbidden
+	// 6812036 retry-> 6812231
+
+	// res.success(await Gitlab.getJob(48313, 6808689))
+	// res.success(await Gitlab.retryJob(48313, 6812036))
+	// res.success(await Gitlab.retryJob(48313, 6808689))
 	// res.success(await Gitlab.getJobLog(47472, 6533817));
 	// res.success(await Gitlab.getProjectVariables(16714));
 	// 选定未执行需要手动执行的job 6711806
