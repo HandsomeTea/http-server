@@ -122,6 +122,22 @@ const Project = new class GitlabProject extends GitlabBase {
 	async getProjectVariables(projectId: string | number) {
 		return await this.gitlab.ProjectVariables.all(projectId);
 	}
+
+	async getUserOwnedProject(user?: { userId?: number, username?: string }) {
+		let { userId = '', username = '' } = user || {};
+
+		if (!userId && !username) {
+			const currentUser = await Account.getCurrentAccount();
+
+			username = currentUser.username;
+			userId = currentUser.id;
+		}
+		return await this.gitlab.Users.allProjects(userId);
+	}
+
+	async getProjectUsers(projectId: string | number) {
+		return await this.gitlab.Projects.allUsers(projectId);
+	}
 }
 
 const Branch = new class GitlabBranch extends GitlabBase {
@@ -222,6 +238,10 @@ const Piepeline = new class GitlabPipeline extends GitlabBase {
 		const total = parseInt(headers['x-total'] as string);
 
 		return { list: body as unknown as Array<PipelineSchema>, total };
+	}
+
+	async getPipelineByCommitId(projectId: string | number, sha: string) {
+		return await this.gitlab.Pipelines.all(projectId, { sha })
 	}
 }
 
