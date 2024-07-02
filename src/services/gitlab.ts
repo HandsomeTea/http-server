@@ -282,8 +282,8 @@ const Job = new class GitlabJob extends GitlabBase {
 	 * @param projectId
 	 * @param jobId
 	 * @param artifactPath 该路径相对于项目根路径的路径，如某个job定义了artifacts输出为项目跟路劲下的test.txt,则artifactPath为test.txt即可
-	 * @param {boolean} [option.response] 直接返回response
-	 * @param {string} [option.savePath] 传入一个文件路径(包括文件名)，直接将response下载的文件报错到该路径
+	 * @param {boolean} [option.response] 直接返回response，会立即返回，不会等待下载完成再返回
+	 * @param {string} [option.savePath] 传入一个文件路径(包括文件名)，直接将response下载的文件报错到该路径，不会立即返回，会等待下载保存完成再返回
 	 * @returns
 	 */
 	async downloadJobArtifacts(projectId: string | number, jobId: number, artifactPath: string, option: { response?: boolean, savePath?: string }): Promise<ReadableStream | undefined> {
