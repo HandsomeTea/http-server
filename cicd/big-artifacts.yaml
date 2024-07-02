@@ -1,0 +1,11 @@
+job_artifacts_test:
+    stage: big_artifacts_test
+    image: registry.sensetime.com/kestrel-to-internal/nodejs-v20:latest
+    script:
+        - cd $CI_PROJECT_DIR
+        - pwd
+        - curl -LO https://download.java.net/openjdk/jdk8u40/ri/jdk_ri-8u40-b25-linux-x64-10_feb_2015.tar.gz
+    artifacts:
+        paths:
+            - $CI_PROJECT_DIR/jdk_ri-8u40-b25-linux-x64-10_feb_2015.tar.gz
+    when: manual # 虽然定义为手动触发，但是需要写在前面的stage全部执行完后，才可以手动触发当前job

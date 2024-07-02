@@ -1,0 +1,3 @@
+stages:
+    - variables_test
+    - big_artifacts_test

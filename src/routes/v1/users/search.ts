@@ -65,9 +65,22 @@ router.post('/user', asyncHandler(async (_req, res) => {
 	// 	version: '1.0.0',
 	// 	filename: 'var.yaml'
 	// }) as Buffer)
-	// const blob = await Gitlab.Job.downloadJobArtifacts(48313, 6820978, 'var.yaml');
-
-	// console.log(blob);
+	// const response = await Gitlab.Job.downloadJobArtifacts(48313, 6850340, 'jdk_ri-8u40-b25-linux-x64-10_feb_2015.tar.gz', {
+	// 	// response: true,
+	// 	savePath: '/usr/src/app/jdk_ri-8u40-b25-linux-x64-10_feb_2015.tar.gz'
+	// });
+	// console.log(2);
+	// const writeStream = fs.createWriteStream('/usr/src/app/jdk_ri-8u40-b25-linux-x64-10_feb_2015.tar.gz');
+	// const stream = new WritableStream({
+	// 	write(chunk) {
+	// 		writeStream.write(chunk);
+	// 	},
+	// 	close() {
+	// 		console.log(1, 'finish');
+	// 	}
+	// });
+	// // @ts-ignore
+	// response.pipeTo(stream);
 	// res.success();
 	// res.success(await Gitlab.Package.listPackageFiles(48313, 57));
 	// res.success(await Gitlab.Package.deletePackage(48313, 57));

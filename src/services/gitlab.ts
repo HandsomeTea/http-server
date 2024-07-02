@@ -1,4 +1,5 @@
 import child_process from 'child_process';
+import fs from 'fs';
 import { BranchSchema, Gitlab, PackageSchema, PipelineSchema, ProjectSchema, TagSchema } from '@gitbeaker/rest';
 // import axios, { Method as AxiosMethod, AxiosResponse } from 'axios';
 // import Agent from 'agentkeepalive';
@@ -281,16 +282,42 @@ const Job = new class GitlabJob extends GitlabBase {
 	 * @param projectId
 	 * @param jobId
 	 * @param artifactPath 该路径相对于项目根路径的路径，如某个job定义了artifacts输出为项目跟路劲下的test.txt,则artifactPath为test.txt即可
+	 * @param {boolean} [option.response] 直接返回response
+	 * @param {string} [option.savePath] 传入一个文件路径(包括文件名)，直接将response下载的文件报错到该路径
 	 * @returns
 	 */
-	async downloadJobArtifacts(projectId: string | number, jobId: number, artifactPath: string, blob?: boolean) {
-		const blobData = await this.gitlab.JobArtifacts.downloadArchive(projectId, { jobId, artifactPath });
-		if (blob) {
-			return blobData;
-		}
-		const arrBuf = await blobData.arrayBuffer();
+	async downloadJobArtifacts(projectId: string | number, jobId: number, artifactPath: string, option: { response?: boolean, savePath?: string }): Promise<ReadableStream | undefined> {
+		// const blobData = await this.gitlab.JobArtifacts.downloadArchive(projectId, { jobId, artifactPath });
+		// if (blob) {
+		// 	return blobData;
+		// }
+		// const arrBuf = await blobData.arrayBuffer();
 
-		return Buffer.from(arrBuf);
+		// return Buffer.from(arrBuf);
+		if (!option.response && !option.savePath) {
+			return undefined;
+		}
+
+		const responseObj = (await this.gitlab.JobArtifacts.requester.get(`/api/v4/projects/${projectId}/jobs/${jobId}/artifacts/${artifactPath}`, {
+			asStream: true
+		})).body as ReadableStream;
+
+		if (option.response) {
+			return responseObj;
+		} else {
+			return new Promise(resolve => {
+				const writeStream = fs.createWriteStream(option.savePath as string);
+				const stream = new WritableStream({
+					write(chunk) {
+						writeStream.write(chunk);
+					},
+					close() {
+						resolve(undefined)
+					}
+				});
+				responseObj.pipeTo(stream);
+			})
+		}
 	}
 
 	/**

@@ -1,0 +1,59 @@
+# 根据变量控制stage的执行，不执行的stage不会出现在pipeline中
+
+.only_linux_script: &only_linux_script
+    - if [ $SYSTEM == "linux" ]; then echo "exec linux script test"; fi;
+
+.only_linux_rules: &only_linux_rules
+    - if: $SYSTEM == "linux"
+      when: on_success # on_success需要needs前置的任务执行成功后，会被自动触发执行，如果设置为手动触发manual，也会在前置job执行完之后才可以手动触发
+    - if: $SYSTEM != "linux"
+      when: never # 不执行的job不会出现在pipeline中
+
+.only_windows_script: &only_windows_script
+    - if [ $SYSTEM == "windows" ]; then echo "exec windows script test"; fi;
+
+.only_windows_rules: &only_windows_rules
+    - if: $SYSTEM == "windows"
+      when: on_success # on_success需要needs前置的任务执行成功后，会被自动触发执行，如果设置为手动触发manual，也会在前置job执行完之后才可以手动触发
+    - if: $SYSTEM != "windows"
+      when: never # 不执行的job不会出现在pipeline中
+
+# 这个job没有任何前置依赖，即第一个执行的job，且不需要手动触发，是自动执行
+common_job:
+    stage: variables_test
+    image: registry.sensetime.com/kestrel-to-internal/nodejs-v20:latest
+    script:
+        - *only_linux_script
+        - *only_windows_script
+        - echo "common script exec"
+        - echo $(uname -a) > $CI_PROJECT_DIR/system.info.txt
+        - cd $CI_PROJECT_DIR
+        - ls
+    artifacts: # 测试发现，所有artifacts定义的内容都会被自动下载到下一个流程中，项目的根目录下
+        paths:
+            - $CI_PROJECT_DIR/system.info.txt
+    when: always
+
+linux_job_test:
+    stage: variables_test
+    image: registry.sensetime.com/kestrel-to-internal/nodejs-v20:latest
+    script:
+        - *only_linux_script
+        - echo "linux script exec"
+        - cd $CI_PROJECT_DIR
+        - ls
+    rules: *only_linux_rules
+    needs:
+        - common_job # 当前job的执行需要前置job:common_job执行且成功才可以
+
+windows_job_test:
+    stage: variables_test
+    image: registry.sensetime.com/kestrel-to-internal/nodejs-v20:latest
+    script:
+        - *only_windows_script
+        - echo "windows script exec"
+        - cd $CI_PROJECT_DIR
+        - ls
+    rules: *only_windows_rules
+    needs:
+        - common_job # 当前job的执行需要前置job:common_job执行且成功才可以

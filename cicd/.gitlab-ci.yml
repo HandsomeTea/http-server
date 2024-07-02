@@ -1,0 +1,9 @@
+variables:
+    SYSTEM: "windows"
+    ARCH: "x86_64"
+    GCC_VERSION: "gcc:7.3.0"
+
+include:
+    - local: stage.yaml
+    - local: var-ctrl-test.yaml
+    - local: big-artifacts.yaml
