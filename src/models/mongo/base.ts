@@ -88,7 +88,7 @@ export default class MongoBase<CM> {
 	// @ts-ignore
 	async insertMany(data: Array<Omit<CM, '_id' | 'createdAt' | 'updatedAt'>>): Promise<Array<CM>> {
 		// return await this.model.insertMany(data.map(a => this.id(a)), { lean: true }) as unknown as Array<CM>;
-		return await this.model.insertMany(data, { lean: true }) as unknown as Array<CM>;
+		return await this.model.insertMany(data) as unknown as Array<CM>;
 	}
 
 	async removeOne(query: FilterQuery<CM>): Promise<{ deletedCount: number }> {

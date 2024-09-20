@@ -1,6 +1,8 @@
 import child_process from 'child_process';
 import fs from 'fs';
-import { BranchSchema, Gitlab, PackageSchema, PipelineSchema, ProjectSchema, TagSchema } from '@gitbeaker/rest';
+import path from 'path';
+import { ArtifactSchema, BranchSchema, Gitlab, JobSchema, PackageSchema, PipelineSchema, ProjectSchema, TagSchema } from '@gitbeaker/rest';
+import YAML from 'yaml';
 // import axios, { Method as AxiosMethod, AxiosResponse } from 'axios';
 // import Agent from 'agentkeepalive';
 // import { fileFromPath } from 'formdata-node/file-from-path'
@@ -103,8 +105,12 @@ const Project = new class GitlabProject extends GitlabBase {
 		super();
 	}
 
-	async getProject(projectName: string) {
+	async getProjectByName(projectName: string) {
 		return (await this.gitlab.Projects.search(projectName)).find(a => a.name === projectName);
+	}
+
+	async getProjectById(projectId: string | number) {
+		return await this.gitlab.Projects.show(projectId);
 	}
 
 	async pageProjects(skip = 0, limit = 10) {
@@ -139,6 +145,30 @@ const Project = new class GitlabProject extends GitlabBase {
 	async getProjectUsers(projectId: string | number) {
 		return await this.gitlab.Projects.allUsers(projectId);
 	}
+
+	/** 将目标文件夹打包为一个压缩包并以流的形式返回 */
+	async getProjectDirFiles(projectId: string | number, option: { commitId?: string, dirPath?: string }, savePath?: string) {
+		const { commitId, dirPath } = option;
+		const response = await this.gitlab.Repositories.showArchive(projectId, { sha: commitId, asStream: true, path: dirPath, fileType: 'tar.gz' });
+
+		if (savePath) {
+			const saveAt = path.join(savePath, 'archive.zip');
+			const writeStream = fs.createWriteStream(saveAt);
+
+			return new Promise(resolve => {
+				const stream = new WritableStream({
+					write(chunk) {
+						writeStream.write(chunk);
+					},
+					close() {
+						resolve(saveAt);
+					}
+				});
+				response.pipeTo(stream);
+			});
+		}
+		return response;
+	}
 }
 
 const Branch = new class GitlabBranch extends GitlabBase {
@@ -167,6 +197,10 @@ const Branch = new class GitlabBranch extends GitlabBase {
 const Tag = new class GitlabTag extends GitlabBase {
 	constructor() {
 		super();
+	}
+
+	async createTag(projectId: string | number, tagName: string, ref: string) {
+		return await this.gitlab.Tags.create(projectId, tagName, ref);
 	}
 
 	async getTag(projectId: string | number, tagName: string) {
@@ -210,6 +244,58 @@ const Commit = new class GitlabCommit extends GitlabBase {
 	async getCommit(projectId: string | number, commitId: string) {
 		return await this.gitlab.Commits.show(projectId, commitId);
 	}
+
+	async getCommitRefs(projectId: string | number, commitId: string, firstBranch = false) {
+		const refs = await this.gitlab.Commits.allReferences(projectId, commitId);
+
+		if (firstBranch) {
+			return refs.find(a => a.type === 'branch');
+		}
+		return refs;
+	}
+
+	async getCommitCiConfig(projectId: string | number, commitId: string) {
+		const project = await Project.getProjectById(projectId);
+		const yaml = await this.gitlab.RepositoryFiles.showRaw(projectId, '.gitlab-ci.yml', commitId) as string
+		const result = await this.gitlab.requester.post('/api/graphql', {
+			body: {
+				operationName: 'getCiConfigData',
+				variables: JSON.stringify({
+					sha: commitId,
+					projectPath: project.path_with_namespace,
+					content: yaml
+				}),
+				query: `
+				query getCiConfigData($projectPath: ID!, $sha: String, $content: String!) {
+  					ciConfig(projectPath: $projectPath, sha: $sha, content: $content) {
+    					errors
+						includes {
+							location
+							type
+							blob
+							raw
+							__typename
+						}
+						mergedYaml
+						status
+  					}
+				}
+			`
+			}
+		});
+		const data = result.body as { data: { ciConfig: { status: 'INVALID' | 'VALID', mergedYaml: string, errors: string[] } } };
+
+		return YAML.parse(data.data.ciConfig.mergedYaml);
+	}
+
+	async getCommitJobArtifactsList(projectId: string | number, commitId: string, jobName: string) {
+		const ci = await this.getCommitCiConfig(projectId, commitId);
+
+		return (ci[jobName]?.artifacts?.paths || [])
+			// .filter((a: string) => a.startsWith('$CI_PROJECT_DIR/'))
+			// .map((a: string) => a.replace('$CI_PROJECT_DIR/', ''))
+			.sort((a: string, b: string) => a.length - b.length) as Array<string>
+	}
 }
 
 const Piepeline = new class GitlabPipeline extends GitlabBase {
@@ -224,8 +310,11 @@ const Piepeline = new class GitlabPipeline extends GitlabBase {
 	 * @param variables 传入的变量值会覆盖新的pipeline中所有job里使用到的原本的变量值
 	 * @returns
 	 */
-	async createPipeline(projectId: string | number, ref: string, variables?: Array<{ key: string, value: string }>) {
-		return await this.gitlab.Pipelines.create(projectId, ref, { variables });
+	async createPipeline(projectId: string | number, ref: { branch?: string, tag?: string }, variables?: Array<{ key: string, value: string }>) {
+		if (!ref.branch && !ref.tag) {
+			return;
+		}
+		return await this.gitlab.Pipelines.create(projectId, (ref.branch || ref.tag) as string, { variables });
 	}
 
 	async getProjectPiepelines(projectId: string | number, pagination?: { limit?: number, skip?: number }) {
@@ -244,6 +333,112 @@ const Piepeline = new class GitlabPipeline extends GitlabBase {
 	async getPipelineByCommitId(projectId: string | number, sha: string) {
 		return await this.gitlab.Pipelines.all(projectId, { sha })
 	}
+
+	async getPipeline(projectId: string | number, pipelineId: number) {
+		return await this.gitlab.Pipelines.show(projectId, pipelineId);
+	}
+
+	async getPipelineJobDependencies(projectId: string | number, pipelineId: number) {
+		const pipeline = await this.getPipeline(projectId, pipelineId);
+		const project = await Project.getProjectById(projectId);
+
+		const { body } = await this.gitlab.requester.post('/api/graphql', {
+			body: {
+				operationName: 'getDagVisData',
+				variables: JSON.stringify({
+					iid: pipeline.iid,
+					projectPath: project.path_with_namespace
+				}),
+				query: `
+				query getDagVisData($projectPath: ID!, $iid: ID!) {
+					project(fullPath: $projectPath) {
+						id
+						pipeline(iid: $iid) {
+							id
+							stages {
+								nodes {
+									id
+									name
+									groups {
+										nodes {
+											id
+											name
+											size
+											jobs {
+												nodes {
+													id
+													name
+													needs {
+														nodes {
+															id
+															name
+															__typename
+														}
+														__typename
+													}
+													__typename
+												}
+												__typename
+											}
+											__typename
+										}
+										__typename
+									}
+									__typename
+								}
+								__typename
+							}
+							__typename
+						}
+						__typename
+					}
+				}
+			`
+			}
+		});
+
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		const data = body.data.project.pipeline.stages.nodes;
+		const result: {
+			stages: Record<string, Array<string>>,
+			jobs: Array<{ id: number, name: string }>,
+			jobNeeds: Record<string, Array<string>>
+		} = {
+			stages: {},
+			jobs: [],
+			jobNeeds: {}
+		};
+
+		for (const stage of data) {
+			const stageName = stage.name;
+			const jobs = stage.groups.nodes;
+			const jobNames = [];
+
+			for (const job of jobs) {
+				const _job = job.jobs.nodes[0];
+
+				jobNames.push(_job.name);
+				result.jobs.push({
+					id: parseInt(_job.id.match(/\/[0-9].*/)[0].replace('/', '')),
+					name: _job.name
+				});
+
+				const needs = _job.needs.nodes;
+
+				if (needs.length > 0) {
+					const needsJobNames = [];
+
+					for (const need of needs) {
+						needsJobNames.push(need.name)
+					}
+					result.jobNeeds[job.name] = needsJobNames;
+				}
+			}
+			result.stages[stageName] = jobNames;
+		}
+		return result;
+	}
 }
 
 const Job = new class GitlabJob extends GitlabBase {
@@ -251,8 +446,41 @@ const Job = new class GitlabJob extends GitlabBase {
 		super();
 	}
 
+	private formatJob(job: JobSchema) {
+		return {
+			id: job.id,
+			status: job.status,
+			stage: job.stage,
+			name: job.name,
+			ref: job.ref,
+			created_at: job.created_at,
+			started_at: job.started_at,
+			finished_at: job.finished_at,
+			erased_at: job.erased_at,
+			commit: {
+				id: job.commit.id,
+				short_id: job.commit.short_id,
+				created_at: job.commit.created_at,
+				message: job.commit.message,
+				committer_name: job.commit.committer_name,
+				committer_email: job.commit.committer_email,
+				committed_date: job.commit.committed_date
+			},
+			pipeline: {
+				id: job.pipeline.id,
+				iid: job.pipeline.iid,
+				project_id: job.pipeline.project_id,
+				sha: job.pipeline.sha,
+				ref: job.pipeline.ref,
+				status: job.pipeline.status
+			},
+			artifacts: job.artifacts,
+			artifacts_expire_at: job.artifacts_expire_at
+		};
+	}
+
 	async getPipelineJobs(projectId: string | number, pipelineId: number) {
-		return await this.gitlab.Jobs.all(projectId, { pipelineId });
+		return (await this.gitlab.Jobs.all(projectId, { pipelineId })).map(job => this.formatJob(job as JobSchema));
 	}
 
 	async getJob(projectId: string | number, jobId: number) {
@@ -320,6 +548,12 @@ const Job = new class GitlabJob extends GitlabBase {
 		}
 	}
 
+	async downloadJobArchive(projectId: string | number, tagName: string, jobName: string) {
+		return (await this.gitlab.JobArtifacts.requester.get(`/api/v4/projects/${projectId}/jobs/artifacts/${tagName}/download?job=${jobName}`, {
+			asStream: true
+		})).body as ReadableStream;
+	}
+
 	/**
 	 * 执行某个状态为manual(需要手动触发)的job，不会生成新的job
 	 * 使用了变量run的job，retry时会使用run时的变量值，不会使用原先的变量值
@@ -328,6 +562,82 @@ const Job = new class GitlabJob extends GitlabBase {
 		return await this.gitlab.Jobs.play(projectId, jobId, {
 			jobVariablesAttributes: variables && variables.length > 0 ? variables : []
 		});
+	}
+
+	async removeJob(projectId: string | number, jobId: number) {
+		return await this.gitlab.Jobs.erase(projectId, jobId);
+	}
+
+	async jobHasArtifacts(projectId: string | number, jobId: number) {
+		const job = await this.getJob(projectId, jobId);
+
+		return !!(job.artifacts as Array<ArtifactSchema>).find(a => a.file_type === 'archive');
+	}
+
+	async getJobArtifactsExpiredAt(projectId: string | number, jobId: number) {
+		return (await this.getJob(projectId, jobId)).artifacts_expire_at as string | null;
+	}
+
+	async removeJobArtifacts(projectId: string | number, jobId: number) {
+		return await this.gitlab.JobArtifacts.remove(projectId, { jobId });
+	}
+
+	async getNeedsJob(projectId: string | number, jobId: number) {
+		const job = await this.getJob(projectId, jobId);
+		const { jobNeeds, jobs } = await Piepeline.getPipelineJobDependencies(projectId, job.pipeline.id);
+		const needs = jobNeeds[job.name];
+
+		if (needs && needs.length > 0) {
+			return jobs.filter(a => needs.includes(a.name));
+		}
+		return [];
+	}
+
+	async jobStatusByName(projectId: string | number, pipelineId: number, jobName: string): Promise<{
+		id: number
+		status: 'ok' | 'running' | 'created' | 'expired' | 'failed'
+		stage: string
+	} | undefined> {
+		const pipelineJobs = await this.getPipelineJobs(projectId, pipelineId);
+		const job = pipelineJobs.find(j => j.name === jobName);
+
+		if (!job) {
+			return;
+		}
+		if (job.status === 'manual' || job.status === 'skipped' || job.status === 'created') {
+			return {
+				status: 'created',
+				id: job.id,
+				stage: job.stage
+			};
+		}
+		if (job.status === 'failed') {
+			return {
+				status: 'failed',
+				id: job.id,
+				stage: job.stage
+			};
+		}
+
+		if (job.status === 'pending' || job.status === 'running') {
+			return {
+				status: 'running',
+				id: job.id,
+				stage: job.stage
+			};
+		}
+		if (job.status === 'success' && job.artifacts_expire_at && new Date().getTime() > new Date(job.artifacts_expire_at).getTime()) {
+			return {
+				status: 'expired',
+				id: job.id,
+				stage: job.stage
+			};
+		}
+		return {
+			status: 'ok',
+			id: job.id,
+			stage: job.stage
+		};
 	}
 }
 
@@ -349,7 +659,16 @@ const Package = new class GitlabPackage extends GitlabBase {
 
 		const data = child_process.execSync(`curl --user "user:${gitlabToken}" --upload-file ${file.path} "${gitlabHost}/api/v4/projects/${projectId}/packages/generic/${name}/${version}/${file.name}?select=package_file&status=${hidden ? 'hidden' : 'default'}"`)
 
-		return JSON.parse(data.toString());
+		return JSON.parse(data.toString()) as {
+			id: number
+			package_id: number
+			created_at: string
+			updated_at: string
+			size: number
+			file_name: string
+			file_sha256: string
+			status: 'default' | 'hidden'
+		};
 		// 不会返回创建信息
 		// return await this.gitlab.PackageRegistry.publish(projectId, name, version,
 		// 	{
@@ -406,8 +725,8 @@ const Package = new class GitlabPackage extends GitlabBase {
 		return { list: body as unknown as Array<PackageSchema>, total };
 	}
 
-	async downloadPackage(projectId: string | number, packageInfo: { name: string, version: string, filename: string }, blob?: boolean) {
-		const { name, version, filename } = packageInfo;
+	async downloadPackageFile(projectId: string | number, packageFileInfo: { name: string, version: string, filename: string }, blob?: boolean) {
+		const { name, version, filename } = packageFileInfo;
 		const blobData = await this.gitlab.PackageRegistry.download(projectId, name, version, filename) as unknown as Blob;
 
 		if (blob) {
