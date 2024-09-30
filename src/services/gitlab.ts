@@ -2,12 +2,14 @@ import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { ArtifactSchema, BranchSchema, Gitlab, JobSchema, PackageSchema, PipelineSchema, ProjectSchema, TagSchema } from '@gitbeaker/rest';
+import { GitbeakerRequestError } from '@gitbeaker/requester-utils';
 import YAML from 'yaml';
 // import axios, { Method as AxiosMethod, AxiosResponse } from 'axios';
 // import Agent from 'agentkeepalive';
 // import { fileFromPath } from 'formdata-node/file-from-path'
 // import { BaseRequest } from './HTTP';
 import { Encryption } from './rsa';
+import { ErrorCode } from '@/configs';
 // import { log } from '@/configs';
 
 const gitlabHost = 'https://gitlab.bj.sensetime.com';
@@ -55,6 +57,27 @@ const gitlabToken = '';
 // 	}
 // }
 
+const ExceptionHandler = (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+	const _descriptor = descriptor.value;
+
+	descriptor.value = async function (...args: Array<unknown>) {
+		try {
+			return await _descriptor.apply(this, args);
+		} catch (error) {
+			const errorStr = `execute ${target.constructor.name}.${propertyKey} error: ${(error as GitbeakerRequestError).cause?.description || error}`;
+
+			if (error instanceof GitbeakerRequestError) {
+				throw new Exception({
+					message: errorStr,
+					code: ErrorCode.REQUEST_GITLAB_ERROR,
+					status: error.cause?.response.status || 500
+				});
+			}
+			throw new Exception(errorStr, ErrorCode.REQUEST_GITLAB_ERROR);
+		}
+	};
+}
+
 /**
  * @param {string} ref 分支名称，tag名称，commitid
  */
@@ -68,7 +91,7 @@ class GitlabBase {
 		});
 	}
 }
-const Account = new class GitlabAccount extends GitlabBase {
+class GitlabAccount extends GitlabBase {
 	constructor() {
 		super();
 	}
@@ -78,7 +101,7 @@ const Account = new class GitlabAccount extends GitlabBase {
 	}
 }
 
-const SSHKey = new class GitlabSSHKey extends GitlabBase {
+class GitlabSSHKey extends GitlabBase {
 	constructor() {
 		super();
 	}
@@ -100,15 +123,16 @@ const SSHKey = new class GitlabSSHKey extends GitlabBase {
 	}
 };
 
-const Project = new class GitlabProject extends GitlabBase {
+class GitlabProject extends GitlabBase {
 	constructor() {
 		super();
 	}
 
-	async getProjectByName(projectName: string) {
-		return (await this.gitlab.Projects.search(projectName)).find(a => a.name === projectName);
+	async getProjectByName(projectName: string, withGroup = false) {
+		return (await this.gitlab.Projects.search(projectName)).find(a => !withGroup ? a.name === projectName : a.path_with_namespace === projectName);
 	}
 
+	@ExceptionHandler
 	async getProjectById(projectId: string | number) {
 		return await this.gitlab.Projects.show(projectId);
 	}
@@ -146,7 +170,7 @@ const Project = new class GitlabProject extends GitlabBase {
 		return await this.gitlab.Projects.allUsers(projectId);
 	}
 
-	/** 将目标文件夹打包为一个压缩包并以流的形式返回 */
+	/** 将目标文件夹打包为一个压缩包并以流的形式返回,如果文件夹不存在，则返回空流 */
 	async getProjectDirFiles(projectId: string | number, option: { commitId?: string, dirPath?: string }, savePath?: string) {
 		const { commitId, dirPath } = option;
 		const response = await this.gitlab.Repositories.showArchive(projectId, { sha: commitId, asStream: true, path: dirPath, fileType: 'tar.gz' });
@@ -171,7 +195,7 @@ const Project = new class GitlabProject extends GitlabBase {
 	}
 }
 
-const Branch = new class GitlabBranch extends GitlabBase {
+class GitlabBranch extends GitlabBase {
 	constructor() {
 		super();
 	}
@@ -194,7 +218,7 @@ const Branch = new class GitlabBranch extends GitlabBase {
 	}
 }
 
-const Tag = new class GitlabTag extends GitlabBase {
+class GitlabTag extends GitlabBase {
 	constructor() {
 		super();
 	}
@@ -221,7 +245,7 @@ const Tag = new class GitlabTag extends GitlabBase {
 	}
 }
 
-const Commit = new class GitlabCommit extends GitlabBase {
+class GitlabCommit extends GitlabBase {
 	constructor() {
 		super();
 	}
@@ -298,7 +322,7 @@ const Commit = new class GitlabCommit extends GitlabBase {
 	}
 }
 
-const Piepeline = new class GitlabPipeline extends GitlabBase {
+class GitlabPipeline extends GitlabBase {
 	constructor() {
 		super();
 	}
@@ -441,7 +465,7 @@ const Piepeline = new class GitlabPipeline extends GitlabBase {
 	}
 }
 
-const Job = new class GitlabJob extends GitlabBase {
+class GitlabJob extends GitlabBase {
 	constructor() {
 		super();
 	}
@@ -641,7 +665,7 @@ const Job = new class GitlabJob extends GitlabBase {
 	}
 }
 
-const Package = new class GitlabPackage extends GitlabBase {
+class GitlabPackage extends GitlabBase {
 	constructor() {
 		super();
 	}
@@ -750,7 +774,7 @@ const Package = new class GitlabPackage extends GitlabBase {
 	}
 }
 
-const File = new class GitlabFile extends GitlabBase {
+class GitlabFile extends GitlabBase {
 	constructor() {
 		super();
 	}
@@ -780,15 +804,13 @@ const File = new class GitlabFile extends GitlabBase {
 	}
 }
 
-export default {
-	Account,
-	SSHKey,
-	Project,
-	Branch,
-	Tag,
-	Commit,
-	Piepeline,
-	Job,
-	Package,
-	File
-}
+export const Account = new GitlabAccount();
+export const SSHKey = new GitlabSSHKey();
+export const Project = new GitlabProject();
+export const Branch = new GitlabBranch();
+export const Tag = new GitlabTag();
+export const Commit = new GitlabCommit();
+export const Piepeline = new GitlabPipeline();
+export const Job = new GitlabJob();
+export const Package = new GitlabPackage();
+export const File = new GitlabFile();

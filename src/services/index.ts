@@ -4,7 +4,7 @@ import OAuth from './OAuth';
 import LDAP from './LDAP';
 import MQ from './MQ';
 import File from './file';
-import Gitlab from './gitlab';
+import * as Gitlab from './gitlab';
 import Gerrit from './gerrit';
 import schedule from './schedule';
 import Redis from './Redis';

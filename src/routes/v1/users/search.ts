@@ -49,6 +49,7 @@ router.post('/user', asyncHandler(async (_req, res) => {
 	//     result: await Test.findById('jIsh8IcBIrfCM5mjicNO')
 	// });
 	res.success({ result: 'asdasd-post' });
+	// res.success(await Gitlab.Project.getProjectById(222693))
 	// res.success(await Gitlab.Job.runJob(48313, 6820980))
 	// 6820978 6820979 6820980
 	// res.success(await Gitlab.Package.publishPackageToProject(48313, {
