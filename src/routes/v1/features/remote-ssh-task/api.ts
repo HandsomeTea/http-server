@@ -81,7 +81,7 @@ import { RemoteSSHTaskService, TaskScheduleService } from './service';
  * @apiName exec-remote-ssh-task
  * @apiGroup SSH
  * @apiVersion 1.0.0
- * @apiParam (params) {String} taskId 任务id
+ * @apiParam {String} taskId 任务id
  * @apiUse ErrorApiResult
  */
 router.post('/remote-ssh-task/task/:taskId/exec', asyncHandler(async (req, res) => {
@@ -97,7 +97,7 @@ router.post('/remote-ssh-task/task/:taskId/exec', asyncHandler(async (req, res) 
  * @apiName exec-remote-ssh-task-with-process
  * @apiGroup SSH
  * @apiVersion 1.0.0
- * @apiParam (params) {String} taskId 任务id
+ * @apiParam {String} taskId 任务id
  * @apiUse ErrorApiResult
  */
 router.post('/remote-ssh-task/task/:taskId/exec/process', asyncHandler(async (req, res) => {
@@ -213,7 +213,7 @@ router.post('/remote-ssh-task/task/:taskId/exec/process', asyncHandler(async (re
  * @apiName stop-remote-ssh-task
  * @apiGroup SSH
  * @apiVersion 1.0.0
- * @apiParam (params) {String} recordId 中断任务的执行记录id
+ * @apiParam {String} recordId 中断任务的执行记录id
  * @apiUse ErrorApiResult
  */
 router.put('/remote-ssh-task/record/:recordId/stop', asyncHandler(async (req, res) => {
@@ -237,7 +237,7 @@ router.put('/remote-ssh-task/record/:recordId/stop', asyncHandler(async (req, re
  * @apiName get-remote-ssh-task-log
  * @apiGroup SSH
  * @apiVersion 1.0.0
- * @apiParam (params) {String} recordId 中断任务的执行记录id
+ * @apiParam {String} recordId 中断任务的执行记录id
  * @apiUse ErrorApiResult
  */
 router.get('/remote-ssh-task/record/:recordId/log', asyncHandler(async (req, res) => {

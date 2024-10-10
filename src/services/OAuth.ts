@@ -715,10 +715,10 @@ export default class OauthService {
  * @apiGroup account-v2
  * @apiDescription 无验证
  * @apiVersion 2.0.0
- * @apiParam (params) {string} oauthType oauth类型，取值：deepin、gt
- * @apiParam (params) {string} tenantId tenantId，例如t2
- * @apiParam  (query) {string} code 回调的code
- * @apiParam  (query) {string} state 回调的state
+ * @apiParam {String} oauthType oauth类型，取值：deepin、gt
+ * @apiParam {String} tenantId tenantId，例如t2
+ * @apiQuery {String} code 回调的code
+ * @apiQuery {String} state 回调的state
  * @apiSuccess {String} html 一个html页面.
  */
 // router.get('/oauth/:oauthType/tenant/:tenantId/callback', asyncHandler(async (req, res) => {

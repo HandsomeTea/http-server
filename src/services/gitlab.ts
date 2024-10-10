@@ -9,7 +9,7 @@ import YAML from 'yaml';
 // import { fileFromPath } from 'formdata-node/file-from-path'
 // import { BaseRequest } from './HTTP';
 import { Encryption } from './rsa';
-import { ErrorCode } from '@/configs';
+import { ErrorCode, log } from '@/configs';
 // import { log } from '@/configs';
 
 const gitlabHost = 'https://gitlab.bj.sensetime.com';
@@ -307,8 +307,26 @@ class GitlabCommit extends GitlabBase {
 			`
 			}
 		});
-		const data = result.body as { data: { ciConfig: { status: 'INVALID' | 'VALID', mergedYaml: string, errors: string[] } } };
+		const data = result.body as {
+			data: { ciConfig?: { status: 'INVALID' | 'VALID', mergedYaml: string, errors: string[] } }
+			errors: Array<{
+				message: string
+				locations: Array<{ line: number, column: number }>
+				path: Array<string>
+			}>
+		};
 
+		if (!data.data.ciConfig || data.data.ciConfig.status === 'INVALID') {
+			let errorStr = 'unknown error';
+
+			if (data.errors) {
+				errorStr = data.errors.map(e => `${e.message} at ${e.locations.map(l => `line ${l.line}, column ${l.column}`).join(', ')}`).join(', ');
+			} else if (data.data.ciConfig?.errors) {
+				errorStr = data.data.ciConfig.errors.join(', ');
+			}
+			log().error(`get ci config from project ${projectId} with commit ${commitId} failed: ${errorStr}`, ErrorCode.INVALID_ARGUMENTS);
+			return {};
+		}
 		return YAML.parse(data.data.ciConfig.mergedYaml);
 	}
 

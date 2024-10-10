@@ -11,10 +11,10 @@ router.route('/administrator')
 	 * @api {post} /api/v1/user/administrator 新建管理员用户
 	 * @apiGroup 管理员账户
 	 * @apiVersion 1.0.0
-	 * @apiParam (body) {string} name 姓名
-	 * @apiParam (body) {string} account 账户，登录使用
-	 * @apiParam (body) {string} password 密码
-	 * @apiParam (body) {string} [phone] 手机号
+	 * @apiBody {String} name 姓名
+	 * @apiBody {String} account 账户，登录使用
+	 * @apiBody {String} password 密码
+	 * @apiBody {String} [phone] 手机号
 	 */
 	.post(asyncHandler(async (_req, _res) => {
 		// check(req.body, {
@@ -47,10 +47,10 @@ router.route('/administrator')
 	 * @api {get} /api/v1/user/administrator 管理员用户分页查询
 	 * @apiGroup 管理员账户
 	 * @apiVersion 1.0.0
-	 * @apiParam (query) {string} [name] 姓名
-	 * @apiParam (query) {string} [phone] 手机号
-	 * @apiParam (query) {number} [skip] 跳过数
-	 * @apiParam (query) {number} [limit] 获取数
+	 * @apiQuery {String} [name] 姓名
+	 * @apiQuery {String} [phone] 手机号
+	 * @apiQuery {Number} [skip] 跳过数
+	 * @apiQuery {Number} [limit] 获取数
 	 */
 	.get(asyncHandler(async (_req, _res) => {
 		// res.sendData({
@@ -71,7 +71,7 @@ router.route('/administrator/:account').all((req, _res, next) => {
 	 * @api {delete} /api/v1/user/administrator/:account 管理员删除
 	 * @apiGroup 管理员账户
 	 * @apiVersion 1.0.0
-	 * @apiParam (params) {String} account 管理员账户
+	 * @apiParam {String} account 管理员账户
 	 */
 	.delete(asyncHandler(async (_req, _res) => {
 		// const adminCount = await AdminUsers.count();
@@ -85,10 +85,10 @@ router.route('/administrator/:account').all((req, _res, next) => {
 	 * @api {put} /api/v1/user/administrator/:account 管理员修改
 	 * @apiGroup 管理员账户
 	 * @apiVersion 1.0.0
-	 * @apiParam (params) {String} account 管理员账户
-	 * @apiParam (body) {string} [name] 姓名
-	 * @apiParam (body) {string} [password] 密码
-	 * @apiParam (body) {string} [phone] 手机号
+	 * @apiParam {String} account 管理员账户
+	 * @apiBody {String} [name] 姓名
+	 * @apiBody {String} [password] 密码
+	 * @apiBody {String} [phone] 手机号
 	 */
 	.put(asyncHandler(async (_req, _res) => {
 		// const { name, password, phone } = req.body as AdminUserModel;
@@ -103,7 +103,7 @@ router.route('/administrator/:account').all((req, _res, next) => {
 	 * @api {get} /api/v1/user/administrator/:account 管理员详情查询
 	 * @apiGroup 管理员账户
 	 * @apiVersion 1.0.0
-	 * @apiParam (params) {String} account 管理员账户
+	 * @apiParam {String} account 管理员账户
 	 */
 	.get(asyncHandler(async (_req, _res) => {
 		// res.sendData((await AdminUsers.find({ account: req.params.account }))[0]);
