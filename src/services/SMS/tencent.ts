@@ -58,7 +58,7 @@ const TencentSmsServer = new class TencentSMS implements SmsService {
 
 	private async getSignName() {
 		const { DescribeSignListStatusSet } = await this.service.DescribeSmsSignList({
-			SignIdSet: [parseInt(this.signId as string)],
+			SignIdSet: [parseInt(this.signId)],
 			International: 0
 		});
 
@@ -73,7 +73,7 @@ const TencentSmsServer = new class TencentSMS implements SmsService {
 	async sendMessage(phone: string, smsTemplatetype: TencentSmsType, variable: Array<string>) {
 		const result = await this.service.SendSms({
 			PhoneNumberSet: [`+86${phone}`],
-			SmsSdkAppId: this.appId as string,
+			SmsSdkAppId: this.appId,
 			TemplateId: `${(await this.getTemplate(smsTemplatetype)).TemplateId}`,
 			SignName: await this.getSignName(),
 			TemplateParamSet: variable

@@ -79,13 +79,11 @@ export default class MongoBase<CM> {
 		// }
 	}
 
-	// @ts-ignore
 	async insertOne(data: Omit<CM, '_id' | 'createdAt' | 'updatedAt'>): Promise<CM> {
 		// return await new this.model(this.id(data)[0]).save() as unknown as CM;
 		return await new this.model(data).save() as unknown as CM;
 	}
 
-	// @ts-ignore
 	async insertMany(data: Array<Omit<CM, '_id' | 'createdAt' | 'updatedAt'>>): Promise<Array<CM>> {
 		// return await this.model.insertMany(data.map(a => this.id(a)), { lean: true }) as unknown as Array<CM>;
 		return await this.model.insertMany(data) as unknown as Array<CM>;

@@ -307,6 +307,7 @@ export const TaskScheduleService = new class SSHFrame {
 
 	private async dealTaskQueue() {
 		this.getDeviceTaskQueue.on('completed', (job, result: Device) => {
+			// eslint-disable-next-line no-console
 			console.log('获取设备成功');
 			this.getCommandsTaskQueue.add({ record: job.data, device: result }, { jobId: job.data._id.toString() });
 			job.remove();
@@ -320,6 +321,7 @@ export const TaskScheduleService = new class SSHFrame {
 		})
 
 		this.getCommandsTaskQueue.on('completed', (job, result: Array<string>) => {
+			// eslint-disable-next-line no-console
 			console.log('获取命令成功');
 			this.remoteSSHTaskQueue.add({ record: job.data.record, commands: result, device: job.data.device }, { jobId: job.data.record._id.toString() });
 			job.remove();
@@ -330,11 +332,13 @@ export const TaskScheduleService = new class SSHFrame {
 			job.remove();
 			this.getCommandsTaskQueue.add({ record, device }, { jobId: record._id.toString() });
 		}).process(this.getCommandsConcurrencyLimit, async job => {
+			// eslint-disable-next-line no-console
 			console.log('开始获取命令');
 			return await this.getCommands(job.data.record._id.toString());
 		})
 
 		this.remoteSSHTaskQueue.on('completed', (job) => {
+			// eslint-disable-next-line no-console
 			console.log('任务执行成功');
 			job.remove();
 		}).on('failed', (job) => {
@@ -345,6 +349,7 @@ export const TaskScheduleService = new class SSHFrame {
 			job.remove();
 			this.remoteSSHTaskQueue.add({ record, commands, device }, { jobId: record._id.toString() });
 		}).process(this.remoteSSHTaskConcurrencyLimit, async job => {
+			// eslint-disable-next-line no-console
 			console.log('开始执行任务');
 			await this.executeCommands(job.data.commands, job.data.device, job.data.record._id.toString());
 		});

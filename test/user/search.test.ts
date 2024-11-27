@@ -21,15 +21,15 @@ import { describe, it } from 'mocha';
 import server from 'supertest';
 
 describe('POST /api/v1/user/user', () => {
-    it('response with json', done => {
-        server('http://localhost:3004')
-            .post('/api/v1/user/user')
-            .set('Accept', 'application/json')
-            .expect('Content-Type', /json/)
-            .timeout(10 * 1000)
-            .expect(200, done).expect(res => {
-                // eslint-disable-next-line no-console
-                console.log('111', res.body);
-            });
-    });
+	it('response with json', done => {
+		server('http://localhost:3004')
+			.post('/api/v1/user/user')
+			.set('Accept', 'application/json')
+			.expect('Content-Type', /json/)
+			.timeout(10 * 1000)
+			.expect(200, done).expect(res => {
+				// eslint-disable-next-line no-console
+				console.log('111', res.body);
+			});
+	});
 });

@@ -101,7 +101,7 @@ export default new class SQL {
                     arr.push(`${key} not in (${_notIn.join(', ')})`);
                 }
                 if ($regexp) {
-                    let regStr = new RegExp($regexp as string | RegExp, '').toString();
+                    let regStr = new RegExp($regexp, '').toString();
 
                     regStr = regStr.substring(1, regStr.length - 1);
                     arr.push(`${key} regexp ${regStr}`);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare interface httpArgument {
 	params?: Record<string, any>;
 	data?: Record<string, unknown>;
@@ -24,10 +25,6 @@ type DBServerType = 'mongodb' | 'mysql' | 'dameng' | 'postgres';
 declare namespace Express {
 	interface Response {
 		success: (result?: unknown) => void
-	}
-
-	interface Request {
-
 	}
 }
 

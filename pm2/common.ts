@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable camelcase */
 import path from 'path';
 
 export default {

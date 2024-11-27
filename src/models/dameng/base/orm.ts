@@ -210,7 +210,7 @@ export default class DMBase<TB extends Record<string, any>>{
     public async findOne<K extends keyof TB>(query: QueryOption<TB>, projection: Array<K>): Promise<{ [F in K]: TB[F] } | null>
 
     public async findOne(query: QueryOption<TB>, projection?: Array<keyof TB>): Promise<TB | null> {
-        const fields = (projection || Object.keys(DMDBModel[this.tableName])) as Array<keyof TB>;
+        const fields = (projection || Object.keys(DMDBModel[this.tableName]));
 
         return (await this.find({ ...query, offset: 0, limit: 1 }, fields))[0] || null;
     }

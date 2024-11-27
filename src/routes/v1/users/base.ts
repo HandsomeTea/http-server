@@ -16,7 +16,7 @@ router.route('/administrator')
 	 * @apiBody {String} password 密码
 	 * @apiBody {String} [phone] 手机号
 	 */
-	.post(asyncHandler(async (_req, _res) => {
+	.post(asyncHandler(async (/*req, res*/) => {
 		// check(req.body, {
 		// 	name: { type: String, notEmpty: true, required: true },
 		// 	account: { type: String, notEmpty: true, required: true },
@@ -52,7 +52,7 @@ router.route('/administrator')
 	 * @apiQuery {Number} [skip] 跳过数
 	 * @apiQuery {Number} [limit] 获取数
 	 */
-	.get(asyncHandler(async (_req, _res) => {
+	.get(asyncHandler(async (/*req, res*/) => {
 		// res.sendData({
 		// 	list: await AdminUsers.find(req.query, req.query, ['account', 'name', 'phone']),
 		// 	total: await AdminUsers.count(req.query)
@@ -73,7 +73,7 @@ router.route('/administrator/:account').all((req, _res, next) => {
 	 * @apiVersion 1.0.0
 	 * @apiParam {String} account 管理员账户
 	 */
-	.delete(asyncHandler(async (_req, _res) => {
+	.delete(asyncHandler(async (/*req, res*/) => {
 		// const adminCount = await AdminUsers.count();
 
 		// if (adminCount === 1) {
@@ -90,7 +90,7 @@ router.route('/administrator/:account').all((req, _res, next) => {
 	 * @apiBody {String} [password] 密码
 	 * @apiBody {String} [phone] 手机号
 	 */
-	.put(asyncHandler(async (_req, _res) => {
+	.put(asyncHandler(async (/*req, res*/) => {
 		// const { name, password, phone } = req.body as AdminUserModel;
 
 		// if (phone && !isPhone(phone)) {
@@ -105,7 +105,7 @@ router.route('/administrator/:account').all((req, _res, next) => {
 	 * @apiVersion 1.0.0
 	 * @apiParam {String} account 管理员账户
 	 */
-	.get(asyncHandler(async (_req, _res) => {
+	.get(asyncHandler(async (/*req, res*/) => {
 		// res.sendData((await AdminUsers.find({ account: req.params.account }))[0]);
 	}));
 

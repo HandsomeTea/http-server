@@ -13,7 +13,7 @@ export default new class Redis {
 	}
 
 	private init(): void {
-		this.service = new ioredis(getENV('REDIS_URL') as string, {
+		this.service = new ioredis(getENV('REDIS_URL'), {
 			enableReadyCheck: true,
 			retryStrategy(times) {
 				if (times <= 5) {
@@ -27,6 +27,7 @@ export default new class Redis {
 
 		this.service.on('connect', () => {
 			if (process.env.CHILD_PROCESS) {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-ignore
 				process.setRedisReady();
 			} else {
@@ -36,6 +37,7 @@ export default new class Redis {
 
 		this.service.on('error', error => {
 			if (process.env.CHILD_PROCESS) {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-ignore
 				process.setRedisError(error);
 			} else {

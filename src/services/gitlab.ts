@@ -123,6 +123,70 @@ class GitlabSSHKey extends GitlabBase {
 	}
 };
 
+interface GitlabGroupData {
+	id: number
+	name: string
+	path: string
+	full_name: string
+	full_path: string
+	parent_id: number | null
+}
+
+class GitlabGroup extends GitlabBase {
+	constructor() {
+		super();
+	}
+
+	async getGroup(group: { fullPath?: string, id?: number }): Promise<undefined | GitlabGroupData> {
+		const { fullPath, id } = group;
+		let result = null;
+
+		if (id) {
+			result = await this.gitlab.Groups.show(id);
+		}
+
+		if (fullPath) {
+			result = (await this.gitlab.Groups.search(fullPath)).find(a => a.full_path === fullPath);
+		}
+		if (!result) {
+			return;
+		}
+		return {
+			id: result.id,
+			name: result.name,
+			path: result.path,
+			'full_name': result.full_name as string,
+			'full_path': result.full_path as string,
+			'parent_id': result.parent_id as number | null
+		};
+	}
+
+	async getProjectGroup(projectId: string | number, withParents = false) {
+		const project = await this.gitlab.Projects.show(projectId);
+		const group = await this.getGroup({ fullPath: project.namespace.full_path as string });
+
+		if (!group) {
+			return;
+		}
+		if (!withParents) {
+			return { group };
+		}
+		let parent: typeof group | undefined = group;
+		const parents: Record<string, GitlabGroupData> = {
+			[parent.full_path]: parent
+		};
+
+		while (parent && parent.parent_id) {
+			parent = await this.getGroup({ id: parent.parent_id });
+
+			if (parent) {
+				parents[parent.full_path] = parent;
+			}
+		}
+		return { group, parents };
+	}
+}
+
 class GitlabProject extends GitlabBase {
 	constructor() {
 		super();
@@ -145,7 +209,7 @@ class GitlabProject extends GitlabBase {
 				page: skip / limit + 1
 			}
 		});
-		const total = parseInt(headers['x-total'] as string);
+		const total = parseInt(headers['x-total']);
 
 		return { list: body as unknown as Array<ProjectSchema>, total };
 	}
@@ -212,7 +276,7 @@ class GitlabBranch extends GitlabBase {
 				page: skip / limit + 1
 			}
 		});
-		const total = parseInt(headers['x-total'] as string);
+		const total = parseInt(headers['x-total']);
 
 		return { list: body as unknown as Array<BranchSchema>, total };
 	}
@@ -239,7 +303,7 @@ class GitlabTag extends GitlabBase {
 				page: skip / limit + 1
 			}
 		});
-		const total = parseInt(headers['x-total'] as string);
+		const total = parseInt(headers['x-total']);
 
 		return { list: body as unknown as Array<TagSchema>, total };
 	}
@@ -356,7 +420,7 @@ class GitlabPipeline extends GitlabBase {
 		if (!ref.branch && !ref.tag) {
 			return;
 		}
-		return await this.gitlab.Pipelines.create(projectId, (ref.branch || ref.tag) as string, { variables });
+		return await this.gitlab.Pipelines.create(projectId, (ref.branch || ref.tag), { variables });
 	}
 
 	async getProjectPiepelines(projectId: string | number, pagination?: { limit?: number, skip?: number }) {
@@ -367,7 +431,7 @@ class GitlabPipeline extends GitlabBase {
 				page: skip / limit + 1
 			}
 		});
-		const total = parseInt(headers['x-total'] as string);
+		const total = parseInt(headers['x-total']);
 
 		return { list: body as unknown as Array<PipelineSchema>, total };
 	}
@@ -576,7 +640,7 @@ class GitlabJob extends GitlabBase {
 			return responseObj;
 		} else {
 			return new Promise(resolve => {
-				const writeStream = fs.createWriteStream(option.savePath as string);
+				const writeStream = fs.createWriteStream(option.savePath);
 				const stream = new WritableStream({
 					write(chunk) {
 						writeStream.write(chunk);
@@ -635,7 +699,7 @@ class GitlabJob extends GitlabBase {
 		return [];
 	}
 
-	async jobStatusByName(projectId: string | number, pipelineId: number, jobName: string): Promise<{
+	async getJobStatusByName(projectId: string | number, pipelineId: number, jobName: string): Promise<{
 		id: number
 		status: 'ok' | 'running' | 'created' | 'expired' | 'failed'
 		stage: string
@@ -762,7 +826,7 @@ class GitlabPackage extends GitlabBase {
 				page: skip / limit + 1
 			}
 		});
-		const total = parseInt(headers['x-total'] as string);
+		const total = parseInt(headers['x-total']);
 
 		return { list: body as unknown as Array<PackageSchema>, total };
 	}
@@ -822,8 +886,51 @@ class GitlabFile extends GitlabBase {
 	}
 }
 
+class GitlabVariables extends GitlabBase {
+	constructor() {
+		super();
+	}
+
+	async getGroupVariables(groupId: string | number) {
+		try {
+			return await this.gitlab.GroupVariables.all(groupId);
+		} catch (e) {
+			const error = e as { cause?: { description: string } };
+
+			log().warn(`get gitlab group variables from group ${groupId} error : ${JSON.stringify(error.cause)}`);
+			return [];
+		}
+	}
+
+	async getProjectVariables(projectId: string | number) {
+		try {
+			return await this.gitlab.ProjectVariables.all(projectId);
+		} catch (e) {
+			const error = e as { cause?: { description: string } };
+
+			log().warn(`get gitlab project variables from project ${projectId} error : ${JSON.stringify(error.cause)}`);
+			return [];
+		}
+	}
+
+	async getPipelineVariables(projectId: string | number, pipelineId: number) {
+		const pipeline = await this.gitlab.Pipelines.show(projectId, pipelineId);
+		const ci = await Commit.getCommitCiConfig(projectId, pipeline.sha) as unknown as { variables?: Record<string, string> };
+
+		return ci.variables || {};
+	}
+
+	async getJobVariables(projectId: string | number, pipelineId: number, jobName: string) {
+		const pipeline = await this.gitlab.Pipelines.show(projectId, pipelineId);
+		const ci = await Commit.getCommitCiConfig(projectId, pipeline.sha) as unknown as Record<string, { variables?: Record<string, string> }>;
+
+		return ci[jobName]?.variables || {};
+	}
+}
+
 export const Account = new GitlabAccount();
 export const SSHKey = new GitlabSSHKey();
+export const Group = new GitlabGroup();
 export const Project = new GitlabProject();
 export const Branch = new GitlabBranch();
 export const Tag = new GitlabTag();
@@ -832,3 +939,4 @@ export const Piepeline = new GitlabPipeline();
 export const Job = new GitlabJob();
 export const Package = new GitlabPackage();
 export const File = new GitlabFile();
+export const Variables = new GitlabVariables();

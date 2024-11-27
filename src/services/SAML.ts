@@ -246,7 +246,7 @@ const saml = new class SAML {
 	//     return target;
 	// }
 
-	// eslint-disable-next-line no-undef
+	 
 	private checkXmlDocumentStatus(xmlDoc: Document) {
 		const statusNodes = xmlDoc.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:protocol', 'StatusCode');
 
@@ -404,7 +404,7 @@ const saml = new class SAML {
 		}
 	}
 
-	// eslint-disable-next-line no-undef
+	 
 	private checkNotBeforeNotOnOrAfterAssertions(element: Element) {
 		const now = new Date();
 
@@ -435,7 +435,7 @@ const saml = new class SAML {
 		}
 	}
 
-	// eslint-disable-next-line no-undef
+	 
 	private mapAttributes(attributeStatement: Element, profile: Record<string, string>) {
 		log('saml-mapAttributes').debug(`Attribute Statement found in SAML response: ${attributeStatement}`);
 		// 获取到所有包含用户信息的xml标签
@@ -534,7 +534,7 @@ const saml = new class SAML {
 		}
 
 		/** 解密的明文用户数据是xml document对象 */
-		// eslint-disable-next-line no-undef
+		 
 		let assertion: Document | Element = response.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:assertion', 'Assertion')[0];
 		const encAssertion = response.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:assertion', 'EncryptedAssertion')[0];
 
@@ -570,7 +570,7 @@ const saml = new class SAML {
 			profile.issuer = issuer.textContent;
 		}
 
-		// eslint-disable-next-line no-undef
+		 
 		let subject: Document | Element = assertion.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:assertion', 'Subject')[0];
 		const encSubject = assertion.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:assertion', 'EncryptedID')[0];
 
@@ -735,7 +735,7 @@ export const SAML = class SamlService {
 	}
 
 	metadata(): void {
-		const res = this.response as Response;
+		const res = this.response;
 
 		res.success(saml.generateServiceProviderMetadata(this.callbackUrl, {
 			samlType: this.samlType,

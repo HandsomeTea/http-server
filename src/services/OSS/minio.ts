@@ -155,9 +155,9 @@ export default new class MinioOSSService {
 		}
 		await this.server?.setBucketLifecycle(bucketName, {
 			Rule: [{
+				ID: '',
 				Status: 'Enabled',
-				Filter: { Prefix: '' },
-				// @ts-ignore
+				Prefix: '',
 				Expiration: { Days: expiry }
 			}]
 		});
@@ -232,7 +232,6 @@ export default new class MinioOSSService {
 			const files: Array<BucketItem> = [];
 
 			result?.on('data', chunk => {
-				// @ts-ignore
 				files.push(chunk);
 			}).on('end', () => resolve(files))
 				.on('error', err => reject(err));

@@ -56,7 +56,7 @@ export default class SQLBase<TM extends Record<string, any>>{
 	}
 
 	public async delete(option: DestroyOptions<TM>) {
-		return await (await this.getModelInstance())?.destroy(option) as number;
+		return await (await this.getModelInstance())?.destroy(option);
 	}
 
 	public async update(query: UpdateOptions<TM>, set: { [key in keyof TM]?: TM[key] }) {
@@ -72,12 +72,12 @@ export default class SQLBase<TM extends Record<string, any>>{
 	}
 
 	public async findOne(query?: FindOptions<TM>) {
-		return (await (await this.getModelInstance())?.findOne(query || {}))?.get() as TM | null;
+		return (await (await this.getModelInstance())?.findOne(query || {}))?.get();
 	}
 
 	public async findById(id: Identifier, option?: Omit<FindOptions<TM>, 'where'>) {
 		if (id) {
-			return (await (await this.getModelInstance())?.findByPk(id, option))?.get() as TM | null;
+			return (await (await this.getModelInstance())?.findByPk(id, option))?.get();
 		}
 		return null;
 	}

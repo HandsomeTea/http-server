@@ -30,7 +30,7 @@ export default new class JWT {
 	}
 
 	private get secret() {
-		return getENV('JWT_SECRET') as string;
+		return getENV('JWT_SECRET');
 	}
 
 	sign(payload: Record<string, unknown>, option?: Pick<SignOptions, 'issuer' | 'subject' | 'audience' | 'jwtid' | 'expiresIn'>): string {
@@ -60,7 +60,9 @@ export default new class JWT {
 				...data.jti ? { jwtid: data.jti } : {}
 			};
 
+			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 			delete data.iss, delete data.sub, delete data.aud, delete data.exp, delete data.nbf, delete data.iat, delete data.jti;
+
 			return {
 				...attribute,
 				payload: data
