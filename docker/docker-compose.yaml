@@ -6,6 +6,8 @@ services:
         container_name: http_server
         # 不会映射，直接使用主机网络，因此不用设置端口映射规则
         network_mode: host
+        # ports:
+        #     - 3004:3004
         volumes:
             - ../:/usr/src/app
         command:
@@ -13,5 +15,5 @@ services:
             - -c
             - |
                 cd /usr/src/app
-                [ ! -d "/usr/src/app/node_modules" ] && npm install
+                [ ! -d "/usr/src/app/node_modules" ] && npm config set strict-ssl false && npm install --omit=dev --registry=https://registry.npm.taobao.org
                 npm run start

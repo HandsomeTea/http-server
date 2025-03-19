@@ -13,7 +13,7 @@
 		"preview-eslint": "npx @eslint/config-inspector",
 		"test": "./node_modules/.bin/cross-env TS_NODE_PROJECT='test/tsconfig.test.json' ./node_modules/.bin/mocha test/index.ts",
 		"cover-test": "./node_modules/.bin/nyc npm run test",
-		"husky-init": "husky init"
+		"husky-init": "./node_modules/.bin/husky init"
 	},
 	"repository": {
 		"type": "git",

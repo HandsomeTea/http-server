@@ -149,6 +149,7 @@ export default new class GerritService {
 		const user = await this.getCurrentAccount();
 		const { privateKey, publicKey } = await Encryption.gererateGitSSHKey(user.email);
 		const res = await GerritServer.sendToGerrit('post', '/accounts/self/sshkeys', {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-ignore
 			data: publicKey.replace('\n', ''),
 			headers: {
@@ -171,7 +172,7 @@ export default new class GerritService {
 	async projects() {
 		const res = await GerritServer.sendToGerrit('get', '/projects/');
 
-		return Object.values(GerritServer.getResponse(res)) as Array<GerritBaseProject>;
+		return Object.values(GerritServer.getResponse(res));
 	}
 
 	async getProject(projectName: string) {
@@ -194,7 +195,7 @@ export default new class GerritService {
 		const total = (await this.projects()).length
 
 		return {
-			list: Object.values(GerritServer.getResponse(res)) as Array<GerritBaseProject>,
+			list: Object.values(GerritServer.getResponse(res)),
 			total
 		}
 	}

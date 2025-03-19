@@ -40,10 +40,10 @@ const developConfig: EnvConfigType = {
 	// 'dm://SYSDBA:SYSDBA@localhost:5236?autoCommit=false'
 	// 'mongodb://127.0.0.1:27017/test'
 	// 'postgres://surpass:Bizconf_surpass@ops-dev.bizconf.cn/surpass'
-	DB_URL: 'mongodb://admin:admin@xxxxxx:27017/test?authSource=admin',
+	DB_URL: 'mongodb://admin:admin@localhost:7017/test?authSource=admin',
 	MQ_URL: '',
-	// redis://127.0.0.1:6379
-	REDIS_URL: 'redis://xxxxxx:6379',
+	// redis://localhost:6379
+	REDIS_URL: '',
 	// 'http://0.0.0.0:9200'
 	ES_URL: '',
 	TENCENT_SMS_SECRET_ID: '',
@@ -52,7 +52,8 @@ const developConfig: EnvConfigType = {
 	TENCENT_SMS_SIGN_ID: '',
 	TENCENT_OSS_SECRET_ID: '',
 	TENCENT_OSS_SECRET_KEY: '',
-	MINIO_URL: 'http://xxxxxx:9000',
+	// http://localhost:9000
+	MINIO_URL: '',
 	MINIO_ACCESS_KEY: 'ySl5zgkKATzuv1o8jmOs',
 	MINIO_SECRET_KEY: 'NLLvSrMVSJ4oatVSOPhafb8Hzsn5tWqHXJGwAS1b'
 };

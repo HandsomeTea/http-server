@@ -10,7 +10,7 @@ global.Exception = class Exception extends Error {
 	public reason?: Record<string, unknown>;
 	public source: Array<string> = [];
 
-	constructor(error?: string | ExceptionInstance | Error, code?: string, reason?: Record<string, unknown>) {
+	constructor(error?: string | Partial<ExceptionInstance> | Error, code?: string, reason?: Record<string, unknown>) {
 		super();
 
 		// message

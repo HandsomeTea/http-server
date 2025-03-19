@@ -14,7 +14,7 @@ declare interface ExceptionInstance {
 }
 
 declare interface ExceptionConstructor {
-	new(messageOrErrorOrException: string | ExceptionInstance | Error, code?: string, reason?: Array<string>): ExceptionInstance;
+	new(messageOrErrorOrException: string | Partial<ExceptionInstance> | Error, code?: string, reason?: Array<string>): ExceptionInstance;
 	readonly prototype: ExceptionInstance;
 }
 

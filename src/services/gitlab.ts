@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -57,6 +58,7 @@ const gitlabToken = '';
 // 	}
 // }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ExceptionHandler = (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 	const _descriptor = descriptor.value;
 
@@ -257,6 +259,10 @@ class GitlabProject extends GitlabBase {
 		}
 		return response;
 	}
+
+	async isProjectMember(projectId: string | number, email: string) {
+		return (await this.gitlab.ProjectMembers.all(projectId, { query: email.split('@')[0], includeInherited: true })).length > 0;
+	}
 }
 
 class GitlabBranch extends GitlabBase {
@@ -420,7 +426,7 @@ class GitlabPipeline extends GitlabBase {
 		if (!ref.branch && !ref.tag) {
 			return;
 		}
-		return await this.gitlab.Pipelines.create(projectId, (ref.branch || ref.tag), { variables });
+		return await this.gitlab.Pipelines.create(projectId, (ref.branch || ref.tag) as string, { variables });
 	}
 
 	async getProjectPiepelines(projectId: string | number, pagination?: { limit?: number, skip?: number }) {
@@ -640,7 +646,7 @@ class GitlabJob extends GitlabBase {
 			return responseObj;
 		} else {
 			return new Promise(resolve => {
-				const writeStream = fs.createWriteStream(option.savePath);
+				const writeStream = fs.createWriteStream(option.savePath as string);
 				const stream = new WritableStream({
 					write(chunk) {
 						writeStream.write(chunk);
@@ -658,6 +664,10 @@ class GitlabJob extends GitlabBase {
 		return (await this.gitlab.JobArtifacts.requester.get(`/api/v4/projects/${projectId}/jobs/artifacts/${tagName}/download?job=${jobName}`, {
 			asStream: true
 		})).body as ReadableStream;
+	}
+
+	async keepJobActifactsForever(projectId: string | number, jobId: number) {
+		await this.gitlab.JobArtifacts.keep(projectId, jobId)
 	}
 
 	/**
