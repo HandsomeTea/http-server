@@ -206,7 +206,7 @@ const saml = new class SAML {
 		try {
 			return crypto.createSign('RSA-SHA1').update(xml).sign(privateKey, 'base64');
 		} catch (e) {
-			throw new Exception('sign for saml request failed.');
+			throw new Exception(`sign for saml request failed: ${e}`);
 		}
 	}
 
@@ -246,7 +246,6 @@ const saml = new class SAML {
 	//     return target;
 	// }
 
-	 
 	private checkXmlDocumentStatus(xmlDoc: Document) {
 		const statusNodes = xmlDoc.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:protocol', 'StatusCode');
 
@@ -381,6 +380,7 @@ const saml = new class SAML {
 
 	private checkXmlSignature(xml: string, cert: string) {
 		const doc = new xmldom.DOMParser().parseFromString(xml);
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-ignore
 		const signature = xmlCrypto.xpath(doc, '//*[local-name(.)=\'Signature\' and namespace-uri(.)=\'http://www.w3.org/2000/09/xmldsig#\']')[0] as string;
 		const sig = new xmlCrypto.SignedXml();
@@ -404,7 +404,6 @@ const saml = new class SAML {
 		}
 	}
 
-	 
 	private checkNotBeforeNotOnOrAfterAssertions(element: Element) {
 		const now = new Date();
 
@@ -435,7 +434,6 @@ const saml = new class SAML {
 		}
 	}
 
-	 
 	private mapAttributes(attributeStatement: Element, profile: Record<string, string>) {
 		log('saml-mapAttributes').debug(`Attribute Statement found in SAML response: ${attributeStatement}`);
 		// 获取到所有包含用户信息的xml标签
@@ -534,7 +532,6 @@ const saml = new class SAML {
 		}
 
 		/** 解密的明文用户数据是xml document对象 */
-		 
 		let assertion: Document | Element = response.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:assertion', 'Assertion')[0];
 		const encAssertion = response.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:assertion', 'EncryptedAssertion')[0];
 
@@ -570,7 +567,6 @@ const saml = new class SAML {
 			profile.issuer = issuer.textContent;
 		}
 
-		 
 		let subject: Document | Element = assertion.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:assertion', 'Subject')[0];
 		const encSubject = assertion.getElementsByTagNameNS('urn:oasis:names:tc:SAML:2.0:assertion', 'EncryptedID')[0];
 
@@ -825,7 +821,7 @@ export const SAML = class SamlService {
 			samlType: this.samlType,
 			privateKey: this.surpassKey,
 			privateCert: this.surpassCert,
-			tranceId: this.credentialToken as string
+			tranceId: this.credentialToken || ''
 		});
 
 		log('saml-authorize').debug(url);

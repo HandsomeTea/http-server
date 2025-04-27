@@ -39,11 +39,7 @@ global.Exception = class Exception extends Error {
 
 		// status
 		if (!this.status) {
-			this.status = HttpErrorType[this.code];
-
-			if (!this.status) {
-				this.status = 500;
-			}
+			this.status = HttpErrorType[this.code as keyof typeof HttpErrorType] || 500;
 		}
 
 		// reason

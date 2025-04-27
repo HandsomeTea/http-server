@@ -45,7 +45,7 @@ router.get('/remote-ssh-task/task', asyncHandler(async (_req, res) => {
 		data: {
 			name: '在远程机器执行命令',
 			device: {
-				host: '10.4.48.13',
+				host: 'xx.xx.xx.xx',
 				port: 22,
 				username: 'liuhaifeng',
 				password: ''

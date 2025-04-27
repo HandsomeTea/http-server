@@ -38,7 +38,7 @@ export default class UserDAL extends BaseDAL {
         if (redisResult) {
             return JSON.parse(redisResult) as UserModel;
         }
-        let result: null | UserModel = null;
+        let result: null | UserModel | undefined = null;
 
         if (this.db === 'mongodb') {
             result = await this.mongoServer.findById(userId);
