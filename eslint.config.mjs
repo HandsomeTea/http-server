@@ -66,7 +66,7 @@ const tsConfig = [
 ];
 const globalConfig = [
 	{
-		ignores: ['build', '.nyc_output', 'public']
+		ignores: ['build', '.nyc_output', 'public', 'typings']
 	},
 	{
 		name: 'global-config',
