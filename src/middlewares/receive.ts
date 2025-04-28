@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import httpContext from 'express-http-context';
 
-import { traceId, trace } from '@/configs';
+import { getENV, trace, traceId } from '@/configs';
 
 const filteNotAllown = (str?: string): string | void => {
     if (str) {
@@ -44,15 +44,14 @@ export default (req: Request, _res: Response, next: NextFunction): void => {
     }
 
     httpContext.set('ip', getRequestIp(req));
-    httpContext.set('traceId', filteNotAllown(req.get('x-b3-traceid')) || traceId());
-    httpContext.set('parentSpanId', filteNotAllown(req.get('x-b3-parentspanid')) || '');
-    httpContext.set('spanId', filteNotAllown(req.get('x-b3-spanid')) || traceId());
 
-    trace({
-        traceId: httpContext.get('traceId'),
-        spanId: httpContext.get('spanId'),
-        parentSpanId: httpContext.get('parentSpanId')
-    }, 'receive-request').info(`${req.method}: ${req.originalUrl} ${_datas}`);
+    if (getENV('ENABLE_OTEL_LOGS') !== 'yes') {
+        httpContext.set('traceId', filteNotAllown(req.get('x-b3-traceid')) || traceId());
+        httpContext.set('parentSpanId', filteNotAllown(req.get('x-b3-parentspanid')) || '');
+        httpContext.set('spanId', filteNotAllown(req.get('x-b3-spanid')) || traceId());
+    }
+
+    trace('receive-request').info(`${req.method}: ${req.originalUrl} ${_datas}`);
 
     next();
 };

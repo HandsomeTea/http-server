@@ -2,7 +2,6 @@
 import { trace } from '@/configs';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import httpContext from 'express-http-context';
 // import { _UserTokens } from '@/dal';
 // import User from '../../../models/_mysql';
 // import { Test } from '@/models/es';
@@ -150,21 +149,13 @@ router.get('/sse/test', function (req, res) {
 			time: `Current time is ${new Date().toLocaleTimeString()}`
 		};
 
-		trace({
-			traceId: httpContext.get('traceId'),
-			spanId: httpContext.get('spanId'),
-			parentSpanId: httpContext.get('parentSpanId')
-		}, 'sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(data, null, '   ')}`);
+		trace('sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(data, null, '   ')}`);
 		res.write(`data: ${JSON.stringify(data)}\n\n`);
 		count++;
 		if (count === 5) {
 			const endMark = { streamEnd: true };
 
-			trace({
-				traceId: httpContext.get('traceId'),
-				spanId: httpContext.get('spanId'),
-				parentSpanId: httpContext.get('parentSpanId')
-			}, 'sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(endMark, null, '   ')}`);
+			trace('sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(endMark, null, '   ')}`);
 			res.write(`data: ${JSON.stringify(endMark)}\n\n`);
 			res.end();
 		}

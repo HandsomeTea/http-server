@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import httpContext from 'express-http-context';
 
 import { log, getENV, trace, traceId } from '@/configs';
 
@@ -24,11 +23,7 @@ export default (err: ExceptionInstance, req: Request, res: Response, _next: Next
 		params: req.params || {}
 	}, null, '   '));
 	log(`http-error-${errorId}`).error(err);
-	trace({
-		traceId: httpContext.get('traceId'),
-		spanId: httpContext.get('spanId'),
-		parentSpanId: httpContext.get('parentSpanId')
-	}, 'http-error').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(result, null, '   ')}`);
+	trace('http-error').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(result, null, '   ')}`);
 
 	res.status(status || 500).send(result);
 };

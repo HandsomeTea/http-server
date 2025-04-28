@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse, A
 import httpContext from 'express-http-context';
 import Agent from 'agentkeepalive';
 
-import { traceId, log } from '@/configs';
+import { getENV, log, traceId } from '@/configs';
 // import JWT from './JWT';
 
 const systemService: Set<string> = new Set([
@@ -21,20 +21,18 @@ export abstract class BaseRequest {
 			// 	config.headers.Authorization = `Bearer ${JWT.sign()}`;
 			// }
 
-			if (!config.headers['x-b3-spanid']) {
-				config.headers['x-b3-spanid'] = traceId();
-			}
+			if (getENV('ENABLE_OTEL_LOGS') !== 'yes') {
+				if (!config.headers['x-b3-spanid']) {
+					config.headers['x-b3-spanid'] = traceId();
+				}
 
-			if (!config.headers['x-b3-traceid']) {
-				config.headers['x-b3-traceid'] = httpContext.get('traceId') || traceId();
-			}
+				if (!config.headers['x-b3-traceid']) {
+					config.headers['x-b3-traceid'] = httpContext.get('traceId') || traceId();
+				}
 
-			if (!config.headers['x-b3-parentspanid']) {
-				config.headers['x-b3-parentspanid'] = httpContext.get('spanId');
-			}
-
-			if (!config.headers['x-tenantId']) {
-				config.headers['x-tenantId'] = httpContext.get('tenantId') || '';
+				if (!config.headers['x-b3-parentspanid']) {
+					config.headers['x-b3-parentspanid'] = httpContext.get('spanId');
+				}
 			}
 		}
 

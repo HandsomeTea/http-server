@@ -5,7 +5,6 @@ import childProcess from 'child_process';
 import Redis from 'ioredis';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import httpContext from 'express-http-context';
 import redis from '@/tools/redis';
 import { MongoTests } from '@/models/mongo';
 import { log, trace } from '@/configs';
@@ -260,11 +259,7 @@ router.get('/remote-ssh-task/record/:recordId/log', asyncHandler(async (req, res
 	req.on('close', () => {
 		subServer?.quit();
 		subServer = null;
-		trace({
-			traceId: httpContext.get('traceId'),
-			spanId: httpContext.get('spanId'),
-			parentSpanId: httpContext.get('parentSpanId')
-		}, 'sse-response').info(`${req.method}: ${req.originalUrl} => \n${'SSE响应结束！'}`);
+		trace('sse-response').info(`${req.method}: ${req.originalUrl} => \n${'SSE响应结束！'}`);
 		return;
 	})
 	const taskChannel = `task:record:${taskRecord._id}:sub`;
@@ -284,11 +279,7 @@ router.get('/remote-ssh-task/record/:recordId/log', asyncHandler(async (req, res
 		});
 
 		readLineStream.on('line', (chunk) => {
-			trace({
-				traceId: httpContext.get('traceId'),
-				spanId: httpContext.get('spanId'),
-				parentSpanId: httpContext.get('parentSpanId')
-			}, 'sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(chunk, null, '   ')}`);
+			trace('sse-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(chunk, null, '   ')}`);
 			res.write(`data: ${chunk}\n\n`);
 		}).on('close', () => {
 			res.end();
@@ -309,11 +300,7 @@ router.get('/remote-ssh-task/record/:recordId/log', asyncHandler(async (req, res
 		}
 		if (message.includes('[stop]')) {
 			log('sse-ssh-task').debug('收到任务终止命令，关闭客户端连接，停止数据推送');
-			trace({
-				traceId: httpContext.get('traceId'),
-				spanId: httpContext.get('spanId'),
-				parentSpanId: httpContext.get('parentSpanId')
-			}, 'sse-response-realtime').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(message, null, '   ')}`);
+			trace('sse-response-realtime').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(message, null, '   ')}`);
 			res.write(`data: ${message}\n\n`);
 			res.end();
 			return;
@@ -327,22 +314,14 @@ router.get('/remote-ssh-task/record/:recordId/log', asyncHandler(async (req, res
 					for (let s = 0; s < histroyEndNum; s++) {
 						const log = await redis.server?.lindex(redisKey, s);
 
-						trace({
-							traceId: httpContext.get('traceId'),
-							spanId: httpContext.get('spanId'),
-							parentSpanId: httpContext.get('parentSpanId')
-						}, 'sse-response-histroy').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(log, null, '   ')}`);
+						trace('sse-response-histroy').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(log, null, '   ')}`);
 
 						res.write(`data: ${log}\n\n`);
 					}
 					// const logs = await redis.server?.lrange(taskChannel, 0, histroyEndNum - 1);
 
 					// if (logs && logs.length > 0) {
-					// 	trace({
-					// 		traceId: httpContext.get('traceId'),
-					// 		spanId: httpContext.get('spanId'),
-					// 		parentSpanId: httpContext.get('parentSpanId')
-					// 	}, 'sse-response-histroy').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(logs, null, '   ')}`);
+					// 	trace('sse-response-histroy').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(logs, null, '   ')}`);
 
 					// 	for (let s = 0; s < logs.length; s++) {
 					// 		res.write(`data: ${logs[s]}\n\n`);
@@ -355,22 +334,14 @@ router.get('/remote-ssh-task/record/:recordId/log', asyncHandler(async (req, res
 			}
 		} else {
 			if (waitData.length > 0) {
-				trace({
-					traceId: httpContext.get('traceId'),
-					spanId: httpContext.get('spanId'),
-					parentSpanId: httpContext.get('parentSpanId')
-				}, 'sse-response-temp').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(waitData, null, '   ')}`);
+				trace('sse-response-temp').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(waitData, null, '   ')}`);
 				for (let s = 0; s < waitData.length; s++) {
 					res.write(`data: ${waitData[s]}\n\n`);
 				}
 				waitData = [];
 			}
 			if (!message.includes('[ranking]:')) {
-				trace({
-					traceId: httpContext.get('traceId'),
-					spanId: httpContext.get('spanId'),
-					parentSpanId: httpContext.get('parentSpanId')
-				}, 'sse-response-realtime').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(message, null, '   ')}`);
+				trace('sse-response-realtime').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(message, null, '   ')}`);
 				res.write(`data: ${message}\n\n`);
 				if (message.includes('[end]')) {
 					res.end();

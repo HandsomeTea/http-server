@@ -1,5 +1,6 @@
 import log4js from 'log4js';
 import { trace as OtelTrace, SpanStatusCode } from '@opentelemetry/api';
+import httpContext from 'express-http-context';
 import getENV from './envConfig';
 
 // 将日志作为span事件属性发送给OpenTelemetry
@@ -140,13 +141,29 @@ export const log = (module?: string): log4js.Logger => {
 /**
  * 追踪日志使用
  */
-export const trace = (data: { traceId: string, spanId: string, parentSpanId?: string }, module?: string): log4js.Logger => {
+export const trace = (module?: string): log4js.Logger => {
     const _traceLogger = log4js.getLogger('traceLog');
+    let traceId = '', spanId = '', parentSpanId = '';
+
+    if (getENV('ENABLE_OTEL_LOGS') === 'yes') {
+        const span = OtelTrace.getActiveSpan();
+
+        if (span) {
+            const context = span.spanContext();
+
+            traceId = context.traceId;
+            spanId = context.spanId;
+        }
+    } else {
+        traceId = httpContext.get('traceId');
+        spanId = httpContext.get('spanId');
+        parentSpanId = httpContext.get('parentSpanId');
+    }
 
     _traceLogger.addContext('Module', (module || getENV('SERVER_NAME') || 'default-module').toUpperCase());
-    _traceLogger.addContext('TraceId', data.traceId);
-    _traceLogger.addContext('SpanId', data.spanId);
-    _traceLogger.addContext('ParentSpanId', data.parentSpanId || '');
+    _traceLogger.addContext('TraceId', traceId);
+    _traceLogger.addContext('SpanId', spanId);
+    _traceLogger.addContext('ParentSpanId', parentSpanId || '');
 
     return _traceLogger;
 };

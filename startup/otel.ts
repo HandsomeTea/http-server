@@ -1,5 +1,6 @@
 import { NodeSDK } from '@opentelemetry/sdk-node';
-import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-node';
+import { ConsoleSpanExporter, NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import {
     PeriodicExportingMetricReader,
@@ -21,4 +22,8 @@ import { getENV } from '@/configs';
     });
 
     sdk.start();
+
+    const provider = new NodeTracerProvider();
+    provider.register();
+    new HttpInstrumentation().enable();  // 自动为HTTP请求注入traceparent
 })();
