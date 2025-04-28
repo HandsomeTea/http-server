@@ -1,5 +1,5 @@
 import log4js from 'log4js';
-import { trace as OtelTrace, SpanStatusCode } from '@opentelemetry/api';
+import { trace as OtelTrace, SpanContext, SpanStatusCode } from '@opentelemetry/api';
 import httpContext from 'express-http-context';
 import getENV from './envConfig';
 
@@ -150,9 +150,13 @@ export const trace = (module?: string): log4js.Logger => {
 
         if (span) {
             const context = span.spanContext();
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const parentContext: SpanContext = span.parentSpanContext;
 
             traceId = context.traceId;
             spanId = context.spanId;
+            parentSpanId = parentContext.spanId;
         }
     } else {
         traceId = httpContext.get('traceId');
