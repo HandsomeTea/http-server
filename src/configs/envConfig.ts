@@ -7,6 +7,7 @@ interface EnvConfigType {
 	TRACE_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
 	DEV_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
 	AUDIT_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
+	ENABLE_OTEL_LOGS?: 'yes' | 'no'
 	JWT_SECRET: string
 	REDIS_URL: string
 	DB_TYPE: DBServerType
@@ -32,6 +33,7 @@ const developConfig: EnvConfigType = {
 	TRACE_LOG_LEVEL: 'all',
 	DEV_LOG_LEVEL: 'all',
 	AUDIT_LOG_LEVEL: 'all',
+	ENABLE_OTEL_LOGS: 'no',
 	JWT_SECRET: 'jwtSecret',
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
@@ -40,7 +42,7 @@ const developConfig: EnvConfigType = {
 	// 'dm://SYSDBA:SYSDBA@localhost:5236?autoCommit=false'
 	// 'mongodb://127.0.0.1:27017/test'
 	// 'postgres://surpass:Bizconf_surpass@ops-dev.bizconf.cn/surpass'
-	DB_URL: 'mongodb://admin:admin@localhost:7017/test?authSource=admin',
+	DB_URL: 'mongodb://admin:admin@localhost:27017/test?authSource=admin',
 	MQ_URL: '',
 	// redis://localhost:6379
 	REDIS_URL: '',

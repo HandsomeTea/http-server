@@ -1,5 +1,30 @@
 import log4js from 'log4js';
+import { trace as OtelTrace, SpanStatusCode } from '@opentelemetry/api';
 import getENV from './envConfig';
+
+// 将日志作为span事件属性发送给OpenTelemetry
+const logToOpenTelemetrySpan = async (attributes: Record<string, string> & { message: string }, startTime: Date, isErrorLevel: boolean) => {
+    const activeSpan = OtelTrace.getActiveSpan();
+
+    if (!activeSpan) {
+        return;
+    }
+
+    try {
+        activeSpan.addEvent('log', attributes, startTime);
+
+        // 如果是错误级别，标记 span 为错误
+        if (isErrorLevel) {
+            activeSpan.setStatus({
+                code: SpanStatusCode.ERROR,
+                message: attributes.message
+            });
+        }
+    } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+    }
+}
 
 /**
  * 定义日志配置
@@ -37,15 +62,40 @@ export const updateOrCreateLogInstance = (): void => {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
+                    // [2021-09-23 16:59:33.762] %d{yyyy-MM-dd hh:mm:ss.SSS}
+                    // [2021-08-05T18:17:00.549] %d
+                    // [2021-08-05T18:17:39.235+0800] %d{ISO8601_WITH_TZ_OFFSET}
+                    // [18:18:21.475] %d{ABSOLUTE}
+                    // [05 08 2021 18:19:20.196] %d{DATE}
+                    // [2021-08-05T18:19:44.804] %d{ISO8601}
                     pattern: '[%d{ISO8601_WITH_TZ_OFFSET}] [%p] [SYSTEM:%X{Module}] %[ %m%n %]'
                 }
-            }
-            // [2021-09-23 16:59:33.762] %d{yyyy-MM-dd hh:mm:ss.SSS}
-            // [2021-08-05T18:17:00.549] %d
-            // [2021-08-05T18:17:39.235+0800] %d{ISO8601_WITH_TZ_OFFSET}
-            // [18:18:21.475] %d{ABSOLUTE}
-            // [05 08 2021 18:19:20.196] %d{DATE}
-            // [2021-08-05T18:19:44.804] %d{ISO8601}
+            },
+            ...getENV('ENABLE_OTEL_LOGS') === 'yes' ? {
+                _custom: {
+                    type: {
+                        configure: (/*config: unknown, layout: log4js.LayoutsParam*/) => {
+                            // config 即_custom对象的值
+
+                            return (loggingEvent: log4js.LoggingEvent): void => {
+                                // 解析需要的数据
+                                const attributes = {
+                                    application: getENV('SERVER_NAME'),
+                                    level: loggingEvent.level.levelStr,
+                                    module: loggingEvent.context['Module'],
+                                    traceId: loggingEvent.context['TraceId'],
+                                    spanId: loggingEvent.context['SpanId'],
+                                    parentSpanId: loggingEvent.context['ParentSpanId'],
+                                    message: loggingEvent.data.join(''),
+                                };
+
+                                // 将数据它用，必须存储起来，或者交给第三方工具记录(如日志全链路追踪收集系统)
+                                logToOpenTelemetrySpan(attributes, loggingEvent.startTime, loggingEvent.level.level >= log4js.levels.ERROR.level)
+                            };
+                        }
+                    }
+                }
+            } : {}
         },
         categories: {
             default: {
@@ -59,7 +109,7 @@ export const updateOrCreateLogInstance = (): void => {
                 enableCallStack: true
             },
             traceLog: {
-                appenders: ['_trace'],
+                appenders: getENV('ENABLE_OTEL_LOGS') === 'yes' ? ['_trace', '_custom'] : ['_trace'],
                 level: getENV('TRACE_LOG_LEVEL') || getENV('LOG_LEVEL') || 'ALL',
                 enableCallStack: true
             },
