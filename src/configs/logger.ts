@@ -152,11 +152,11 @@ export const trace = (module?: string): log4js.Logger => {
             const context = span.spanContext();
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            const parentContext: SpanContext = span.parentSpanContext;
+            const parentContext: SpanContext | undefined = span.parentSpanContext;
 
             traceId = context.traceId;
             spanId = context.spanId;
-            parentSpanId = parentContext.spanId;
+            parentSpanId = parentContext?.spanId || '';
         }
     } else {
         traceId = httpContext.get('traceId');

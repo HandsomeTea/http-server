@@ -24,6 +24,7 @@ import { getENV } from '@/configs';
     sdk.start();
 
     const provider = new NodeTracerProvider();
+
     provider.register();
     new HttpInstrumentation().enable();  // 自动为HTTP请求注入traceparent
 })();
