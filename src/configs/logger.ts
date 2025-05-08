@@ -10,7 +10,7 @@ const logToOpenTelemetrySpan = async (attributes: Record<string, string> & { mes
     if (!activeSpan) {
         return;
     }
-
+    activeSpan.updateName(getENV('SERVER_NAME'))
     try {
         // 如果是错误级别，标记 span 为错误
         if (isErrorLevel) {
@@ -82,12 +82,7 @@ export const updateOrCreateLogInstance = (): void => {
                             return (loggingEvent: log4js.LoggingEvent): void => {
                                 // 解析需要的数据
                                 const attributes = {
-                                    application: getENV('SERVER_NAME'),
                                     level: loggingEvent.level.levelStr,
-                                    module: loggingEvent.context['Module'],
-                                    traceId: loggingEvent.context['TraceId'],
-                                    spanId: loggingEvent.context['SpanId'],
-                                    parentSpanId: loggingEvent.context['ParentSpanId'],
                                     message: loggingEvent.data.join(''),
                                 };
 
