@@ -1,7 +1,7 @@
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { ConsoleSpanExporter, NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+// import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import {
     PeriodicExportingMetricReader,
     ConsoleMetricExporter,
@@ -18,7 +18,10 @@ import { getENV } from '@/configs';
         metricReader: new PeriodicExportingMetricReader({
             exporter: new ConsoleMetricExporter(),
         }),
-        instrumentations: [getNodeAutoInstrumentations()],
+        instrumentations: [
+            // getNodeAutoInstrumentations() // 检测所有内置的库，如express, http, mongodb, mysql, pg, redis, etc.
+            new HttpInstrumentation()
+        ],
     });
 
     sdk.start();
@@ -26,5 +29,4 @@ import { getENV } from '@/configs';
     const provider = new NodeTracerProvider();
 
     provider.register();
-    new HttpInstrumentation().enable();  // 自动为HTTP请求注入traceparent
 })();

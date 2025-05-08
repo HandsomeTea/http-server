@@ -51,7 +51,7 @@ export default (req: Request, _res: Response, next: NextFunction): void => {
         httpContext.set('spanId', filteNotAllown(req.get('x-b3-spanid')) || traceId());
     }
 
-    trace('receive-request').info(`${req.method}: ${req.originalUrl} ${_datas}`);
+    trace('http-request').info(`${req.method}: ${req.originalUrl} ${_datas}`);
 
     next();
 };

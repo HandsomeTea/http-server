@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-import { log, getENV, trace, traceId } from '@/configs';
+import { getENV, trace } from '@/configs';
 
 /**
  * 捕捉路由中未处理的错误，即直接throw new Error的情况
@@ -14,16 +14,9 @@ export default (err: ExceptionInstance, req: Request, res: Response, _next: Next
 		status,
 		reason: reason || []
 	};
-	const errorId = traceId();
 
-	log(`http-error-${errorId}`).error(JSON.stringify({
-		headers: req.headers,
-		body: req.body || {},
-		query: req.query || {},
-		params: req.params || {}
-	}, null, '   '));
-	log(`http-error-${errorId}`).error(err);
-	trace('http-error').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(result, null, '   ')}`);
+	trace('http-error').error(err);
+	trace('http-response').info(`${req.method}: ${req.originalUrl} => \n${JSON.stringify(result, null, '   ')}`);
 
 	res.status(status || 500).send(result);
 };

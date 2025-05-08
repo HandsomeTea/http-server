@@ -4,7 +4,7 @@ import httpContext from 'express-http-context';
 import getENV from './envConfig';
 
 // 将日志作为span事件属性发送给OpenTelemetry
-const logToOpenTelemetrySpan = async (attributes: Record<string, string> & { message: string }, startTime: Date, isErrorLevel: boolean) => {
+const logToOpenTelemetrySpan = async (attributes: Record<string, string> & { message: string }, startTime: Date, isErrorLevel: boolean, callStack?: string) => {
     const activeSpan = OtelTrace.getActiveSpan();
 
     if (!activeSpan) {
@@ -12,14 +12,15 @@ const logToOpenTelemetrySpan = async (attributes: Record<string, string> & { mes
     }
 
     try {
-        activeSpan.addEvent('log', attributes, startTime);
-
         // 如果是错误级别，标记 span 为错误
         if (isErrorLevel) {
             activeSpan.setStatus({
                 code: SpanStatusCode.ERROR,
                 message: attributes.message
             });
+            activeSpan.addEvent('error-stack', { stack: callStack }, startTime);
+        } else {
+            activeSpan.addEvent('log', attributes, startTime);
         }
     } catch (error) {
         // eslint-disable-next-line no-console
@@ -90,8 +91,8 @@ export const updateOrCreateLogInstance = (): void => {
                                     message: loggingEvent.data.join(''),
                                 };
 
-                                // 将数据它用，必须存储起来，或者交给第三方工具记录(如日志全链路追踪收集系统)
-                                logToOpenTelemetrySpan(attributes, loggingEvent.startTime, loggingEvent.level.level >= log4js.levels.ERROR.level)
+                                // 将数据它用，比如存储起来，或者交给第三方工具记录(如日志全链路追踪收集系统)
+                                logToOpenTelemetrySpan(attributes, loggingEvent.startTime, loggingEvent.level.level >= log4js.levels.ERROR.level, loggingEvent.callStack)
                             };
                         }
                     }
