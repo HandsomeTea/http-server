@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import httpContext from 'express-http-context';
+import { trace as OtelTrace } from '@opentelemetry/api';
 
 import { getENV, trace, traceId } from '@/configs';
 
@@ -45,10 +46,29 @@ export default (req: Request, _res: Response, next: NextFunction): void => {
 
     httpContext.set('ip', getRequestIp(req));
 
-    if (getENV('ENABLE_OTEL_LOGS') !== 'yes') {
+    if (getENV('ENABLE_OTEL') === 'yes') {
+        const span = OtelTrace.getActiveSpan();
+
+        if (span) {
+            const context = span.spanContext();
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const parentContext: SpanContext | undefined = span.parentSpanContext;
+
+            httpContext.set('traceId', context.traceId);
+            httpContext.set('spanId', context.spanId);
+            httpContext.set('parentSpanId', parentContext?.spanId || '');
+            span.addEvent('http-request-parameters', {
+                headers: JSON.stringify(Object.keys(req.headers).filter((key) => key !== 'authorization').map(a => ({ [a]: req.headers[a] })).reduce((a, b) => ({ ...a, ...b }), {}), null, '   '),
+                body: JSON.stringify(req.body, null, '   '),
+                query: JSON.stringify(req.query, null, '   '),
+                params: JSON.stringify(req.params, null, '   ')
+            });
+        }
+    } else {
         httpContext.set('traceId', filteNotAllown(req.get('x-b3-traceid')) || traceId());
-        httpContext.set('parentSpanId', filteNotAllown(req.get('x-b3-parentspanid')) || '');
         httpContext.set('spanId', filteNotAllown(req.get('x-b3-spanid')) || traceId());
+        httpContext.set('parentSpanId', filteNotAllown(req.get('x-b3-parentspanid')) || '');
     }
 
     trace('http-request').info(`${req.method}: ${req.originalUrl} ${_datas}`);

@@ -21,7 +21,7 @@ export abstract class BaseRequest {
 			// 	config.headers.Authorization = `Bearer ${JWT.sign()}`;
 			// }
 
-			if (getENV('ENABLE_OTEL_LOGS') !== 'yes') {
+			if (getENV('ENABLE_OTEL') !== 'yes') {
 				if (!config.headers['x-b3-spanid']) {
 					config.headers['x-b3-spanid'] = traceId();
 				}

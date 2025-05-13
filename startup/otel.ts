@@ -9,7 +9,7 @@ import {
 import { getENV } from '@/configs';
 
 (() => {
-    if (getENV('ENABLE_OTEL_LOGS') !== 'yes') {
+    if (getENV('ENABLE_OTEL') !== 'yes') {
         return;
     }
 

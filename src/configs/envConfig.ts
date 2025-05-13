@@ -7,7 +7,7 @@ interface EnvConfigType {
 	TRACE_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
 	DEV_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
 	AUDIT_LOG_LEVEL?: 'all' | 'mark' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
-	ENABLE_OTEL_LOGS?: 'yes' | 'no'
+	ENABLE_OTEL?: 'yes' | 'no'
 	JWT_SECRET: string
 	REDIS_URL: string
 	DB_TYPE: DBServerType
@@ -33,7 +33,7 @@ const developConfig: EnvConfigType = {
 	TRACE_LOG_LEVEL: 'all',
 	DEV_LOG_LEVEL: 'all',
 	AUDIT_LOG_LEVEL: 'all',
-	ENABLE_OTEL_LOGS: 'no',
+	ENABLE_OTEL: 'no',
 	JWT_SECRET: 'jwtSecret',
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
