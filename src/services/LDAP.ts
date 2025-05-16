@@ -508,8 +508,9 @@ import { log } from '@/configs';
 export default class LDAP {
     public client: Client | null = null;
     public url: string = '';
-    public authUserDN: string = '';
-    public authUserPassword: string = '';
+    /** 用户在AD中的唯一标识，如name */
+    public adminAuthUserCN: string = '';
+    public adminAuthUserPassword: string = '';
     public baseDN: string = '';
     public searchDN = '';
     public searchScope: 'base' | 'one' | 'sub' = 'sub';
@@ -524,15 +525,15 @@ export default class LDAP {
 
     async init() {
         this.url = 'ldap://rwdc.bj.sensetime.com';
-        this.authUserDN = 'cn=xxx,ou=people,dc=domain,dc=sensetime,dc=com'; // ldap认证用户
-        this.authUserPassword = 'xxx'; // ldap认证用户密码
+        this.adminAuthUserCN = 'xxx'; // ldap认证用户
+        this.adminAuthUserPassword = 'xxx'; // ldap认证用户密码
         this.baseDN = 'dc=domain,dc=sensetime,dc=com';
         this.searchDN = `ou=people,${this.baseDN}`;
         this.searchScope = 'sub';
         this.seatchObjectClass = 'objectclass=person'; // 只搜索人
 
         await this.connect();
-        // this.searchUser('username')
+        // this.searchUser('username');
     }
 
     async connect(): Promise<void> {
@@ -550,7 +551,7 @@ export default class LDAP {
 
     private async bind(): Promise<void> {
         await new Promise((resolve, reject) => {
-            this.client?.bind(this.authUserDN, this.authUserPassword, (error, res) => {
+            this.client?.bind(this.getUserDN(this.adminAuthUserCN), this.adminAuthUserPassword, (error, res) => {
                 if (error) {
                     reject(error);
                 }
@@ -559,7 +560,7 @@ export default class LDAP {
         });
     }
 
-    getSearchData(entry: ldap.SearchEntry) {
+    private getSearchData(entry: ldap.SearchEntry) {
         const result: Record<string, Array<string> | string> = {};
 
         for (const a of entry.attributes) {
@@ -571,6 +572,10 @@ export default class LDAP {
         }
 
         return result;
+    }
+
+    private getUserDN(cn: string) {
+        return `cn=${cn},${this.searchDN}`;
     }
 
     private async search(baseDN: string, options: SearchOptions): Promise<Array<ReturnType<typeof this.getSearchData>>> {
@@ -618,5 +623,22 @@ export default class LDAP {
             timeLimit: this.searchTimeout,
             paged: true
         });
+    }
+
+    async checkUserPwd(userCN: string, password: string) {
+        try {
+            await new Promise((resolve, reject) => {
+                this.client?.bind(this.getUserDN(userCN), password, (error, res) => {
+                    if (error) {
+                        reject(error);
+                    }
+                    resolve(res);
+                })
+            });
+            this.client?.unbind();
+            return true;
+        } catch (e) { // eslint-disable-line @typescript-eslint/no-unused-vars
+            return false;
+        }
     }
 }
