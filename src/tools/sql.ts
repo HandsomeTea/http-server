@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { getENV, system } from '@/configs';
+import { protectedURL } from '@/utils';
 
 export default new class MySQL {
 	private service!: Sequelize | undefined;
@@ -16,7 +17,7 @@ export default new class MySQL {
 		const sqlAddress = getENV('DB_URL');
 
 		if (!sqlAddress) {
-			throw new Exception(`sql connect address is required but get ${sqlAddress}`);
+			throw new Exception(`sql connect address is required but get "${sqlAddress}"`);
 		}
 
 		this.service = new Sequelize(sqlAddress, {
@@ -40,7 +41,7 @@ export default new class MySQL {
 
 		this.service.authenticate().then(() => {
 			this.isReady = true;
-			system('sql').info(`sql connected on ${sqlAddress} success and ready to use.`);
+			system('sql').info(`sql connected on ${protectedURL(sqlAddress)} success and ready to use.`);
 		}).catch(error => {
 			system('sql').error(error);
 		});

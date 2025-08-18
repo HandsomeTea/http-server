@@ -1,5 +1,6 @@
 import amqp, { AmqpConnectionManager } from 'amqp-connection-manager';
 import { getENV, system } from '@/configs';
+import { protectedURL } from '@/utils';
 
 export default new class MQ {
     private service: AmqpConnectionManager | undefined;
@@ -13,7 +14,7 @@ export default new class MQ {
     private init() {
         this.service = amqp.connect([getENV('MQ_URL')]);
         this.service.on('connect', () => {
-            system('mq').info(`mq connected on ${getENV('MQ_URL')} success and ready to use.`);
+            system('mq').info(`mq connected on ${protectedURL(getENV('MQ_URL'))} success and ready to use.`);
         });
 
         this.service.on('disconnect', e => {

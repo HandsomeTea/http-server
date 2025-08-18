@@ -1,12 +1,13 @@
 import mongoose from 'mongoose';
 import { getENV, system } from '@/configs';
+import { protectedURL } from '@/utils';
 
 const RECONNET_TIME = 5000;
 const mongoconnect = async () => {
     const mongodbAddress = getENV('DB_URL');
 
     if (!mongodbAddress) {
-        return system('mongodb').error(`mongodb connect address is required but get ${mongodbAddress}`);
+        return system('mongodb').error(`mongodb connect address is required but get "${mongodbAddress}"`);
     }
     try {
         await mongoose.connect(mongodbAddress);
@@ -29,16 +30,16 @@ export default new class MongoDB {
 
     private async init() {
         // 初始化操作
-        this.server.once('connected', () => {// 连接成功
-            system('mongodb').info(`mongodb connected on ${getENV('DB_URL')} success and ready to use.`);
+        this.server.once('connected', () => { // 连接成功
+            system('mongodb').info(`mongodb connected on ${protectedURL(getENV('DB_URL'))} success and ready to use.`);
         });
 
-        this.server.on('disconnected', () => {// 连接失败或中断
+        this.server.on('disconnected', () => { // 连接失败或中断
             system('mongodb').fatal(`disconnected! connection is break off. it will be retried in ${RECONNET_TIME} ms after every reconnect until success unless process exit.`);
         });
 
-        this.server.on('reconnected', () => {// 重新连接成功
-            system('mongodb').info(`reconnect on ${getENV('DB_URL')} success and ready to use.`);
+        this.server.on('reconnected', () => { // 重新连接成功
+            system('mongodb').info(`reconnect on ${protectedURL(getENV('DB_URL'))} success and ready to use.`);
         });
         return await mongoconnect();
     }

@@ -16,3 +16,4 @@ export {
 export { check } from './check';
 export { arrayToObject } from './arrayToObject';
 export { dealYaml } from './dealYaml';
+export { protectedURL } from './protectedURL';

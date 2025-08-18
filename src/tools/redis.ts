@@ -1,5 +1,6 @@
 import ioredis from 'ioredis';
 import { getENV, system } from '@/configs';
+import { protectedURL } from '@/utils';
 
 const RECONNET_TIME = 5000;
 
@@ -31,7 +32,7 @@ export default new class Redis {
 				// @ts-ignore
 				process.setRedisReady();
 			} else {
-				system('redis').info(`redis connected on ${getENV('REDIS_URL')} success and ready to use.`);
+				system('redis').info(`redis connected on ${protectedURL(getENV('REDIS_URL'))} success and ready to use.`);
 			}
 		});
 

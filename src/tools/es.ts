@@ -1,5 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
 import { getENV, system } from '@/configs';
+import { protectedURL } from '@/utils';
 
 export default new class Elasticsearch {
     private service!: Client;
@@ -15,7 +16,7 @@ export default new class Elasticsearch {
             this.service = new Client({
                 node: getENV('ES_URL').split(',')
             });
-            system('elasticsearch').info(`elasticsearch connected on ${getENV('ES_URL')} success and ready to use.`);
+            system('elasticsearch').info(`elasticsearch connected on ${protectedURL(getENV('ES_URL').split(',')).join(',')} success and ready to use.`);
         } catch (error) {
             system('elasticsearch').error(error);
         }

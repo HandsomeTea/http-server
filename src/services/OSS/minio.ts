@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
-import { BucketItem, BucketItemStat, Client } from 'minio'
+import { BucketItem, BucketItemStat } from 'minio';
+import minio from '@/tools/minio';
 import { getENV } from '@/configs';
 
 /**
@@ -71,25 +72,8 @@ const generateListPolicyStatement = (bucket: string): Array<BucketPolicyStatemen
 }];
 
 export default new class MinioOSSService {
-	private server: Client | null = null;
-
 	constructor() {
-		const minioUrl = getENV('MINIO_URL');
-		const minioAccessKey = getENV('MINIO_ACCESS_KEY');
-		const minioSecretKey = getENV('MINIO_SECRET_KEY');
-
-		if (!minioUrl || !minioAccessKey || !minioSecretKey) {
-			return;
-		}
-		const url = new URL(minioUrl);
-
-		this.server = new Client({
-			endPoint: url.hostname,
-			port: parseInt(url.port),
-			useSSL: false,
-			accessKey: minioAccessKey,
-			secretKey: minioSecretKey
-		});
+		// minio.server?.traceOn(); // 开启底层日志输出，debug使用
 	}
 
 	private getOssFileAddr(bucket: Bucket, filePath: string) {
@@ -104,8 +88,8 @@ export default new class MinioOSSService {
 	 * @param bucketName
 	 */
 	private async createBucket(bucketName: string) {
-		if (!await this.server?.bucketExists(bucketName)) {
-			await this.server?.makeBucket(bucketName)
+		if (!await minio.server?.bucketExists(bucketName)) {
+			await minio.server?.makeBucket(bucketName)
 		}
 	}
 
@@ -113,7 +97,7 @@ export default new class MinioOSSService {
 		if (Object.keys(auth).length === 0) {
 			return;
 		}
-		const currentPolicy: { Statement: Array<BucketPolicyStatement> } = JSON.parse(await this.server?.getBucketPolicy(bucketName) || '{ "Statement": [] }');
+		const currentPolicy: { Statement: Array<BucketPolicyStatement> } = JSON.parse(await minio.server?.getBucketPolicy(bucketName) || '{ "Statement": [] }');
 		const policyActions: Array<BucketPolicyAction> = currentPolicy.Statement.map(item => item.Action).flat();
 		const policy: Array<BucketPolicyStatement> = [];
 
@@ -139,7 +123,7 @@ export default new class MinioOSSService {
 		}
 
 		if (policy.length > 0) {
-			await this.server?.setBucketPolicy(bucketName, JSON.stringify({ Statement: policy, Version: '2012-10-17' }));
+			await minio.server?.setBucketPolicy(bucketName, JSON.stringify({ Statement: policy, Version: '2012-10-17' }));
 		}
 	}
 
@@ -153,7 +137,7 @@ export default new class MinioOSSService {
 		if (expiry <= 0) {
 			return;
 		}
-		await this.server?.setBucketLifecycle(bucketName, {
+		await minio.server?.setBucketLifecycle(bucketName, {
 			Rule: [{
 				ID: '',
 				Status: 'Enabled',
@@ -177,11 +161,11 @@ export default new class MinioOSSService {
 	}
 
 	async deleteBucket(bucketName: Bucket) {
-		await this.server?.removeBucket(bucketName);
+		await minio.server?.removeBucket(bucketName);
 	}
 
 	async searchBuckets(bucketName?: string) {
-		const result = await this.server?.listBuckets();
+		const result = await minio.server?.listBuckets();
 
 		if (!result) {
 			return [];
@@ -206,27 +190,27 @@ export default new class MinioOSSService {
 		const minioFilePath = path.resolve(targetPath, fileName);
 
 		if (file.fullPath) {
-			await this.server?.fPutObject(bucket, minioFilePath, file.fullPath);
+			await minio.server?.fPutObject(bucket, minioFilePath, file.fullPath);
 		} else if (file.readStream) {
-			await this.server?.putObject(bucket, minioFilePath, file.readStream);
+			await minio.server?.putObject(bucket, minioFilePath, file.readStream);
 		}
 		return this.getOssFileAddr(bucket, minioFilePath);
 	}
 
 	async deleteFile(bucket: Bucket, pathInBucket: string) {
-		await this.server?.removeObject(bucket, pathInBucket);
+		await minio.server?.removeObject(bucket, pathInBucket);
 	}
 
 	async getFile(bucket: Bucket, pathInBucket: string): Promise<BucketItemStat | null> {
 		return new Promise(resolve => {
-			this.server?.statObject(bucket, pathInBucket)
+			minio.server?.statObject(bucket, pathInBucket)
 				.then(res => resolve(res))
 				.catch(() => resolve(null));
 		});
 	}
 
 	async searchFilesFromBucket(bucket: Bucket, option?: { prefix?: string, recursive?: boolean }) {
-		const result = await this.server?.listObjects(bucket, option?.prefix, option?.recursive);
+		const result = await minio.server?.listObjects(bucket, option?.prefix, option?.recursive);
 
 		return new Promise((resolve, reject) => {
 			const files: Array<BucketItem> = [];
@@ -240,10 +224,10 @@ export default new class MinioOSSService {
 
 	async downloadFile(bucket: Bucket, pathInBucket: string, target: { toFile?: string, toStream?: boolean }) {
 		if (target.toStream) {
-			return await this.server?.getObject(bucket, pathInBucket);
+			return await minio.server?.getObject(bucket, pathInBucket);
 		}
 		if (target.toFile) {
-			return await this.server?.fGetObject(bucket, pathInBucket, target.toFile);
+			return await minio.server?.fGetObject(bucket, pathInBucket, target.toFile);
 		}
 		// const stream = await this.server?.getObject(bucket, pathInBucket);
 
@@ -256,5 +240,21 @@ export default new class MinioOSSService {
 		// 	})
 		// 		.on('end', () => console.log(`文件已写入${toFile}`));
 		// }
+
+		// 	res.setHeader('Content-Type', 'application/octet-stream');
+		// res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+		// stream.pipe(res);
+		// stream.on('error', (err) => {
+		//     if (!res.headersSent) {
+		//         throw new Exception(err.message);
+		//     }
+		// });
+
+		// res.on('close', () => {
+		//     if (!stream.destroyed) {
+		//         stream.destroy();
+		//     }
+		// });
 	}
 }

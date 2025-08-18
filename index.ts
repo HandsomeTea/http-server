@@ -34,6 +34,7 @@ import dm from '@/tools/dameng';
 import redis from '@/tools/redis';
 import mq from '@/tools/mq';
 import es from '@/tools/es';
+import minio from '@/tools/minio';
 
 /**
  * 健康检查
@@ -56,6 +57,9 @@ const isHealth = async () => {
 	}
 	if (!es.isOK) {
 		return log('STARTUP').error('es connection is unusual');
+	}
+	if (!minio.isOK) {
+		return log('STARTUP').error('minio connection is unusual');
 	}
 	log('SYSTEM-STATUS').debug('health check: system is normal.');
 	return true;

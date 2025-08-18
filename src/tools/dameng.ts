@@ -2,6 +2,7 @@
 // @ts-ignore
 import dmdb from 'dmdb';
 import { getENV, system } from '@/configs';
+import { protectedURL } from '@/utils';
 
 export default new class DM {
     private service!: dmdb.Connection | undefined;
@@ -18,14 +19,14 @@ export default new class DM {
         const connectString = getENV('DB_URL');
 
         if (!connectString) {
-            throw new Exception(`DM connect address is required but get ${connectString}`);
+            throw new Exception(`DM connect address is required but get "${connectString}"`);
         }
         try {
             const pool = await dmdb.createPool({ connectString });
 
             this.service = await pool.getConnection();
             this.isReady = true;
-            system('dmdb').info(`DM connected on ${connectString} success and ready to use.`);
+            system('dmdb').info(`DM connected on ${protectedURL(connectString)} success and ready to use.`);
         } catch (error) {
             system('dmdb').error(error);
         }

@@ -675,9 +675,19 @@ class GitlabJob extends GitlabBase {
 	 * 使用了变量run的job，retry时会使用run时的变量值，不会使用原先的变量值
 	 */
 	async runJob(projectId: string | number, jobId: number, variables?: Array<{ key: string, value: string }>) {
-		return await this.gitlab.Jobs.play(projectId, jobId, {
-			jobVariablesAttributes: variables && variables.length > 0 ? variables : []
-		});
+		try {
+			return await this.gitlab.Jobs.play(projectId, jobId, {
+				jobVariablesAttributes: variables && variables.length > 0 ? variables : []
+			});
+		} catch (e) {
+			const error = e as { cause?: { description: string, response: { status: number } } };
+			const str = `run job ${jobId} of project ${projectId} error from gitlab ${gitlabHost}: ${JSON.stringify(error.cause)}`
+
+			throw new Exception({
+				message: error.cause?.description || str,
+				status: error.cause?.response.status || 500
+			});
+		}
 	}
 
 	async removeJob(projectId: string | number, jobId: number) {
@@ -920,6 +930,19 @@ class GitlabVariables extends GitlabBase {
 
 			log().warn(`get gitlab project variables from project ${projectId} error : ${JSON.stringify(error.cause)}`);
 			return [];
+		}
+	}
+
+	async setProjectVariables(projectId: string | number, variables: Array<{ key: string, value: string, description?: string }>) {
+		for (const variable of variables) {
+			await this.gitlab.ProjectVariables.create(projectId, variable.key, variable.value, {
+				variableType: 'env_var',
+				protected: false,
+				masked: false,
+				environmentScope: '*',
+				description: variable.description,
+				raw: false
+			});
 		}
 	}
 
