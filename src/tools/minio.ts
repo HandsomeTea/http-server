@@ -52,7 +52,7 @@ export default new class Minio {
     }
 
     public get isOK() {
-        return this._isOK;
+        return !this.isUseful || this.isUseful && this._isOK;
     }
 
     public close() {

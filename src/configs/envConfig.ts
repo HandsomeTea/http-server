@@ -44,7 +44,7 @@ const developConfig: EnvConfigType = {
 	// 'postgres://surpass:Bizconf_surpass@ops-dev.bizconf.cn/surpass'
 	DB_URL: 'mongodb://admin:admin@localhost:27017/test?authSource=admin',
 	MQ_URL: '',
-	// redis://localhost:6379
+	// redis://root:root@localhost:6379
 	REDIS_URL: '',
 	// 'http://0.0.0.0:9200'
 	ES_URL: '',

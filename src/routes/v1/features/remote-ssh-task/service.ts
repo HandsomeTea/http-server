@@ -279,7 +279,8 @@ export const RemoteSSHTaskService = new class SSHTask {
 						'data.instance': ''
 					}
 				});
-				await redis.server?.ltrim(redisKey, 1, 0)
+				await redis.server?.ltrim(redisKey, 1, 0);
+				// await redis.server?.del(redisKey); // 也可以
 				log('master-process').info(`任务执行结束，结束状态为: ${this.taskTempData[`record:${recordId}`].isStop ? '被中断' : '成功'}`);
 				delete this.taskTempData[`record:${recordId}`];
 			})
@@ -289,16 +290,19 @@ export const RemoteSSHTaskService = new class SSHTask {
 
 
 export const TaskScheduleService = new class SSHFrame {
-	private getDeviceTaskQueue: Queue.Queue;
+	private getDeviceTaskQueue: Queue.Queue | null = null;
 	private getDeviceConcurrencyLimit = 2;
-	private getCommandsTaskQueue: Queue.Queue;
+	private getCommandsTaskQueue: Queue.Queue | null = null;
 	private getCommandsConcurrencyLimit = 2;
-	private remoteSSHTaskQueue: Queue.Queue;
+	private remoteSSHTaskQueue: Queue.Queue | null = null;
 	private remoteSSHTaskConcurrencyLimit = 2;
 
 	constructor() {
 		const redis = getENV('REDIS_URL');
 
+		if (!redis) {
+			return;
+		}
 		this.getDeviceTaskQueue = new Queue('get-device-task', { prefix: 'get-device', redis });
 		this.getCommandsTaskQueue = new Queue('get-commands-task', { prefix: 'get-commands', redis });
 		this.remoteSSHTaskQueue = new Queue('remote-ssh-task', { prefix: 'remote-ssh', redis });
@@ -306,10 +310,10 @@ export const TaskScheduleService = new class SSHFrame {
 	}
 
 	private async dealTaskQueue() {
-		this.getDeviceTaskQueue.on('completed', (job, result: Device) => {
+		this.getDeviceTaskQueue?.on('completed', (job, result: Device) => {
 			// eslint-disable-next-line no-console
 			console.log('获取设备成功');
-			this.getCommandsTaskQueue.add({ record: job.data, device: result }, { jobId: job.data._id.toString() });
+			this.getCommandsTaskQueue?.add({ record: job.data, device: result }, { jobId: job.data._id.toString() });
 			job.remove();
 		}).on('failed', (job) => {
 			const data = job.data;
@@ -320,24 +324,24 @@ export const TaskScheduleService = new class SSHFrame {
 			return await this.getDevice(job.data._id.toString());
 		})
 
-		this.getCommandsTaskQueue.on('completed', (job, result: Array<string>) => {
+		this.getCommandsTaskQueue?.on('completed', (job, result: Array<string>) => {
 			// eslint-disable-next-line no-console
 			console.log('获取命令成功');
-			this.remoteSSHTaskQueue.add({ record: job.data.record, commands: result, device: job.data.device }, { jobId: job.data.record._id.toString() });
+			this.remoteSSHTaskQueue?.add({ record: job.data.record, commands: result, device: job.data.device }, { jobId: job.data.record._id.toString() });
 			job.remove();
 		}).on('failed', (job) => {
 			const record = job.data.record;
 			const device = job.data.device;
 
 			job.remove();
-			this.getCommandsTaskQueue.add({ record, device }, { jobId: record._id.toString() });
+			this.getCommandsTaskQueue?.add({ record, device }, { jobId: record._id.toString() });
 		}).process(this.getCommandsConcurrencyLimit, async job => {
 			// eslint-disable-next-line no-console
 			console.log('开始获取命令');
 			return await this.getCommands(job.data.record._id.toString());
 		})
 
-		this.remoteSSHTaskQueue.on('completed', (job) => {
+		this.remoteSSHTaskQueue?.on('completed', (job) => {
 			// eslint-disable-next-line no-console
 			console.log('任务执行成功');
 			job.remove();
@@ -347,7 +351,7 @@ export const TaskScheduleService = new class SSHFrame {
 			const commands = job.data.commands;
 
 			job.remove();
-			this.remoteSSHTaskQueue.add({ record, commands, device }, { jobId: record._id.toString() });
+			this.remoteSSHTaskQueue?.add({ record, commands, device }, { jobId: record._id.toString() });
 		}).process(this.remoteSSHTaskConcurrencyLimit, async job => {
 			// eslint-disable-next-line no-console
 			console.log('开始执行任务');
@@ -356,7 +360,7 @@ export const TaskScheduleService = new class SSHFrame {
 	}
 
 	async addTask(data: TestTaskRecord) {
-		await this.getDeviceTaskQueue.add(data, { jobId: data._id.toString() });
+		await this.getDeviceTaskQueue?.add(data, { jobId: data._id.toString() });
 	}
 
 	private async getDevice(recordId: string): Promise<Device> {

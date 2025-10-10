@@ -8,7 +8,7 @@ import { getENV } from '@/configs';
  * 无法上传文件夹，只能上传文件
  */
 
-type Bucket = 'test';
+type Bucket = 'test' | 'test-temporary';
 interface BucketAuth {
 	upload?: boolean
 	delete?: boolean
@@ -83,14 +83,36 @@ export default new class MinioOSSService {
 		return `${url.protocol}//${url.hostname}:${url.port}/${bucket}/${filePath}`;
 	}
 
+	async listBucketContent(bucket: string, prefix?: string): Promise<Array<string>> {
+		const allPkgPath = await minio.server?.listObjectsV2(bucket, prefix);
+		const result: Array<string> = [];
+
+		return await new Promise(resolve => {
+			allPkgPath?.on('data', item => {
+				if (item.prefix) {
+					result.push(item.prefix.replace('/', ''));
+				}
+			});
+			allPkgPath?.on('end', () => {
+				resolve(result);
+			})
+		});
+	}
+
+	async deleteObject(bucket: string, objectPath: string) {
+		await minio.server?.removeObject(bucket, objectPath, { forceDelete: true });
+	}
+
 	/**
 	 * 如果存在则不做任何操作，否则创建
 	 * @param bucketName
 	 */
 	private async createBucket(bucketName: string) {
 		if (!await minio.server?.bucketExists(bucketName)) {
-			await minio.server?.makeBucket(bucketName)
+			await minio.server?.makeBucket(bucketName);
+			return { isNew: true };
 		}
+		return { isNew: false };
 	}
 
 	private async checkBucketAuth(bucketName: string, auth: BucketAuth) {
@@ -256,5 +278,61 @@ export default new class MinioOSSService {
 		//         stream.destroy();
 		//     }
 		// });
+	}
+
+	async getTemporaryUploadUrl(fileName: string) {
+		const bucketName: Bucket = 'test-temporary';
+		const { isNew } = await this.createBucket(bucketName);
+
+		if (isNew) {
+			const policy = {
+				Version: '2012-10-17',
+				Statement: [{
+					Effect: 'Allow',
+					Principal: '*',
+					Action: [
+						's3:PutObject',
+						"s3:DeleteObject",
+						's3:AbortMultipartUpload'
+					],
+					Resource: [
+						`arn:aws:s3:::${bucketName}/*`
+					]
+				}, {
+					Effect: 'Deny',
+					Principal: '*',
+					Action: [
+						's3:GetObject',
+						's3:GetObjectVersion'
+					],
+					Resource: [
+						`arn:aws:s3:::${bucketName}/*`
+					]
+				}, {
+					Effect: 'Deny',
+					Principal: '*',
+					Action: [
+						's3:ListBucket',
+						's3:GetBucketLocation'
+					],
+					Resource: [
+						`arn:aws:s3:::${bucketName}`
+					]
+				}]
+			};
+
+			await minio.server?.setBucketPolicy(bucketName, JSON.stringify(policy));
+		}
+		const expiry = 5; // 单位秒
+		const file = `${Date.now()}-${Math.random().toString(36).substring(2)}-${fileName}`;
+
+		return {
+			upload: await minio.server?.presignedPutObject(bucketName, file, expiry),
+			address: this.getOssFileAddr(bucketName, `/${file}`)
+		};
+	}
+
+	async getObjectInfo(bucketName: string, fileName: string) {
+		return await minio.server?.statObject(bucketName, fileName);
 	}
 }
