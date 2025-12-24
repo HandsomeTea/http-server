@@ -765,6 +765,65 @@ class GitlabJob extends GitlabBase {
 			stage: job.stage
 		};
 	}
+
+	async runJobWithVariables(jobId: number, variables: Record<string, string>) {
+		const { body } = await this.gitlab.requester.post('/api/graphql', {
+			body: {
+				operationName: 'getDagVisData',
+				variables: JSON.stringify({
+					id: `gid://gitlab/Ci::Build/${jobId}`,
+					variables: Object.keys(variables).map(a => ({ key: a, value: variables[a] }))
+				}),
+				query: `
+				mutation retryJobWithVariables($id: CiProcessableID!, $variables: [CiVariableInput!]) {
+					jobRetry(input: {id: $id, variables: $variables}) {
+						job {
+							...BaseCiJob
+							webPath
+							__typename
+						}
+						errors
+						__typename
+					}
+				}
+
+				fragment BaseCiJob on CiJob {
+					id
+					manualVariables {
+						nodes {
+							...ManualCiVariable
+							__typename
+						}
+						__typename
+					}
+					__typename
+				}
+
+				fragment ManualCiVariable on CiVariable {
+					id
+					key
+					value
+					__typename
+				}
+			`
+			}
+		});
+
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		const result = body.data.jobRetry as {
+			job: {
+				id: string
+				webPath: string
+			} | null
+			errors: string[]
+		};
+
+		if (result.errors.length > 0) {
+			throw new Exception(result.errors.join('\n'));
+		}
+		return { newJobId: parseInt(result.job?.id.split('/').pop() || '') || null };
+	}
 }
 
 class GitlabPackage extends GitlabBase {

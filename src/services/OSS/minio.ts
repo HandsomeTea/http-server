@@ -74,6 +74,26 @@ const generateListPolicyStatement = (bucket: string): Array<BucketPolicyStatemen
 export default new class MinioOSSService {
 	constructor() {
 		// minio.server?.traceOn(); // 开启底层日志输出，debug使用
+		setInterval(() => {
+			this.clearTemporaryFiles();
+		}, 3 * 24 * 60 * 60 * 1000);
+	}
+
+	private async clearTemporaryFiles() {
+		const temporaryBuckets: Array<Bucket> = ['test-temporary'];
+
+		for (const bucket of temporaryBuckets) {
+			if (!await minio.server?.bucketExists(bucket)) {
+				continue;
+			}
+			const allSavedFiles = await this.listBucketContent(bucket, '');
+
+			for (const file of allSavedFiles) {
+				if (file.lastModified && new Date().getTime() - 30 > file.lastModified.getTime()) {
+					await this.deleteFile(bucket, file.name);
+				}
+			}
+		}
 	}
 
 	private getOssFileAddr(bucket: Bucket, filePath: string) {
@@ -83,19 +103,17 @@ export default new class MinioOSSService {
 		return `${url.protocol}//${url.hostname}:${url.port}/${bucket}/${filePath}`;
 	}
 
-	async listBucketContent(bucket: string, prefix?: string): Promise<Array<string>> {
+	private async listBucketContent(bucket: string, prefix?: string): Promise<Array<BucketItem>> {
 		const allPkgPath = await minio.server?.listObjectsV2(bucket, prefix);
-		const result: Array<string> = [];
+		const result: Array<BucketItem> = [];
 
 		return await new Promise(resolve => {
 			allPkgPath?.on('data', item => {
-				if (item.prefix) {
-					result.push(item.prefix.replace('/', ''));
-				}
+				result.push(item);
 			});
 			allPkgPath?.on('end', () => {
 				resolve(result);
-			})
+			});
 		});
 	}
 
@@ -280,7 +298,13 @@ export default new class MinioOSSService {
 		// });
 	}
 
-	async getTemporaryUploadUrl(fileName: string) {
+	/**
+	 *
+	 * @param fileName
+	 * @param suffix 文件后缀，如：.png，带不带点都行
+	 * @returns
+	 */
+	async getTemporaryUploadUrl(fileName: string, suffix: string) {
 		const bucketName: Bucket = 'test-temporary';
 		const { isNew } = await this.createBucket(bucketName);
 
@@ -324,7 +348,15 @@ export default new class MinioOSSService {
 			await minio.server?.setBucketPolicy(bucketName, JSON.stringify(policy));
 		}
 		const expiry = 5; // 单位秒
-		const file = `${Date.now()}-${Math.random().toString(36).substring(2)}-${fileName}`;
+		const time = new Date();
+
+		if (!suffix.startsWith('.')) {
+			suffix = `.${suffix}`;
+		}
+		// {fileName}-20251011131445-xxxxxxxxxx.{suffix}
+		const file = `${fileName.substring(0, fileName.length - suffix.length)}-${[time.getFullYear(), time.getMonth() + 1, time.getDate(), time.getHours(), time.getMinutes(), time.getSeconds()].map(a => {
+			return a < 10 ? '0' + a : a
+		}).join('')}-${Math.random().toString(36).substring(2)}${suffix}`;
 
 		return {
 			upload: await minio.server?.presignedPutObject(bucketName, file, expiry),
