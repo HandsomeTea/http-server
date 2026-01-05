@@ -23,6 +23,10 @@ interface EnvConfigType {
 	MINIO_URL: string
 	MINIO_ACCESS_KEY: string
 	MINIO_SECRET_KEY: string
+	AWS_URL: string
+	AWS_REGION: string
+	AWS_ACCESS_KEY: string
+	AWS_SECRET_KEY: string
 }
 const developConfig: EnvConfigType = {
 	NODE_ENV: 'development',
@@ -57,7 +61,11 @@ const developConfig: EnvConfigType = {
 	// http://localhost:9000
 	MINIO_URL: '',
 	MINIO_ACCESS_KEY: 'ySl5zgkKATzuv1o8jmOs',
-	MINIO_SECRET_KEY: 'NLLvSrMVSJ4oatVSOPhafb8Hzsn5tWqHXJGwAS1b'
+	MINIO_SECRET_KEY: 'NLLvSrMVSJ4oatVSOPhafb8Hzsn5tWqHXJGwAS1b',
+	AWS_URL: '',
+	AWS_REGION: 'us-east-1',
+	AWS_ACCESS_KEY: '1D7GOL8O3LHORL3N0R1D',
+	AWS_SECRET_KEY: 'amzveLK9HDYIRPuIcFxIMI19sDaIbaEeYHBOmjjA'
 };
 
 export default <K extends keyof EnvConfigType>(env: K): EnvConfigType[K] => {

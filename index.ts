@@ -35,6 +35,7 @@ import redis from '@/tools/redis';
 import mq from '@/tools/mq';
 import es from '@/tools/es';
 import minio from '@/tools/minio';
+import aws from '@/tools/aws';
 
 /**
  * 健康检查
@@ -60,6 +61,9 @@ const isHealth = async () => {
 	}
 	if (!minio.isOK) {
 		return log('STARTUP').error('minio connection is unusual');
+	}
+	if (!aws.isOK) {
+		return log('STARTUP').error('aws connection is unusual');
 	}
 	log('SYSTEM-STATUS').debug('health check: system is normal.');
 	return true;
