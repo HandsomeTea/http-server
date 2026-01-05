@@ -59,7 +59,7 @@ export default new class Command {
         });
     }
 
-    private async connectDevice(bundleRecordId: string, deviceConfig: ConnectConfig): Promise<Client | null> {
+    async connectDevice(bundleRecordId: string, deviceConfig: ConnectConfig): Promise<Client | null> {
         return await new Promise(resolve => {
             const conn = new Client();
 
