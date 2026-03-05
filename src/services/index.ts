@@ -34,3 +34,4 @@ export { SD } from './sd';
 export { HTTP } from './HTTP';
 export { Encryption } from './rsa';
 export { SSH } from './ssh';
+export { LocalShell, RemoteSSH } from './shell';

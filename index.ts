@@ -137,6 +137,9 @@ const onListening = () => {
 server.on('error', onError);
 server.on('listening', onListening);
 
+import { name as serverName } from './package.json';
+import { createBlessing } from './startup/blessing';
+
 /** 服务开始监听请求 */
 server.listen(port, () => {
 	const _check = setInterval(async () => {
@@ -150,7 +153,7 @@ server.listen(port, () => {
 			process.send('ready');
 		}
 		clearInterval(_check);
-		log('STARTUP').info(`api document running on port:${port}.`);
+		createBlessing(`${serverName} start successful on port:${port}.`);
 	}, 1000);
 });
 

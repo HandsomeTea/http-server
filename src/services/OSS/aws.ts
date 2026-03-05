@@ -14,6 +14,7 @@ export default new class CephOSSService {
         // my-test-bucket
         // this.uploadFile({ localAbsolutePath: '/home/SENSETIME/liuhaifeng/obb_carplate_quant.tar' }, '/test/test.tar').then((res) => {
         // this.downloadFile({ address: 'http://10.155.172.238:30081/my-test-bucket//test/test.tar' }, './aaa.tar').then((res) => {
+        // this.getTemporaryUploadUrl('text.mark.txt', 'txt').then((res) => {
         //     // http://10.155.172.238:30081/my-test-bucket//test/test.tar
         //     // /test/dic.json
         //     // this.listObjects({ pathInBucket: '/test/dic.json' }).then((res) => {
@@ -241,7 +242,7 @@ export default new class CephOSSService {
             return {
                 url,
                 fileName: file,
-                method: 'put'
+                method: 'PUT'
             }
         } catch (e) {
             log('aws-temporary-upload').error(e);

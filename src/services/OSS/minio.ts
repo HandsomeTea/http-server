@@ -90,7 +90,7 @@ export default new class MinioOSSService {
 
 			for (const file of allSavedFiles) {
 				if (file.lastModified && new Date().getTime() - 30 > file.lastModified.getTime()) {
-					await this.deleteFile(bucket, file.name);
+					await this.deleteObject(bucket, file.name);
 				}
 			}
 		}
@@ -117,7 +117,7 @@ export default new class MinioOSSService {
 		});
 	}
 
-	async deleteObject(bucket: string, objectPath: string) {
+	private async deleteObject(bucket: string, objectPath: string) {
 		await minio.server?.removeObject(bucket, objectPath, { forceDelete: true });
 	}
 
@@ -237,8 +237,10 @@ export default new class MinioOSSService {
 		return this.getOssFileAddr(bucket, minioFilePath);
 	}
 
-	async deleteFile(bucket: Bucket, pathInBucket: string) {
-		await minio.server?.removeObject(bucket, pathInBucket);
+	async removeFile(bucket: Bucket, address: string) {
+		const [, pathInBucket] = address.split(bucket);
+
+		await this.deleteObject(bucket, pathInBucket);
 	}
 
 	async getFile(bucket: Bucket, pathInBucket: string): Promise<BucketItemStat | null> {

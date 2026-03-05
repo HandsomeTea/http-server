@@ -60,6 +60,7 @@
 		"forceConsistentCasingInFileNames": true, /* Disallow inconsistently-cased references to the same file. */
 		"listEmittedFiles": true,
 		"noEmitOnError": true,
+		"resolveJsonModule": true,
 		"pretty": true,
 		"baseUrl": ".",
 		"paths": {

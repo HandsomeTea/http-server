@@ -35,7 +35,7 @@ EXPOSE 8010
 # CMD ["clinic", "flame", "--open=false", "--", "node", "--max-old-space-size=2560", "--max_semi_space_size=512", "index.js"]
 # CMD ["clinic", "heapprofiler", "--open=false", "--", "node", "--max-old-space-size=2560", "--max_semi_space_size=512", "index.js"]
 # CMD ["clinic", "doctor", "--open=false", "--", "node", "--max-old-space-size=2560", "--max_semi_space_size=512", "index.js"]
-CMD ["node", "--max-old-space-size=900", "--max_semi_space_size=64", "index.js"]
+CMD ["TZ='Asia/Shanghai'", "node", "--max-old-space-size=900", "--max_semi_space_size=64", "index.js"]
 
 #开始创建docker应用的镜像，-t参数，将镜像命名为test
 #docker build -t test ./
