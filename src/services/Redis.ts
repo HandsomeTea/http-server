@@ -1,6 +1,8 @@
 import redis from '@/tools/redis';
 
 class RedisService {
+    private expiredKeyMap: Record<string, number> = {};
+
     constructor() {
         //
     }
@@ -30,9 +32,21 @@ class RedisService {
     async publishBundleLog(bundleRecordId: string, log: string, level?: 'debug' | 'info' | 'warning' | 'error') {
         const redisKey = this.bundleLogSavedKey(bundleRecordId);
 
-        if (log.includes('[#&log-end&#]')) {
-            await redis.server?.expire(redisKey, 8 * 60 * 60);
-            return;
+        if (!this.expiredKeyMap[redisKey]) {
+            const expired = 8 * 60 * 60;
+
+            this.expiredKeyMap[redisKey] = expired;
+
+            let timer: null | NodeJS.Timeout = setTimeout(() => {
+                delete this.expiredKeyMap[redisKey];
+
+                if (timer) {
+                    clearTimeout(timer);
+                    timer = null;
+                }
+            }, expired * 1000);
+
+            await redis.server?.expire(redisKey, this.expiredKeyMap[redisKey]);
         }
         const subKey = this.bundleLogSubChannel(bundleRecordId);
 

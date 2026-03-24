@@ -77,6 +77,7 @@ export default new class MinioOSSService {
 		setInterval(() => {
 			this.clearTemporaryFiles();
 		}, 3 * 24 * 60 * 60 * 1000);
+		// (async () => { })()
 	}
 
 	private async clearTemporaryFiles() {
@@ -101,6 +102,34 @@ export default new class MinioOSSService {
 		const url = new URL(minioUrl);
 
 		return `${url.protocol}//${url.hostname}:${url.port}/${bucket}/${filePath}`;
+	}
+
+	async getBucketSize(bucket: Bucket) {
+		return await new Promise(resolve => {
+			const stream = minio.server?.listObjectsV2(bucket, '', true);
+
+			if (!stream) {
+				return resolve(null);
+			}
+			let totalSize = 0;
+			let objectCount = 0;
+
+			stream.on('error', () => {
+				resolve(null);
+			}).on('end', () => {
+				resolve({
+					bucket,
+					totalSize,
+					totalSizeFormatted: (totalSize / 1024 / 1024).toFixed(2) + ' MB',
+					objectCount
+				});
+			}).on('data', (obj) => {
+				if (obj.size) {
+					totalSize += obj.size;
+					objectCount++;
+				}
+			});
+		});
 	}
 
 	private async listBucketContent(bucket: string, prefix?: string): Promise<Array<BucketItem>> {

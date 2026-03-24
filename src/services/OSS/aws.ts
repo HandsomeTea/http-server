@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { Readable, Transform } from 'stream';
 import { pipeline } from 'stream/promises';
 import { Upload } from '@aws-sdk/lib-storage';
@@ -22,7 +23,14 @@ export default new class CephOSSService {
         // }).catch((err) => {
         //     console.log(err);
         // });
+        // (async () => { })();
     }
+
+    // private async createBucket(bucket: string) {
+    //     const command = new CreateBucketCommand({ Bucket: bucket });
+
+    //     return await aws.server?.send(command);
+    // }
 
     /** 列出所有bucket */
     async listBuckets() {
@@ -34,6 +42,12 @@ export default new class CephOSSService {
     /** 列出当前bucket所有object */
     async listObjects() {
         const command = new ListObjectsCommand({ Bucket: this.bucket });
+
+        return await aws.server?.send(command);
+    }
+
+    async getObjectInfo(pathInBucket: string) {
+        const command = new HeadObjectCommand({ Bucket: this.bucket, Key: pathInBucket });
 
         return await aws.server?.send(command);
     }
@@ -247,6 +261,25 @@ export default new class CephOSSService {
         } catch (e) {
             log('aws-temporary-upload').error(e);
             throw new Exception(`create temporary upload url from aws failed: ${String(e)}`);
+        }
+    }
+
+    async getTemporaryDownloadUrl(address: string) {
+        try {
+            const [, pathInBucket] = address.split(this.bucket);
+            const command = new GetObjectCommand({
+                Bucket: this.bucket,
+                Key: pathInBucket,
+                ResponseContentDisposition: `attachment; filename="${encodeURIComponent(path.basename(address))}"`
+            })
+            const url = await getSignedUrl(aws.server as S3Client, command, {
+                expiresIn: 10, // 10秒
+            });
+
+            return url;
+        } catch (err) {
+            log().error(err);
+            throw new Exception('get temporary download url failed');
         }
     }
 };
