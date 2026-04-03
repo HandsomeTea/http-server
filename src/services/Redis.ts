@@ -29,25 +29,29 @@ class RedisService {
         return `bundle:log:${bundleRecordId}`;
     }
 
-    async publishBundleLog(bundleRecordId: string, log: string, level?: 'debug' | 'info' | 'warning' | 'error') {
-        const redisKey = this.bundleLogSavedKey(bundleRecordId);
-
-        if (!this.expiredKeyMap[redisKey]) {
-            const expired = 8 * 60 * 60;
-
-            this.expiredKeyMap[redisKey] = expired;
-
+    /**
+     *
+     * @param key
+     * @param expire 单位：秒
+     */
+    private async setKeyExpire(key: string, expire: number) {
+        if (!this.expiredKeyMap[key]) {
+            this.expiredKeyMap[key] = expire;
             let timer: null | NodeJS.Timeout = setTimeout(() => {
-                delete this.expiredKeyMap[redisKey];
+                delete this.expiredKeyMap[key];
 
                 if (timer) {
                     clearTimeout(timer);
                     timer = null;
                 }
-            }, expired * 1000);
+            }, expire * 1000);
 
-            await redis.server?.expire(redisKey, this.expiredKeyMap[redisKey]);
+            await redis.server?.expire(key, expire);
         }
+    }
+
+    async publishBundleLog(bundleRecordId: string, log: string, level?: 'debug' | 'info' | 'warning' | 'error') {
+        const redisKey = this.bundleLogSavedKey(bundleRecordId);
         const subKey = this.bundleLogSubChannel(bundleRecordId);
 
         if (level === 'error') {
@@ -60,6 +64,10 @@ class RedisService {
             log = `\x1B[36;1m${log}\x1B[0;m\n`;
         }
         await redis.server?.rpush(redisKey, log);
+        await this.setKeyExpire(redisKey, 8 * 60 * 60);
+        if (log.includes('[#&log-end&#]')) {
+            delete this.expiredKeyMap[redisKey];
+        }
         await redis.server?.publish(subKey, log);
     }
 }

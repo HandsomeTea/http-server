@@ -6,14 +6,14 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ListBucketsCommand, ListObjectsCommand, PutObjectCommand, GetObjectCommand, HeadObjectCommand, DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import aws from '@/tools/aws';
-import { getENV, log } from '@/configs';
+import { log } from '@/configs';
 
 export default new class CephOSSService {
     private bucket = 'my-test-bucket';
 
     constructor() {
         // my-test-bucket
-        // this.uploadFile({ localAbsolutePath: '/home/SENSETIME/liuhaifeng/obb_carplate_quant.tar' }, '/test/test.tar').then((res) => {
+        // this.uploadFile({ localAbsolutePath: '/home/SENSETIME/liuhaifeng/internal-ops.tar.xz' }, 'test/test1.tar.xz').then((res) => {
         // this.downloadFile({ address: 'http://10.155.172.238:30081/my-test-bucket//test/test.tar' }, './aaa.tar').then((res) => {
         // this.getTemporaryUploadUrl('text.mark.txt', 'txt').then((res) => {
         //     // http://10.155.172.238:30081/my-test-bucket//test/test.tar
@@ -24,6 +24,13 @@ export default new class CephOSSService {
         //     console.log(err);
         // });
         // (async () => { })();
+    }
+
+    async bucketExist(bucket: string) {
+        const command = new ListBucketsCommand({});
+        const { Buckets } = await aws.server?.send(command) || {};
+
+        return !!Buckets?.find(b => b.Name === bucket);
     }
 
     // private async createBucket(bucket: string) {
@@ -54,17 +61,18 @@ export default new class CephOSSService {
 
     /**根据pathInBucket生成文件在oss的地址 */
     private getAddress(pathInBucket: string) {
-        return `${new URL(getENV('AWS_URL')).origin}/${this.bucket}/${pathInBucket}`;
+        // return `${new URL(getENV('AWS_URL')).origin}/${this.bucket}/${pathInBucket}`;
+        return `${this.bucket}/${pathInBucket}`;
     }
 
     private getPathInBucket(address: string) {
-        return address.replace(`${new URL(getENV('AWS_URL')).origin}/${this.bucket}/`, '');
+        return address.split(this.bucket)[1].substring(1);
     }
 
     /**
      * 上传文件
      * @param file 要上传的文件的内容/Buffer(fs.readFileSync())/本地绝对路径
-     * @param pathInBucket 上传到bucket中的路径，例如：test/test.txt，则上传到bucket的test文件夹下，文件名为test.txt
+     * @param pathInBucket 上传到bucket中的路径，不要以/开头，例如：test/test.txt，则上传到bucket的test文件夹下，文件名为test.txt
      * @param expireAt 过期时间
      * @returns
      */
@@ -83,13 +91,13 @@ export default new class CephOSSService {
             return { address: this.getAddress(pathInBucket), pathInBucket };
         } else if (localAbsolutePath) {
             const fileStream = fs.createReadStream(localAbsolutePath);
-            const parallelUploads3 = new Upload({
+            const parallelUpload = new Upload({
                 client: aws.server as S3Client,
                 params: {
                     Bucket: this.bucket,
                     Key: pathInBucket,
                     Body: fileStream,
-                    ContentType: "application/octet-stream",
+                    ContentType: 'application/octet-stream',
                 },
                 queueSize: 4, // 并发上传的分片数量
                 partSize: 5 * 1024 * 1024, // 每个分片的大小（默认 5MB，Ceph 通常也支持这个最小值）
@@ -97,7 +105,7 @@ export default new class CephOSSService {
             });
 
             // // 监听进度
-            // parallelUploads3.on('httpUploadProgress', progress => {
+            // parallelUpload.on('httpUploadProgress', progress => {
             //     if (!progress) {
             //         return;
             //     }
@@ -106,9 +114,10 @@ export default new class CephOSSService {
             // });
 
             try {
-                const { Location, Key } = await parallelUploads3.done();
+                const { /*Location, */Key } = await parallelUpload.done();
 
-                return { address: Location, pathInBucket: Key };
+                // return { address: Location, pathInBucket: Key };
+                return { address: this.getAddress(Key || pathInBucket), pathInBucket: Key || pathInBucket };
             } catch (e) {
                 log('aws-upload').error(e);
                 throw new Exception(`upload file to aws oss failed: ${String(e)}`);
