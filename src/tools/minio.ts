@@ -25,8 +25,11 @@ export default new class Minio {
                 port: parseInt(url.port),
                 useSSL: false,
                 accessKey: minioAccessKey,
-                secretKey: minioSecretKey
+                secretKey: minioSecretKey,
+                pathStyle: true
             });
+
+            /** 也兼容aws */
 
             await this.service.bucketExists('test');
             this._isOK = true;

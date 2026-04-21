@@ -5,7 +5,7 @@ import schedule from 'node-schedule';
  * @param data
  * @returns
  */
-export const setScheduleRule = (data: {
+export const generateScheduleRule = (data: {
     unit: 'month' | 'week' | 'day'
     /** unit为month和week时，unitData为必须1 */
     unitData: number

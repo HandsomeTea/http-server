@@ -27,7 +27,9 @@ export default new class Ceph {
                 credentials: {
                     accessKeyId,
                     secretAccessKey
-                }
+                },
+                /** true则文件的存储地址为endpoint/bucket/key(兼容minio)，否则为bucket.endpoint/key */
+                forcePathStyle: true
             });
 
             const command = new ListBucketsCommand({});

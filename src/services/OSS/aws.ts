@@ -134,6 +134,27 @@ export default new class CephOSSService {
         const response = await aws.server?.send(command);
         const stream = await response?.Body?.transformToWebStream();
 
+        // 向前端推流做法
+        // const stream = response?.Body as Readable;
+
+        // if (stream) {
+        //     res.setHeader('Content-Type', 'application/octet-stream');
+        //     res.setHeader('Content-Disposition', `attachment; filename="${actionName}-${new Date(actionCreateTime).toLocaleString()}.action.log"`);
+
+        //     stream.pipe(res);
+        //     stream.on('error', (err) => {
+        //         if (!res.headersSent) {
+        //             throw new Exception(err.message);
+        //         }
+        //     });
+
+        //     res.on('close', () => {
+        //         if (!stream.destroyed) {
+        //             stream.destroy();
+        //         }
+        //     });
+        // }
+
         if (!stream) {
             return;
         }
